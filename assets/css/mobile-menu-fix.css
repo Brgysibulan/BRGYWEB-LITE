@@ -1,10 +1,81 @@
-/* Mobile navigation hotfix: keep the off-canvas drawer above its backdrop.
-   The backdrop is appended to <body>, while the drawer lives inside .site-header.
-   Without this stacking order the backdrop can sit above the drawer, blur it,
-   darken it, and intercept taps. */
+/* Mobile navigation + layout safety layer.
+   Desktop Design Studio layouts must never shrink, offset, or horizontally
+   overflow the public website on phones/tablets. */
 @media (max-width: 1199.98px) {
+  html,
+  body {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    overflow-x: hidden !important;
+  }
+
+  html[data-public-nav-position="left"] body,
+  html[data-public-nav-position="floating"] body {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  html[data-public-nav-position="left"] .site-header,
+  html[data-public-nav-position="floating"] .site-header,
   .site-header {
+    position: sticky !important;
+    inset: auto !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    height: auto !important;
+    margin: 0 !important;
+    border-radius: 0 !important;
+    transform: none !important;
     z-index: 1040 !important;
+  }
+
+  body > main,
+  .site-footer {
+    display: block !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+    transform: none !important;
+  }
+
+  .site-header .navbar,
+  .site-header .container,
+  body > main > section,
+  .site-footer .container {
+    width: 100% !important;
+    max-width: 100% !important;
+    min-width: 0 !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  html[data-public-nav-position="left"] .site-header .navbar {
+    height: auto !important;
+    min-height: 64px !important;
+    align-items: center !important;
+    padding: .55rem 0 !important;
+  }
+
+  html[data-public-nav-position="left"] .site-header .container {
+    height: auto !important;
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+  }
+
+  html[data-public-nav-position="left"] .site-header .navbar-brand {
+    margin-right: 1rem !important;
+    margin-bottom: 0 !important;
   }
 
   .public-nav-backdrop {
