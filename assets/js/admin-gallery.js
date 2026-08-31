@@ -10,6 +10,7 @@
   const refresh = document.getElementById('gallery-refresh');
   const imageInput = document.getElementById('gallery-image');
   const preview = document.getElementById('gallery-preview');
+  let previewObjectUrl = null;
 
   function setStatus(message, isError = false) {
     status.textContent = message || '';
@@ -37,7 +38,13 @@
     return index >= 0 ? decodeURIComponent(String(url).slice(index + marker.length)) : null;
   }
 
-  function resetForm() {
+  function clearPreviewObjectUrl() {
+    if (previewObjectUrl) URL.revokeObjectURL(previewObjectUrl);
+    previewObjectUrl = null;
+  }
+
+  function resetForm(clearStatus = true) {
+    clearPreviewObjectUrl();
     form.reset();
     document.getElementById('gallery-id').value = '';
     document.getElementById('gallery-current-url').value = '';
@@ -48,18 +55,18 @@
     cancel.classList.add('d-none');
     preview.src = '';
     preview.classList.add('d-none');
-    setStatus('');
+    if (clearStatus) setStatus('');
   }
 
   function render(items) {
     if (!items.length) {
-      list.innerHTML = '<div class="col-12"><div class="text-secondary">No gallery items yet.</div></div>';
+      list.innerHTML = '<div class="col-12"><div class="empty-state">No gallery items yet.</div></div>';
       return;
     }
     list.innerHTML = items.map((item) => `
       <div class="col-md-6">
         <article class="border rounded-3 overflow-hidden h-100 bg-white">
-          <img src="${esc(item.image_url)}" alt="${esc(item.title || item.caption || 'Gallery image')}" style="width:100%;height:180px;object-fit:cover">
+          <img src="${esc(item.image_url)}" alt="${esc(item.title || item.caption || 'Gallery image')}" style="width:100%;height:180px;object-fit:cover" loading="lazy">
           <div class="p-3">
             <div class="d-flex justify-content-between gap-2 align-items-start">
               <div><strong>${esc(item.title || 'Untitled')}</strong><div class="small text-secondary">${esc(item.album || 'No album')} · Order ${Number(item.sort_order) || 0}</div></div>
@@ -76,7 +83,7 @@
   }
 
   async function loadItems() {
-    list.innerHTML = '<div class="col-12 text-secondary">Loading gallery...</div>';
+    list.innerHTML = '<div class="col-12"><div class="empty-state">Loading gallery...</div></div>';
     const { data, error } = await client.from('gallery_items').select('id,title,caption,image_url,album,sort_order,is_published,created_at').order('sort_order', { ascending: true }).order('created_at', { ascending: false });
     if (error) throw error;
     render(data || []);
@@ -98,15 +105,21 @@
 
   async function deleteStoredImage(url) {
     const path = storagePathFromUrl(url);
-    if (!path) return;
+    if (!path) return true;
     const { error } = await client.storage.from(bucket).remove([path]);
-    if (error) console.warn('Unable to remove old gallery file:', error);
+    if (error) {
+      console.warn('Unable to remove gallery file:', error);
+      return false;
+    }
+    return true;
   }
 
   imageInput.addEventListener('change', () => {
+    clearPreviewObjectUrl();
     const file = imageInput.files?.[0];
     if (!file) return;
-    preview.src = URL.createObjectURL(file);
+    previewObjectUrl = URL.createObjectURL(file);
+    preview.src = previewObjectUrl;
     preview.classList.remove('d-none');
   });
 
@@ -139,9 +152,11 @@
       const query = id ? client.from('gallery_items').update(payload).eq('id', id) : client.from('gallery_items').insert(payload);
       const { error } = await query;
       if (error) throw error;
-      if (id && uploaded && currentUrl && currentUrl !== imageUrl) await deleteStoredImage(currentUrl);
-      setStatus(id ? 'Gallery item updated.' : 'Gallery item uploaded.');
-      resetForm();
+
+      let cleanupOkay = true;
+      if (id && uploaded && currentUrl && currentUrl !== imageUrl) cleanupOkay = await deleteStoredImage(currentUrl);
+      resetForm(false);
+      setStatus(cleanupOkay ? (id ? 'Gallery item updated.' : 'Gallery item uploaded.') : 'Gallery item saved, but the old image could not be removed.');
       await loadItems();
     } catch (error) {
       if (uploaded?.url) await deleteStoredImage(uploaded.url);
@@ -159,6 +174,7 @@
       const id = edit.getAttribute('data-edit');
       const { data, error } = await client.from('gallery_items').select('id,title,caption,image_url,album,sort_order,is_published').eq('id', id).single();
       if (error) return setStatus(error.message, true);
+      clearPreviewObjectUrl();
       document.getElementById('gallery-id').value = data.id;
       document.getElementById('gallery-current-url').value = data.image_url;
       document.getElementById('gallery-title').value = data.title || '';
@@ -182,8 +198,8 @@
         if (readError) throw readError;
         const { error } = await client.from('gallery_items').delete().eq('id', id);
         if (error) throw error;
-        await deleteStoredImage(data.image_url);
-        setStatus('Gallery item deleted.');
+        const cleanupOkay = await deleteStoredImage(data.image_url);
+        setStatus(cleanupOkay ? 'Gallery item deleted.' : 'Gallery record deleted, but its image could not be removed from Storage.', !cleanupOkay);
         await loadItems();
       } catch (error) {
         console.error(error);
@@ -193,7 +209,7 @@
     }
   });
 
-  cancel.addEventListener('click', resetForm);
+  cancel.addEventListener('click', () => resetForm());
   refresh.addEventListener('click', () => loadItems().catch((error) => setStatus(error.message, true)));
 
   (async () => {
