@@ -2,9 +2,20 @@
   'use strict';
 
   const SITE_CACHE_KEY = 'brgyweb:site-settings:v2';
+  const UI_VERSION = '20260901-premium1';
   const header = document.querySelector('.site-header');
   const footer = document.querySelector('.site-footer');
   const page = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+
+  function ensurePremiumStyles() {
+    if (document.querySelector('link[data-brgy-premium-public]')) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = `assets/css/premium-public.css?v=${UI_VERSION}`;
+    link.dataset.brgyPremiumPublic = 'true';
+    document.head.appendChild(link);
+  }
+  ensurePremiumStyles();
 
   const escapeHtml = (value) => String(value ?? '')
     .replaceAll('&', '&amp;')
@@ -45,14 +56,52 @@
     ['contact.html', 'Contact']
   ];
 
-  const adminMenu = `<li class="nav-item ms-xl-2"><a class="btn btn-sm btn-outline-light" href="editor/login.html">Admin</a></li>`;
+  const adminMenu = `<li class="nav-item ms-xl-2"><a class="btn btn-sm btn-outline-light" href="editor/login.html">Admin Portal</a></li>`;
 
   if (header) {
-    header.innerHTML = `<nav class="navbar navbar-expand-xl navbar-dark"><div class="container"><a class="navbar-brand d-flex align-items-center gap-2" href="index.html" aria-label="Home"><span class="brand-mark" id="brand-mark" aria-hidden="true">${escapeHtml(initialMark)}</span><img class="brand-logo d-none" id="brand-logo" alt=""><span id="site-name">${escapeHtml(initialName)}</span></a><button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation"><span class="navbar-toggler-icon"></span></button><div class="collapse navbar-collapse" id="mainNav"><ul class="navbar-nav ms-auto align-items-xl-center gap-xl-1">${navItems.map(([href,label]) => `<li class="nav-item"><a class="nav-link${page === href ? ' active' : ''}" href="${href}"${page === href ? ' aria-current="page"' : ''}>${label}</a></li>`).join('')}${adminMenu}</ul></div></div></nav>`;
+    header.innerHTML = `<nav class="navbar navbar-expand-xl navbar-dark"><div class="container"><a class="navbar-brand d-flex align-items-center gap-2" href="index.html" aria-label="Home"><span class="brand-mark" id="brand-mark" aria-hidden="true">${escapeHtml(initialMark)}</span><img class="brand-logo d-none" id="brand-logo" alt=""><span id="site-name">${escapeHtml(initialName)}</span></a><button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Open navigation"><span class="navbar-toggler-icon"></span></button><div class="collapse navbar-collapse" id="mainNav"><div class="public-mobile-menu-head"><div><strong>Navigation</strong><small>Official barangay website</small></div><button class="public-menu-close" type="button" aria-label="Close navigation">×</button></div><ul class="navbar-nav ms-auto align-items-xl-center gap-xl-1">${navItems.map(([href,label]) => `<li class="nav-item"><a class="nav-link${page === href ? ' active' : ''}" href="${href}"${page === href ? ' aria-current="page"' : ''}>${label}</a></li>`).join('')}${adminMenu}</ul></div></div></nav>`;
+
+    const backdrop = document.createElement('div');
+    backdrop.className = 'public-nav-backdrop';
+    backdrop.setAttribute('aria-hidden','true');
+    document.body.appendChild(backdrop);
+
+    const collapseElement = document.getElementById('mainNav');
+    const toggler = header.querySelector('.navbar-toggler');
+
+    function setMenuState(open) {
+      document.body.classList.toggle('public-menu-open', open);
+      backdrop.classList.toggle('show', open);
+      backdrop.setAttribute('aria-hidden', open ? 'false' : 'true');
+      toggler?.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
+    }
+
+    function closeMenu() {
+      if (!collapseElement) return;
+      if (window.bootstrap?.Collapse) {
+        window.bootstrap.Collapse.getOrCreateInstance(collapseElement, { toggle:false }).hide();
+      } else {
+        collapseElement.classList.remove('show');
+        setMenuState(false);
+      }
+    }
+
+    collapseElement?.addEventListener('show.bs.collapse', () => setMenuState(true));
+    collapseElement?.addEventListener('shown.bs.collapse', () => setMenuState(true));
+    collapseElement?.addEventListener('hide.bs.collapse', () => setMenuState(false));
+    collapseElement?.addEventListener('hidden.bs.collapse', () => setMenuState(false));
+    header.querySelector('.public-menu-close')?.addEventListener('click', closeMenu);
+    backdrop.addEventListener('click', closeMenu);
+    collapseElement?.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => {
+      if (window.matchMedia('(max-width:1199.98px)').matches) closeMenu();
+    }));
+    window.addEventListener('resize', () => {
+      if (window.innerWidth >= 1200) setMenuState(false);
+    });
   }
 
   if (footer) {
     footer.classList.add('py-5');
-    footer.innerHTML = `<div class="container"><div class="row g-4 align-items-start"><div class="col-lg-7"><h2 class="h5 mb-2" id="footer-name">${escapeHtml(initialName)}</h2><p class="mb-0 text-white-50">Official barangay information, transparency, verification, downloadable forms, and public service portal.</p></div><div class="col-lg-5 text-lg-end"><p class="mb-1" id="footer-address">${escapeHtml(initialAddress)}</p><p class="mb-3" id="footer-contact">${escapeHtml(initialContact)}</p><a class="btn btn-sm btn-outline-light" href="contact.html">Contact Barangay Office</a></div></div><hr class="border-light opacity-25 my-4"><p class="small mb-0 text-white-50">&copy; <span id="current-year"></span> <span id="copyright-name">${escapeHtml(initialName)}</span>. All rights reserved.</p></div>`;
+    footer.innerHTML = `<div class="container"><div class="row g-4 align-items-start"><div class="col-lg-7"><span class="eyebrow mb-3">Official Digital Portal</span><h2 class="h4 mb-2" id="footer-name">${escapeHtml(initialName)}</h2><p class="mb-0 text-white-50">Official barangay information, public services, transparency records, downloadable forms, and verification in one secure digital portal.</p></div><div class="col-lg-5 text-lg-end"><p class="mb-1" id="footer-address">${escapeHtml(initialAddress)}</p><p class="mb-3" id="footer-contact">${escapeHtml(initialContact)}</p><div class="d-flex flex-wrap gap-2 justify-content-lg-end"><a class="btn btn-sm btn-outline-light" href="forms.html">Download Forms</a><a class="btn btn-sm btn-outline-light" href="contact.html">Contact Barangay Office</a></div></div></div><hr class="border-light opacity-25 my-4"><div class="d-flex flex-wrap justify-content-between gap-2"><p class="small mb-0 text-white-50">&copy; <span id="current-year"></span> <span id="copyright-name">${escapeHtml(initialName)}</span>. All rights reserved.</p><p class="small mb-0 text-white-50">Official community information portal</p></div></div>`;
   }
 })();
