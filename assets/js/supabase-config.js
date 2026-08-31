@@ -44,4 +44,14 @@
     shellScript.dataset.brgyAdminShell = 'true';
     document.head.appendChild(shellScript);
   }
+
+  if (isStaffPage && !isLoginPage) {
+    window.setTimeout(() => {
+      const root = document.documentElement;
+      if (root.dataset.adminUiReady !== 'true') {
+        console.warn('Admin UI boot exceeded safe wait time; revealing current interface.');
+        root.dataset.adminUiReady = 'true';
+      }
+    }, 6000);
+  }
 })();
