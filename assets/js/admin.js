@@ -12,7 +12,11 @@
   const editorManageStatus = document.getElementById('editor-manage-status');
   const refreshButton = document.getElementById('dashboard-refresh');
   const activityRefresh = document.getElementById('activity-refresh');
-  const isDashboard = /\/admin\/dashboard\.html$/.test(window.location.pathname);
+  const path = window.location.pathname;
+  const isDashboard = /\/admin\/dashboard\.html$/.test(path);
+  const isSettingsPage = /\/admin\/settings\.html$/.test(path);
+  const isEditorsPage = /\/admin\/editors\.html$/.test(path);
+  const isProtectedAdminPage = isDashboard || isSettingsPage || isEditorsPage;
 
   const setStatus = (message, error = false) => {
     if (!status) return;
@@ -188,8 +192,7 @@
       label: activityLabel(module.key, row),
       time: row.updated_at || row.created_at || null,
       published: row[module.flag] === true
-    }))).filter((item) => item.time).sort((a,b) => new Date(b.time) - new Date(a.time)).slice(0, 8);
-
+    }))).filter((item) => item.time).sort((a,b) => new Date(b.time) - new Date(a.time)).slice(0, 6);
     if (!items.length) {
       target.innerHTML = '<div class="text-secondary">No recent content activity yet.</div>';
       return;
@@ -219,7 +222,6 @@
       const total = modules.reduce((sum, module) => sum + module.rows.length, 0);
       const hidden = Math.max(0, total - published);
       const percent = total ? Math.round((published / total) * 100) : 0;
-
       text('metric-published', published);
       text('metric-hidden', hidden);
       text('metric-published-note', `${total} total content records`);
@@ -230,10 +232,8 @@
       if (donut) donut.style.setProperty('--published-angle', `${percent * 3.6}deg`);
       const health = document.getElementById('content-health-label');
       if (health) health.textContent = total ? `${percent}% public` : 'No content yet';
-
       renderModuleBars(modules);
       renderActivity(modules);
-
       const { count, error } = await client.from('verification_records').select('id', { count:'exact', head:true });
       text('metric-verification', error ? '—' : (count ?? 0));
     } catch (error) {
@@ -306,13 +306,11 @@
   refreshButton?.addEventListener('click', async () => Promise.all([loadDashboardData(), loadEditors()]));
   activityRefresh?.addEventListener('click', loadDashboardData);
 
-  if (isDashboard) requireAdmin().then(async (ok) => {
+  if (isProtectedAdminPage) requireAdmin().then(async (ok) => {
     if (!ok) return;
-    await Promise.all([
-      siteSettingsForm ? loadSiteSettings() : null,
-      loadEditors(),
-      loadDashboardData()
-    ]);
+    if (isDashboard) await Promise.all([loadEditors(), loadDashboardData()]);
+    if (isSettingsPage) await loadSiteSettings();
+    if (isEditorsPage) await loadEditors();
   });
 
   if (signout) signout.addEventListener('click', async () => {
