@@ -2,7 +2,7 @@
   'use strict';
 
   const SITE_CACHE_KEY = 'brgyweb:site-settings:v2';
-  const UI_VERSION = '20260901-premium2';
+  const UI_VERSION = '20260901-mobilefix1';
   const header = document.querySelector('.site-header');
   const footer = document.querySelector('.site-footer');
   const page = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
@@ -18,6 +18,7 @@
 
   addStyle('premium-public', 'premium-public.css');
   addStyle('premium-pages', 'premium-pages.css');
+  addStyle('mobile-menu-fix', 'mobile-menu-fix.css');
   document.body.dataset.publicPage = page.replace(/\.html$/,'') || 'home';
 
   const escapeHtml = (value) => String(value ?? '')
