@@ -21,18 +21,29 @@
     return data;
   }
 
-  async function requireEditor() {
+  function canUseEditorPanel(profile) {
+    return Boolean(profile && profile.is_active === true && ['admin', 'editor'].includes(profile.role));
+  }
+
+  function cacheStaffRole(role) {
+    try {
+      if (role === 'admin' || role === 'editor') localStorage.setItem('brgyweb:staff-role:v1', role);
+    } catch {}
+  }
+
+  async function requireEditorPanelAccess() {
     if (!client) { window.location.href = 'login.html'; return false; }
     const { data, error } = await client.auth.getUser();
     const user = data?.user;
     if (error || !user) { window.location.href = 'login.html'; return false; }
     try {
       const profile = await getRole(user.id);
-      if (!profile || profile.role !== 'editor' || profile.is_active !== true) {
+      if (!canUseEditorPanel(profile)) {
         await client.auth.signOut();
         window.location.href = 'login.html';
         return false;
       }
+      cacheStaffRole(profile.role);
       return true;
     } catch (error) {
       console.error(error);
@@ -106,17 +117,18 @@
       }
       try {
         const profile = await getRole(data.user.id);
-        if (!profile || profile.role !== 'editor' || profile.is_active !== true) {
+        if (!canUseEditorPanel(profile)) {
           await client.auth.signOut();
-          setStatus('This account does not have active editor access.', true);
+          setStatus('This account does not have active staff access.', true);
           if (button) button.disabled = false;
           return;
         }
+        cacheStaffRole(profile.role);
         window.location.href = 'dashboard.html';
       } catch (error) {
         console.error(error);
         await client.auth.signOut();
-        setStatus('Unable to verify editor access.', true);
+        setStatus('Unable to verify staff access.', true);
         if (button) button.disabled = false;
       }
     });
@@ -125,7 +137,7 @@
   refresh?.addEventListener('click', loadStats);
 
   if (isDashboard) {
-    requireEditor().then((allowed) => {
+    requireEditorPanelAccess().then((allowed) => {
       if (allowed) loadStats();
     });
   }
@@ -133,6 +145,7 @@
   if (signout) {
     signout.addEventListener('click', async () => {
       if (client) await client.auth.signOut();
+      try { localStorage.removeItem('brgyweb:staff-role:v1'); } catch {}
       window.location.href = 'login.html';
     });
   }
