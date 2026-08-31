@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Announcements Manager</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/admin.css">
+</head>
+<body class="dashboard-page">
+  <main class="container py-4 py-lg-5">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+      <div><span class="eyebrow">Content Manager</span><h1 class="h3 mb-0">Announcements</h1></div>
+      <div class="d-flex gap-2"><a class="btn btn-outline-dark" href="dashboard.html">Dashboard</a><a class="btn btn-outline-dark" href="../announcements.html">Public Page</a></div>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-lg-5">
+        <section class="section-card">
+          <h2 class="h5 mb-3" id="announcement-form-title">Add Announcement</h2>
+          <form id="announcement-form" class="row g-3">
+            <input id="announcement-id" type="hidden">
+            <div class="col-12"><label class="form-label" for="announcement-title">Title</label><input class="form-control" id="announcement-title" type="text" required maxlength="180"></div>
+            <div class="col-12"><label class="form-label" for="announcement-excerpt">Short Summary</label><textarea class="form-control" id="announcement-excerpt" rows="2" maxlength="500"></textarea></div>
+            <div class="col-12"><label class="form-label" for="announcement-content">Full Content</label><textarea class="form-control" id="announcement-content" rows="7"></textarea></div>
+            <div class="col-12"><label class="form-label" for="announcement-cover">Cover Image URL</label><input class="form-control" id="announcement-cover" type="url" placeholder="https://..."></div>
+            <div class="col-md-6"><label class="form-label" for="announcement-date">Publish Date</label><input class="form-control" id="announcement-date" type="datetime-local"></div>
+            <div class="col-md-6 d-flex flex-column justify-content-end gap-2">
+              <div class="form-check"><input class="form-check-input" id="announcement-featured" type="checkbox"><label class="form-check-label" for="announcement-featured">Featured</label></div>
+              <div class="form-check"><input class="form-check-input" id="announcement-published" type="checkbox" checked><label class="form-check-label" for="announcement-published">Published</label></div>
+            </div>
+            <div class="col-12 d-flex gap-2"><button class="btn btn-dark" type="submit">Save Announcement</button><button class="btn btn-outline-secondary" id="announcement-cancel" type="button" hidden>Cancel Edit</button></div>
+            <div class="col-12"><span id="announcement-status" class="small text-secondary" role="status"></span></div>
+          </form>
+        </section>
+      </div>
+
+      <div class="col-lg-7">
+        <section class="section-card">
+          <div class="d-flex justify-content-between align-items-center mb-3"><h2 class="h5 mb-0">Existing Announcements</h2><button class="btn btn-sm btn-outline-dark" id="announcement-refresh" type="button">Refresh</button></div>
+          <div id="announcement-list" class="d-grid gap-3"><div class="text-secondary">Loading announcements...</div></div>
+        </section>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../assets/js/supabase-config.js"></script>
+  <script src="../assets/js/admin-announcements.js"></script>
+</body>
+</html>
