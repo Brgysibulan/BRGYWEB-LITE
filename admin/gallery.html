@@ -13,36 +13,10 @@
       <div><span class="eyebrow">Content Manager</span><h1 class="h3 mb-0">Gallery</h1></div>
       <div class="d-flex gap-2"><a class="btn btn-outline-dark" href="dashboard.html">Dashboard</a><a class="btn btn-outline-secondary" href="../gallery.html">Public Gallery</a></div>
     </div>
-
     <div class="row g-4">
-      <div class="col-lg-5">
-        <section class="section-card sticky-lg-top" style="top:1rem">
-          <div class="section-card-head"><div><span class="eyebrow">Photo</span><h2 class="h5 mb-0" id="gallery-form-title">Add Gallery Item</h2></div></div>
-          <form id="gallery-form" class="row g-3 mt-1">
-            <input id="gallery-id" type="hidden">
-            <input id="gallery-current-url" type="hidden">
-            <div class="col-12"><label class="form-label" for="gallery-image">Image</label><input class="form-control" id="gallery-image" type="file" accept="image/jpeg,image/png,image/webp,image/gif"><div class="form-text">JPG, PNG, WebP, or GIF. Maximum 5 MB.</div></div>
-            <div class="col-12"><img id="gallery-preview" class="img-fluid rounded border d-none" alt="Selected gallery image preview" style="max-height:260px;object-fit:cover;width:100%"></div>
-            <div class="col-12"><label class="form-label" for="gallery-title">Title</label><input class="form-control" id="gallery-title" type="text" maxlength="160"></div>
-            <div class="col-12"><label class="form-label" for="gallery-album">Album</label><input class="form-control" id="gallery-album" type="text" maxlength="120" placeholder="Community Events"></div>
-            <div class="col-12"><label class="form-label" for="gallery-caption">Caption</label><textarea class="form-control" id="gallery-caption" rows="3" maxlength="1000"></textarea></div>
-            <div class="col-md-6"><label class="form-label" for="gallery-order">Display Order</label><input class="form-control" id="gallery-order" type="number" min="0" step="1" value="0"></div>
-            <div class="col-md-6 d-flex align-items-end"><div class="form-check form-switch mb-2"><input class="form-check-input" id="gallery-published" type="checkbox" checked><label class="form-check-label" for="gallery-published">Published</label></div></div>
-            <div class="col-12 d-flex flex-wrap gap-2"><button class="btn btn-dark" type="submit" id="gallery-save">Upload & Save</button><button class="btn btn-outline-secondary d-none" type="button" id="gallery-cancel">Cancel Edit</button></div>
-            <div class="col-12"><div id="gallery-status" class="small text-secondary" role="status"></div></div>
-          </form>
-        </section>
-      </div>
-      <div class="col-lg-7">
-        <section class="section-card">
-          <div class="section-card-head"><div><span class="eyebrow">Library</span><h2 class="h5 mb-0">Gallery Items</h2></div><button class="btn btn-sm btn-outline-dark" id="gallery-refresh" type="button">Refresh</button></div>
-          <div id="gallery-admin-list" class="row g-3 mt-1"><div class="col-12 text-secondary">Loading gallery...</div></div>
-        </section>
-      </div>
+      <div class="col-lg-5"><section class="section-card sticky-lg-top" style="top:1rem"><div class="section-card-head"><div><span class="eyebrow">Photo</span><h2 class="h5 mb-0" id="gallery-form-title">Add Gallery Item</h2></div></div><form id="gallery-form" class="row g-3 mt-1"><input id="gallery-id" type="hidden"><input id="gallery-current-url" type="hidden"><div class="col-12"><label class="form-label" for="gallery-image">Image</label><input class="form-control" id="gallery-image" type="file" accept="image/jpeg,image/png,image/webp,image/gif"><div class="form-text">JPG, PNG, WebP, or GIF. Maximum 5 MB.</div></div><div class="col-12"><img id="gallery-preview" class="img-fluid rounded border d-none" alt="Selected gallery image preview" style="max-height:260px;object-fit:cover;width:100%"></div><div class="col-12"><label class="form-label" for="gallery-title">Title</label><input class="form-control" id="gallery-title" type="text" maxlength="160"></div><div class="col-12"><label class="form-label" for="gallery-album">Album</label><input class="form-control" id="gallery-album" type="text" maxlength="120"></div><div class="col-12"><label class="form-label" for="gallery-caption">Caption</label><textarea class="form-control" id="gallery-caption" rows="3" maxlength="1000"></textarea></div><div class="col-md-6"><label class="form-label" for="gallery-order">Display Order</label><input class="form-control" id="gallery-order" type="number" min="0" step="1" value="0"></div><div class="col-md-6 d-flex align-items-end"><div class="form-check form-switch mb-2"><input class="form-check-input" id="gallery-published" type="checkbox" checked><label class="form-check-label" for="gallery-published">Published</label></div></div><div class="col-12 d-flex flex-wrap gap-2"><button class="btn btn-dark" type="submit" id="gallery-save">Upload & Save</button><button class="btn btn-outline-secondary d-none" type="button" id="gallery-cancel">Cancel Edit</button></div><div class="col-12"><div id="gallery-status" class="small text-secondary"></div></div></form></section></div>
+      <div class="col-lg-7"><section class="section-card"><div class="section-card-head"><div><span class="eyebrow">Library</span><h2 class="h5 mb-0">Gallery Items</h2></div><button class="btn btn-sm btn-outline-dark" id="gallery-refresh" type="button">Refresh</button></div><div id="gallery-admin-list" class="row g-3 mt-1"><div class="col-12 text-secondary">Loading gallery...</div></div></section></div>
     </div>
   </main>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../assets/js/supabase-config.js"></script>
-  <script src="../assets/js/admin-gallery.js"></script>
-</body>
-</html>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../assets/js/supabase-config.js"></script><script src="../assets/js/admin-gallery.js"></script><script src="../assets/js/staff-context.js"></script>
+</body></html>
