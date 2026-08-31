@@ -12,12 +12,12 @@
   const val = (id) => document.getElementById(id)?.value.trim() || '';
   const setStatus = (msg, err=false) => { if (!status) return; status.textContent=msg; status.className=`small ${err?'text-danger':msg?'text-success':'text-secondary'}`; };
 
-  async function requireAdmin() {
+  async function requireStaff() {
     if (!client) return false;
     const { data } = await client.auth.getUser();
     if (!data?.user) return false;
     const { data: profile, error } = await client.from('profiles').select('role,is_active').eq('user_id', data.user.id).maybeSingle();
-    return !error && profile?.role === 'admin' && profile?.is_active === true;
+    return !error && profile?.is_active === true && ['admin','editor'].includes(profile.role);
   }
 
   function resetForm() {
@@ -65,5 +65,5 @@
   cancel?.addEventListener('click', resetForm);
   signout?.addEventListener('click', async()=>{ if(client) await client.auth.signOut(); location.href='login.html'; });
 
-  (async()=>{ const allowed=await requireAdmin(); if(!allowed){ location.href='login.html'; return; } try{ await loadRows(); }catch(err){ console.error(err); setStatus(err?.message||'Unable to load directory.',true); } })();
+  (async()=>{ const allowed=await requireStaff(); if(!allowed){ location.href='login.html'; return; } try{ await loadRows(); }catch(err){ console.error(err); setStatus(err?.message||'Unable to load directory.',true); } })();
 })();
