@@ -2,7 +2,9 @@
   'use strict';
 
   const THEME_CACHE_KEY = 'brgyweb:design-theme:v1';
-  const ASSET_VERSION = '20260901-studio2';
+  const ASSET_VERSION = '20260901-responsive3';
+  let lastPublicTheme = null;
+  let resizeTimer = 0;
 
   const PUBLIC_DEFAULT = Object.freeze({
     preset:'civic',font:'system',radius:'rounded',density:'comfortable',
@@ -90,14 +92,17 @@
     };
   }
 
-  function addStyle(key,file){
-    if(document.querySelector(`link[data-brgy-${key}]`))return;
-    const link=document.createElement('link');
-    link.rel='stylesheet';
-    link.dataset[`brgy${key.replace(/(^|-)([a-z])/g,(_,a,b)=>b.toUpperCase())}`]='true';
-    const prefix=/\/(admin|editor)\//.test(location.pathname)?'../assets/css/':'assets/css/';
-    link.href=`${prefix}${file}?v=${ASSET_VERSION}`;
-    document.head.appendChild(link);
+  function isTouchLike(){
+    return navigator.maxTouchPoints>0 || window.matchMedia('(hover:none), (pointer:coarse)').matches;
+  }
+
+  function supportsAdvancedDesktopNav(){
+    return !isTouchLike() && window.matchMedia('(min-width:1366px) and (hover:hover) and (pointer:fine)').matches;
+  }
+
+  function effectiveNavPosition(requested){
+    if(requested==='top')return 'top';
+    return supportsAdvancedDesktopNav()?requested:'top';
   }
 
   function ensureStyles(){
@@ -120,14 +125,18 @@
   function applyPublic(input={}){
     ensureStyles();
     const theme=normalizePublic(input),root=document.documentElement;
+    const effectivePosition=effectiveNavPosition(theme.navPosition);
+    lastPublicTheme=theme;
     root.dataset.publicFont=theme.font;
     root.dataset.publicRadius=theme.radius;
     root.dataset.publicDensity=theme.density;
     root.dataset.publicNav=theme.navSkin;
     root.dataset.publicNavSkin=theme.navSkin;
-    root.dataset.publicNavPosition=theme.navPosition;
+    root.dataset.publicNavRequested=theme.navPosition;
+    root.dataset.publicNavPosition=effectivePosition;
     root.dataset.publicNavAlign=theme.navAlign;
     root.dataset.publicNavMode=theme.navMode;
+    root.dataset.publicResponsiveMode=effectivePosition===theme.navPosition?'desktop-capable':'safe-top';
     root.dataset.publicHero=theme.hero;
     root.dataset.publicCards=theme.cards;
     root.dataset.publicContentWidth=theme.contentWidth;
@@ -169,6 +178,12 @@
       return scope==='public'?applyPublic():applyAdmin();
     }
   }
+
+  window.addEventListener('resize',()=>{
+    if(!lastPublicTheme)return;
+    window.clearTimeout(resizeTimer);
+    resizeTimer=window.setTimeout(()=>applyPublic(lastPublicTheme),80);
+  },{passive:true});
 
   window.BRGY_THEME=Object.freeze({PUBLIC_DEFAULT,ADMIN_DEFAULT,publicPresets,adminPresets,normalizePublic,normalizeAdmin,applyPublic,applyAdmin,load,ensureStyles,readCache,writeCache});
   ensureStyles();
