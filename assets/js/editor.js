@@ -4,6 +4,8 @@
   const client = window.BRGY_SUPABASE;
   const form = document.getElementById('editor-login-form');
   const status = document.getElementById('editor-login-status');
+  const applicationForm = document.getElementById('content-admin-application-form');
+  const applicationStatus = document.getElementById('content-admin-application-status');
   const signout = document.getElementById('editor-signout');
   const refresh = document.getElementById('editor-refresh');
   const isDashboard = Boolean(signout);
@@ -15,35 +17,69 @@
     status.classList.toggle('text-secondary', !isError);
   }
 
+  function setApplicationStatus(message, isError = false) {
+    if (!applicationStatus) return;
+    applicationStatus.textContent = message;
+    applicationStatus.classList.toggle('text-danger', isError);
+    applicationStatus.classList.toggle('text-success', !isError && Boolean(message));
+    applicationStatus.classList.toggle('text-secondary', !isError && !message);
+  }
+
   async function getRole(userId) {
     const { data, error } = await client.from('profiles').select('role,is_active').eq('user_id', userId).maybeSingle();
     if (error) throw error;
     return data;
   }
 
-  function canUseEditorPanel(profile) {
-    return Boolean(profile && profile.is_active === true && ['admin', 'editor'].includes(profile.role));
+  function isApprovedContentAdmin(profile) {
+    return Boolean(profile && profile.role === 'editor' && profile.is_active === true);
   }
 
-  function cacheStaffRole(role) {
+  function cacheRole(role) {
     try {
       if (role === 'admin' || role === 'editor') localStorage.setItem('brgyweb:staff-role:v1', role);
     } catch {}
   }
 
-  async function requireEditorPanelAccess() {
+  async function routeExistingSession() {
+    if (!form || !client) return;
+    try {
+      const { data } = await client.auth.getUser();
+      if (!data?.user) return;
+      const profile = await getRole(data.user.id);
+      if (profile?.role === 'admin' && profile?.is_active === true) {
+        cacheRole('admin');
+        window.location.replace('../admin/dashboard.html');
+        return;
+      }
+      if (isApprovedContentAdmin(profile)) {
+        cacheRole('editor');
+        window.location.replace('dashboard.html');
+      }
+    } catch (error) {
+      console.warn('Unable to route existing session:', error);
+    }
+  }
+
+  async function requireContentAdminAccess() {
     if (!client) { window.location.href = 'login.html'; return false; }
     const { data, error } = await client.auth.getUser();
     const user = data?.user;
     if (error || !user) { window.location.href = 'login.html'; return false; }
     try {
       const profile = await getRole(user.id);
-      if (!canUseEditorPanel(profile)) {
+      if (profile?.role === 'admin' && profile?.is_active === true) {
+        cacheRole('admin');
+        window.location.replace('../admin/dashboard.html');
+        return false;
+      }
+      if (!isApprovedContentAdmin(profile)) {
         await client.auth.signOut();
+        try { localStorage.removeItem('brgyweb:staff-role:v1'); } catch {}
         window.location.href = 'login.html';
         return false;
       }
-      cacheStaffRole(profile.role);
+      cacheRole('editor');
       return true;
     } catch (error) {
       console.error(error);
@@ -117,13 +153,18 @@
       }
       try {
         const profile = await getRole(data.user.id);
-        if (!canUseEditorPanel(profile)) {
+        if (profile?.role === 'admin' && profile?.is_active === true) {
+          cacheRole('admin');
+          window.location.replace('../admin/dashboard.html');
+          return;
+        }
+        if (!isApprovedContentAdmin(profile)) {
           await client.auth.signOut();
-          setStatus('This account does not have active Content Admin access.', true);
+          setStatus('This account is not an approved active Content Admin account.', true);
           if (button) button.disabled = false;
           return;
         }
-        cacheStaffRole(profile.role);
+        cacheRole('editor');
         window.location.href = 'dashboard.html';
       } catch (error) {
         console.error(error);
@@ -134,12 +175,44 @@
     });
   }
 
+  if (applicationForm) {
+    applicationForm.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      if (!client) return setApplicationStatus('Supabase connection is unavailable.', true);
+      const displayName = document.getElementById('application-name')?.value.trim() || '';
+      const email = document.getElementById('application-email')?.value.trim().toLowerCase() || '';
+      const reason = document.getElementById('application-reason')?.value.trim() || '';
+      const button = applicationForm.querySelector('button[type="submit"]');
+      if (displayName.length < 2) return setApplicationStatus('Enter your full name.', true);
+      if (!email || !email.includes('@')) return setApplicationStatus('Enter a valid email address.', true);
+      if (button) button.disabled = true;
+      setApplicationStatus('Submitting application...');
+      const { error } = await client.from('content_admin_applications').insert({
+        display_name: displayName,
+        email,
+        reason: reason || null,
+      });
+      if (error) {
+        console.error(error);
+        const duplicate = error.code === '23505';
+        setApplicationStatus(duplicate ? 'A pending application already exists for this email.' : (error.message || 'Unable to submit application.'), true);
+        if (button) button.disabled = false;
+        return;
+      }
+      applicationForm.reset();
+      setApplicationStatus('Application submitted. Wait for System Admin approval. If approved, you will receive an activation email.');
+      if (button) button.disabled = false;
+    });
+  }
+
   refresh?.addEventListener('click', loadStats);
 
   if (isDashboard) {
-    requireEditorPanelAccess().then((allowed) => {
+    requireContentAdminAccess().then((allowed) => {
       if (allowed) loadStats();
     });
+  } else {
+    routeExistingSession();
   }
 
   if (signout) {
