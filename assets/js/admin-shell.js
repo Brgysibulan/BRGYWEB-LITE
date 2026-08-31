@@ -2,7 +2,7 @@
   'use strict';
 
   const ROLE_CACHE_KEY = 'brgyweb:staff-role:v1';
-  const ASSET_VERSION = '20260831d';
+  const ASSET_VERSION = '20260901roles1';
   const path = window.location.pathname;
   const inAdmin = /\/admin\//.test(path);
   const inEditor = /\/editor\//.test(path);
@@ -33,17 +33,17 @@
   }
 
   const cachedRoleAtBoot = readRoleCache();
-  let currentRole = cachedRoleAtBoot || (inEditor ? 'editor' : 'staff');
+  let currentRole = cachedRoleAtBoot || (inEditor ? 'editor' : 'admin');
 
   const labels = {
-    'dashboard.html':'Dashboard','announcements.html':'Announcements','officials.html':'Officials','services.html':'Services','directory.html':'Directory','disclosure.html':'Disclosure','gallery.html':'Gallery','profile.html':'Barangay Profile','verification.html':'Verification / QR','settings.html':'Site Settings','design-studio.html':'Design Studio','editors.html':'Editor Accounts'
+    'dashboard.html':'Dashboard','announcements.html':'Announcements','officials.html':'Officials','services.html':'Services','directory.html':'Directory','disclosure.html':'Disclosure','gallery.html':'Gallery','profile.html':'Barangay Profile','verification.html':'Verification / QR','settings.html':'Site Settings','design-studio.html':'Design Studio','editors.html':'Content Admin Accounts'
   };
 
   const contentItems = [
     ['announcements.html','Announcements'],['officials.html','Officials'],['services.html','Services'],['directory.html','Directory'],['disclosure.html','Disclosure'],['gallery.html','Gallery'],['profile.html','Barangay Profile']
   ];
   const adminItems = [
-    ['verification.html','Verification / QR'],['settings.html','Site Settings'],['design-studio.html','Design Studio'],['editors.html','Editor Accounts']
+    ['verification.html','Verification / QR'],['settings.html','Site Settings'],['design-studio.html','Design Studio'],['editors.html','Content Admin Accounts']
   ];
 
   function ensureStyles() {
@@ -88,7 +88,7 @@
   }
 
   function sidebarMarkup(role) {
-    const roleLabel = role === 'admin' ? 'Administrator' : role === 'editor' ? 'Content Editor' : 'Staff';
+    const roleLabel = role === 'admin' ? 'System Admin' : 'Content Admin';
     const administration = role === 'admin' ? `<div class="sidebar-label">Administration</div>${adminItems.map(([target,label]) => navLink(target,label,role)).join('')}` : '';
     return `<div class="sidebar-head"><div class="sidebar-logo">B</div><div><div class="sidebar-brand">BRGYWEB-LITE</div><div class="sidebar-role-badge"><span class="sidebar-role-dot"></span><span class="sidebar-role">${roleLabel}</span></div></div></div><nav class="sidebar-nav mt-3"><div class="sidebar-label">Overview</div>${navLink('dashboard.html','Dashboard',role)}<div class="sidebar-label">Content</div>${contentItems.map(([target,label]) => navLink(target,label,role)).join('')}${administration}<div class="sidebar-divider"></div><button class="unified-signout" type="button" data-unified-signout>Sign out</button></nav><a class="sidebar-exit" href="../index.html">View public site</a>`;
   }
@@ -150,7 +150,7 @@
     if (!main.querySelector(':scope > .admin-mobile-bar')) {
       const mobile = document.createElement('div');
       mobile.className = 'admin-mobile-bar';
-      mobile.innerHTML = `<button class="admin-mobile-menu-btn" type="button" aria-label="Open admin menu" aria-expanded="false" data-admin-menu-toggle>☰</button><div class="admin-mobile-title"><strong>${labels[file] || document.title || 'Admin Panel'}</strong><small data-mobile-role>Staff workspace</small></div><a class="admin-mobile-public" href="../index.html">Public site</a>`;
+      mobile.innerHTML = `<button class="admin-mobile-menu-btn" type="button" aria-label="Open admin menu" aria-expanded="false" data-admin-menu-toggle>☰</button><div class="admin-mobile-title"><strong>${labels[file] || document.title || 'Admin Panel'}</strong><small data-mobile-role>Admin workspace</small></div><a class="admin-mobile-public" href="../index.html">Public site</a>`;
       main.prepend(mobile);
     }
     return { shell, main, sidebar, overlay };
@@ -162,7 +162,7 @@
     if (!layout) return;
     layout.sidebar.innerHTML = sidebarMarkup(currentRole);
     const mobileRole = layout.main.querySelector('[data-mobile-role]');
-    if (mobileRole) mobileRole.textContent = currentRole === 'admin' ? 'Administrator' : currentRole === 'editor' ? 'Content Editor' : 'Staff workspace';
+    if (mobileRole) mobileRole.textContent = currentRole === 'admin' ? 'System Admin' : 'Content Admin';
     const root = document.documentElement;
     root.dataset.staffRole = currentRole;
     root.dataset.adminShellReady = 'true';
@@ -233,7 +233,7 @@
       return;
     }
 
-    if (!cached) render(inEditor ? 'editor' : 'staff');
+    if (!cached) render(inEditor ? 'editor' : 'admin');
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once:true });
