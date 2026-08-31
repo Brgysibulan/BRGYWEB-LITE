@@ -111,12 +111,12 @@
     text('metric-editors', activeCount);
     if (!editorList) return;
     if (!editors?.length) {
-      editorList.innerHTML = '<tr><td colspan="4" class="text-secondary">No editor accounts yet.</td></tr>';
+      editorList.innerHTML = '<tr><td colspan="4" class="text-secondary">No Content Admin accounts yet.</td></tr>';
       return;
     }
     editorList.innerHTML = editors.map((item) => {
       const active = item.is_active === true;
-      return `<tr><td>${esc(item.display_name || 'Unnamed editor')}</td><td>${esc(item.email || '')}</td><td><span class="badge ${active ? 'text-bg-success' : 'text-bg-secondary'}">${active ? 'Active' : 'Disabled'}</span></td><td class="text-end"><button class="btn btn-sm ${active ? 'btn-outline-danger' : 'btn-outline-success'}" data-editor-toggle="${esc(item.user_id)}" data-active="${active}">${active ? 'Disable' : 'Enable'}</button></td></tr>`;
+      return `<tr><td>${esc(item.display_name || 'Unnamed Content Admin')}</td><td>${esc(item.email || '')}</td><td><span class="badge ${active ? 'text-bg-success' : 'text-bg-secondary'}">${active ? 'Active' : 'Disabled'}</span></td><td class="text-end"><button class="btn btn-sm ${active ? 'btn-outline-danger' : 'btn-outline-success'}" data-editor-toggle="${esc(item.user_id)}" data-active="${active}">${active ? 'Disable' : 'Enable'}</button></td></tr>`;
     }).join('');
   }
 
@@ -128,7 +128,7 @@
     } catch (error) {
       console.error(error);
       text('metric-editors', '—');
-      setEditorStatus(error.message || 'Unable to load editor accounts.', true);
+      setEditorStatus(error.message || 'Unable to load Content Admin accounts.', true);
     }
   }
 
@@ -259,7 +259,7 @@
     const profile = await getRole(data.user.id);
     if (profile?.role !== 'admin' || profile?.is_active !== true) {
       await client.auth.signOut();
-      return setStatus('This account does not have active administrator access.', true);
+      return setStatus('This account does not have active System Admin access.', true);
     }
     location.href = 'dashboard.html';
   });
@@ -281,13 +281,13 @@
     event.preventDefault();
     const email = value('editor-email');
     const displayName = value('editor-display-name');
-    if (!email) return setEditorStatus('Enter the editor email address.', true);
+    if (!email) return setEditorStatus('Enter the Content Admin email address.', true);
     try {
       await callEditorManager({ action:'invite', email, display_name:displayName, redirect_to:new URL('../editor/login.html', location.href).href });
       editorInviteForm.reset();
-      setEditorStatus('Editor invitation sent successfully.');
+      setEditorStatus('Content Admin invitation sent successfully.');
       await loadEditors();
-    } catch (error) { setEditorStatus(error.message || 'Unable to invite editor.', true); }
+    } catch (error) { setEditorStatus(error.message || 'Unable to invite Content Admin.', true); }
   });
 
   if (editorList) editorList.addEventListener('click', async (event) => {
@@ -298,7 +298,7 @@
       await callEditorManager({ action:'set_active', user_id:button.dataset.editorToggle, is_active:button.dataset.active !== 'true' });
       await loadEditors();
     } catch (error) {
-      setEditorStatus(error.message || 'Unable to update editor.', true);
+      setEditorStatus(error.message || 'Unable to update Content Admin.', true);
       button.disabled = false;
     }
   });
