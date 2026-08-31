@@ -1,13 +1,29 @@
 (() => {
   'use strict';
 
+  const ROLE_CACHE_KEY = 'brgyweb:staff-role:v1';
   const path = window.location.pathname;
   const inAdmin = /\/admin\//.test(path);
   const inEditor = /\/editor\//.test(path);
   const file = (path.split('/').pop() || '').toLowerCase();
   if ((!inAdmin && !inEditor) || file === 'login.html') return;
 
-  let currentRole = inEditor ? 'editor' : 'staff';
+  function readRoleCache() {
+    try {
+      const role = localStorage.getItem(ROLE_CACHE_KEY);
+      return role === 'admin' || role === 'editor' ? role : null;
+    } catch { return null; }
+  }
+
+  function writeRoleCache(role) {
+    try {
+      if (role === 'admin' || role === 'editor') localStorage.setItem(ROLE_CACHE_KEY, role);
+      else localStorage.removeItem(ROLE_CACHE_KEY);
+    } catch {}
+  }
+
+  const cachedRoleAtBoot = readRoleCache();
+  let currentRole = cachedRoleAtBoot || (inEditor ? 'editor' : 'staff');
 
   const labels = {
     'dashboard.html':'Dashboard','announcements.html':'Announcements','officials.html':'Officials','services.html':'Services','directory.html':'Directory','disclosure.html':'Disclosure','gallery.html':'Gallery','profile.html':'Barangay Profile','verification.html':'Verification / QR','settings.html':'Site Settings','design-studio.html':'Design Studio','editors.html':'Editor Accounts'
@@ -118,6 +134,7 @@
     const mobileRole = layout.main.querySelector('[data-mobile-role]');
     if (mobileRole) mobileRole.textContent = currentRole === 'admin' ? 'Administrator' : currentRole === 'editor' ? 'Content Editor' : 'Staff workspace';
     document.documentElement.dataset.staffRole = currentRole;
+    document.documentElement.dataset.adminShellReady = 'true';
   }
 
   function closeMenu() { document.documentElement.classList.remove('admin-menu-open'); document.querySelector('[data-admin-menu-toggle]')?.setAttribute('aria-expanded','false'); }
@@ -125,20 +142,21 @@
 
   async function resolveRole() {
     const client = window.BRGY_SUPABASE;
-    if (!client) return currentRole;
+    if (!client) return null;
     try {
       const { data, error } = await client.auth.getUser();
-      if (error || !data?.user) return currentRole;
+      if (error || !data?.user) return null;
       const { data: profile, error: profileError } = await client.from('profiles').select('role,is_active').eq('user_id',data.user.id).maybeSingle();
-      if (profileError || profile?.is_active !== true) return currentRole;
+      if (profileError || profile?.is_active !== true) return null;
       if (profile.role === 'admin' || profile.role === 'editor') return profile.role;
     } catch (error) { console.warn('Unable to resolve unified admin shell role:', error); }
-    return currentRole;
+    return null;
   }
 
   async function signOut() {
     const client = window.BRGY_SUPABASE;
     const role = currentRole;
+    writeRoleCache(null);
     try { if (client) await client.auth.signOut(); } catch (error) { console.warn('Sign out warning:', error); }
     if (role === 'editor') window.location.href = inEditor ? 'login.html' : '../editor/login.html';
     else window.location.href = inAdmin ? 'login.html' : '../admin/login.html';
@@ -156,9 +174,17 @@
 
   async function init() {
     ensureStyles();
-    render(currentRole);
+    const cached = readRoleCache();
+    if (cached) render(cached);
+
     const resolved = await resolveRole();
-    if (resolved !== currentRole) render(resolved);
+    if (resolved) {
+      writeRoleCache(resolved);
+      if (!cached || resolved !== cached) render(resolved);
+      return;
+    }
+
+    if (!cached) render(inEditor ? 'editor' : 'staff');
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once:true });
