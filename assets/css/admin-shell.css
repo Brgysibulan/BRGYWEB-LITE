@@ -1,1 +1,31 @@
-/* Unified responsive Admin and Editor shell styles. */
+/* Unified Admin / Editor shell. Presentation only. */
+html.admin-menu-open,html.admin-menu-open body{overflow:hidden}
+.unified-admin-shell{min-height:100vh}
+.unified-sidebar .sidebar-head{flex:0 0 auto}
+.unified-sidebar .sidebar-nav{flex:0 0 auto}
+.unified-sidebar .sidebar-exit{display:block;margin-top:auto}
+.unified-sidebar .unified-signout{appearance:none;border:0;background:transparent;width:100%;color:rgba(255,255,255,.82);text-align:left;padding:.57rem .68rem;border-radius:9px;font:inherit;font-size:.88rem;transition:background .18s ease,color .18s ease}
+.unified-sidebar .unified-signout:hover,.unified-sidebar .unified-signout:focus-visible{background:rgba(255,255,255,.14);color:#fff;outline:none}
+.unified-sidebar .sidebar-nav a{display:flex;align-items:center}
+.unified-sidebar .sidebar-nav a.active{background:rgba(255,255,255,.16);color:#fff;font-weight:800}
+.unified-sidebar .sidebar-divider{height:1px;background:rgba(255,255,255,.13);margin:.6rem .35rem}
+.unified-sidebar .sidebar-role-badge{display:inline-flex;align-items:center;gap:.35rem;font-size:.72rem;color:rgba(255,255,255,.72);margin-top:.18rem}
+.unified-sidebar .sidebar-role-dot{width:6px;height:6px;border-radius:50%;background:#7ce0a0;box-shadow:0 0 0 3px rgba(124,224,160,.12)}
+.admin-mobile-bar,.admin-mobile-overlay{display:none}
+.unified-admin-shell .dashboard-main #admin-signout,
+.unified-admin-shell .dashboard-main #profile-signout,
+.unified-admin-shell .dashboard-main #directory-signout{display:none!important}
+.admin-module-main{min-width:0;width:100%}
+.admin-module-main.container{max-width:none!important}
+.admin-module-main>.row,
+.admin-module-main>.section-card,
+.admin-module-main>.dashboard-section,
+.admin-module-main>.d-flex{max-width:1320px;margin-left:auto;margin-right:auto}
+html[data-admin-sidebar="light"] .unified-sidebar .unified-signout{color:#243228}
+html[data-admin-sidebar="light"] .unified-sidebar .unified-signout:hover,html[data-admin-sidebar="light"] .unified-sidebar .unified-signout:focus-visible{background:#edf3ee;color:#17201a}
+html[data-admin-sidebar="light"] .unified-sidebar .sidebar-divider{background:#dfe5df}
+html[data-admin-sidebar="light"] .unified-sidebar .sidebar-role-badge{color:#69736c}
+@media(min-width:901px){.unified-admin-shell{display:grid!important;grid-template-columns:238px minmax(0,1fr)!important}.unified-admin-shell>.unified-sidebar{position:sticky!important;top:0!important;left:auto!important;width:auto!important;height:100vh!important;transform:none!important;z-index:auto!important;box-shadow:none!important}.unified-admin-shell>.dashboard-main{grid-column:2;min-width:0}}
+@media(max-width:900px){body.dashboard-page{overflow-x:hidden}.unified-admin-shell{display:block!important;min-height:100dvh}.unified-admin-shell>.unified-sidebar{position:fixed!important;top:0!important;bottom:0!important;left:0!important;width:min(82vw,300px)!important;height:100dvh!important;min-height:100dvh!important;padding:1rem!important;transform:translateX(-105%);transition:transform .22s ease;z-index:1060!important;box-shadow:18px 0 48px rgba(10,30,18,.25);overflow-y:auto!important;display:flex!important;flex-direction:column!important}html.admin-menu-open .unified-admin-shell>.unified-sidebar{transform:translateX(0)}.unified-sidebar .sidebar-nav{display:grid!important;overflow:visible!important;gap:.16rem!important;padding:.35rem 0!important}.unified-sidebar .sidebar-label{display:block!important}.unified-sidebar .sidebar-nav a{white-space:normal!important;border:0!important;flex:initial!important;padding:.66rem .7rem!important}.unified-sidebar .unified-signout{padding:.66rem .7rem!important}.unified-sidebar .sidebar-exit{margin-top:auto!important}.admin-mobile-overlay{display:block;position:fixed;inset:0;background:rgba(5,18,10,.48);backdrop-filter:blur(2px);z-index:1055;opacity:0;visibility:hidden;transition:opacity .2s ease,visibility .2s ease}html.admin-menu-open .admin-mobile-overlay{opacity:1;visibility:visible}.unified-admin-shell>.dashboard-main{width:100%!important;max-width:none!important;margin:0!important;padding:.75rem!important;padding-top:0!important}.admin-mobile-bar{position:sticky;top:0;z-index:1035;display:flex;align-items:center;justify-content:space-between;gap:.75rem;margin:0 -.75rem .8rem;padding:.65rem .75rem;background:rgba(244,247,244,.96);border-bottom:1px solid var(--line,#dfe5df);backdrop-filter:blur(12px)}.admin-mobile-menu-btn{appearance:none;border:1px solid #cfd8d1;background:#fff;color:#173a28;border-radius:10px;min-width:44px;height:44px;display:grid;place-items:center;padding:0;font-size:1.25rem;line-height:1}.admin-mobile-title{min-width:0;flex:1}.admin-mobile-title strong{display:block;font-size:.85rem;line-height:1.1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.admin-mobile-title small{display:block;color:#69736c;font-size:.68rem;margin-top:.15rem}.admin-mobile-public{white-space:nowrap;font-size:.76rem;padding:.45rem .6rem;border:1px solid #cfd8d1;border-radius:9px;color:#173a28;background:#fff;text-decoration:none}.dashboard-topbar{margin-top:0!important}.admin-module-main>.d-flex:first-of-type{align-items:flex-start!important}.admin-module-main .section-card{border-radius:14px}.table-responsive{-webkit-overflow-scrolling:touch}}
+@media(max-width:560px){.unified-admin-shell>.dashboard-main{padding:.6rem!important;padding-top:0!important}.admin-mobile-bar{margin-left:-.6rem;margin-right:-.6rem;padding:.58rem .6rem}.admin-mobile-public{display:none}.admin-module-main .row{--bs-gutter-x:.7rem;--bs-gutter-y:.7rem}.admin-module-main .section-card{padding:.85rem}.admin-module-main .form-control,.admin-module-main .form-select{font-size:16px}}
+@media(prefers-reduced-motion:reduce){.unified-admin-shell>.unified-sidebar,.admin-mobile-overlay{transition:none!important}}
