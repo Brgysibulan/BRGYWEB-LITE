@@ -25,4 +25,13 @@
       }
     }
   );
+
+  const isStaffPage = /\/(admin|editor)\//.test(window.location.pathname);
+  const isDesignStudio = /\/admin\/design-studio\.html$/.test(window.location.pathname);
+  if (isStaffPage && !isDesignStudio && !document.querySelector('script[data-brgy-design-theme]')) {
+    const script = document.createElement('script');
+    script.src = '../assets/js/design-theme.js';
+    script.dataset.brgyDesignTheme = 'true';
+    document.head.appendChild(script);
+  }
 })();
