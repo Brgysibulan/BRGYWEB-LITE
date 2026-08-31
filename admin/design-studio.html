@@ -5,33 +5,95 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Design Studio</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/admin.css?v=20260831-clickfix1">
+  <link rel="stylesheet" href="../assets/css/admin.css?v=20260901-studio2">
+  <link rel="stylesheet" href="../assets/css/design-studio-v2.css?v=20260901-studio2">
 </head>
 <body class="dashboard-page admin-control-center">
 <div class="dashboard-shell">
-  <aside class="sidebar">
-    <div class="sidebar-head"><div class="sidebar-logo">B</div><div><div class="sidebar-brand">BRGYWEB-LITE</div><div class="sidebar-role">System Admin</div></div></div>
-    <nav class="sidebar-nav mt-4">
-      <div class="sidebar-label">Overview</div><a href="dashboard.html">Dashboard</a>
-      <div class="sidebar-label">Content</div><a href="announcements.html">Announcements</a><a href="officials.html">Officials</a><a href="services.html">Services</a><a href="directory.html">Directory</a><a href="disclosure.html">Disclosure</a><a href="gallery.html">Gallery</a><a href="profile.html">Barangay Profile</a>
-      <div class="sidebar-label">Administration</div><a href="verification.html">Verification / QR</a><a href="settings.html">Site Settings</a><a class="active" href="design-studio.html">Design Studio</a><a href="editors.html">Content Admin Accounts</a><button class="btn btn-link text-white text-start text-decoration-none px-2 py-2 w-100" type="button" id="admin-signout">Sign out</button>
-    </nav><a class="sidebar-exit" href="../index.html">View public site</a>
-  </aside>
+  <aside class="sidebar"></aside>
   <main class="dashboard-main">
-    <header class="dashboard-topbar"><div><span class="eyebrow">Presentation Layer</span><h1 class="h3 mb-1">Design Studio</h1><p class="text-secondary mb-0">Change the full visual style of the public website and admin UI without changing system functions or data logic.</p></div><a class="btn btn-outline-dark" href="../index.html" target="_blank" rel="noopener">Open Public View</a></header>
-    <form id="design-studio-form" class="design-studio-grid">
-      <div class="design-controls d-grid gap-3">
-        <section class="section-card"><div class="section-card-head"><div><span class="eyebrow">Public Website</span><h2 class="h5 mb-0">Public View Design</h2></div></div><p class="small text-secondary mt-2 mb-3">Presets only change appearance. Navigation links, forms, records, and page functions stay unchanged.</p><div class="preset-grid mb-3"><button type="button" class="preset-button" data-scope="public" data-design-preset="civic"><strong>Civic</strong><span>Official and polished</span></button><button type="button" class="preset-button" data-scope="public" data-design-preset="clean"><strong>Clean</strong><span>Simple and flat</span></button><button type="button" class="preset-button" data-scope="public" data-design-preset="modern"><strong>Modern</strong><span>Rounded and glassy</span></button><button type="button" class="preset-button" data-scope="public" data-design-preset="minimal"><strong>Minimal</strong><span>Compact and quiet</span></button></div><input id="public-preset" type="hidden" value="civic"><div class="row g-2"><div class="col-6"><label class="form-label" for="public-font">Font Style</label><select class="form-select" id="public-font"><option value="system">System</option><option value="rounded">Rounded</option><option value="serif">Classic Serif</option></select></div><div class="col-6"><label class="form-label" for="public-radius">Corner Style</label><select class="form-select" id="public-radius"><option value="square">Square</option><option value="soft">Soft</option><option value="rounded">Rounded</option><option value="pill">Extra Rounded</option></select></div><div class="col-6"><label class="form-label" for="public-density">Spacing</label><select class="form-select" id="public-density"><option value="comfortable">Comfortable</option><option value="compact">Compact</option></select></div><div class="col-6"><label class="form-label" for="public-nav">Navbar</label><select class="form-select" id="public-nav"><option value="gradient">Gradient</option><option value="solid">Solid</option><option value="glass">Glass</option></select></div><div class="col-6"><label class="form-label" for="public-hero">Hero Style</label><select class="form-select" id="public-hero"><option value="bold">Bold</option><option value="clean">Clean</option><option value="soft">Soft</option><option value="minimal">Minimal</option></select></div><div class="col-6"><label class="form-label" for="public-cards">Cards</label><select class="form-select" id="public-cards"><option value="elevated">Elevated</option><option value="flat">Flat</option><option value="bordered">Bordered</option></select></div></div></section>
-        <section class="section-card"><div class="section-card-head"><div><span class="eyebrow">System Admin & Content Admin</span><h2 class="h5 mb-0">Admin UI Design</h2></div></div><div class="preset-grid my-3"><button type="button" class="preset-button" data-scope="admin" data-design-preset="civic"><strong>Civic</strong><span>Green control center</span></button><button type="button" class="preset-button" data-scope="admin" data-design-preset="executive"><strong>Executive</strong><span>Dark compact sidebar</span></button><button type="button" class="preset-button" data-scope="admin" data-design-preset="modern"><strong>Modern</strong><span>Rounded clean cards</span></button><button type="button" class="preset-button" data-scope="admin" data-design-preset="minimal"><strong>Minimal</strong><span>Light and compact</span></button></div><input id="admin-preset" type="hidden" value="civic"><div class="row g-2"><div class="col-6"><label class="form-label" for="admin-font">Font Style</label><select class="form-select" id="admin-font"><option value="system">System</option><option value="rounded">Rounded</option><option value="serif">Classic Serif</option></select></div><div class="col-6"><label class="form-label" for="admin-radius">Corner Style</label><select class="form-select" id="admin-radius"><option value="square">Square</option><option value="soft">Soft</option><option value="rounded">Rounded</option><option value="pill">Extra Rounded</option></select></div><div class="col-6"><label class="form-label" for="admin-density">Spacing</label><select class="form-select" id="admin-density"><option value="comfortable">Comfortable</option><option value="compact">Compact</option></select></div><div class="col-6"><label class="form-label" for="admin-sidebar">Sidebar</label><select class="form-select" id="admin-sidebar"><option value="brand">Brand Green</option><option value="dark">Dark</option><option value="light">Light</option></select></div><div class="col-12"><label class="form-label" for="admin-cards">Cards</label><select class="form-select" id="admin-cards"><option value="elevated">Elevated</option><option value="flat">Flat</option><option value="bordered">Bordered</option></select></div></div></section>
-        <section class="section-card"><div class="d-flex flex-wrap gap-2 align-items-center"><button class="btn btn-dark" id="design-save" type="submit">Save Design</button><button class="btn btn-outline-secondary" id="design-reset" type="button">Load Defaults</button></div><div id="design-studio-status" class="small text-secondary mt-3" aria-live="polite"></div></section>
+    <header class="dashboard-topbar">
+      <div><span class="eyebrow">Presentation Layer</span><h1 class="h3 mb-1">Design Studio</h1><p class="text-secondary mb-0">Choose a premade look or combine navigation, hero, typography, spacing, and card styles without changing website logic.</p></div>
+      <a class="btn btn-outline-dark" href="../index.html" target="_blank" rel="noopener">Open Public View</a>
+    </header>
+
+    <form id="design-studio-form" class="studio2-layout">
+      <div class="studio2-controls">
+        <section class="studio2-section">
+          <div class="studio2-heading"><div><span class="eyebrow">Public Website</span><h2>Premade Website Styles</h2><p>Each preset is a complete safe combination. You can customize it after selecting.</p></div><span class="studio2-badge">8 presets</span></div>
+          <input id="public-preset" type="hidden" value="civic">
+          <div class="studio2-presets">
+            <button class="studio2-preset" type="button" data-scope="public" data-design-preset="civic"><div class="studio2-thumb top"></div><strong>Civic Standard</strong><small>Top-right links · official hero</small></button>
+            <button class="studio2-preset" type="button" data-scope="public" data-design-preset="modern"><div class="studio2-thumb modern"></div><strong>Modern Center</strong><small>Centered glass nav · rounded cards</small></button>
+            <button class="studio2-preset" type="button" data-scope="public" data-design-preset="portal"><div class="studio2-thumb left"></div><strong>Portal Left</strong><small>Permanent left navigation · compact</small></button>
+            <button class="studio2-preset" type="button" data-scope="public" data-design-preset="floating"><div class="studio2-thumb float"></div><strong>Floating Glass</strong><small>Floating centered nav · split hero</small></button>
+            <button class="studio2-preset" type="button" data-scope="public" data-design-preset="minimal"><div class="studio2-thumb menu"></div><strong>Minimal Menu</strong><small>Top menu button · boxed content</small></button>
+            <button class="studio2-preset" type="button" data-scope="public" data-design-preset="classic"><div class="studio2-thumb classic"></div><strong>Classic Center</strong><small>Serif type · centered traditional nav</small></button>
+            <button class="studio2-preset" type="button" data-scope="public" data-design-preset="compact"><div class="studio2-thumb left"></div><strong>Compact Rail</strong><small>Left rail + menu button · dense layout</small></button>
+            <button class="studio2-preset" type="button" data-scope="public" data-design-preset="bold"><div class="studio2-thumb menu"></div><strong>Bold Floating</strong><small>Floating menu button · strong hero</small></button>
+          </div>
+        </section>
+
+        <section class="studio2-section">
+          <div class="studio2-heading"><div><span class="eyebrow">Navigation Builder</span><h2>Navbar Layout</h2><p>Mix position, alignment, surface, and desktop behavior. Mobile always falls back to a safe top menu.</p></div></div>
+          <div class="studio2-field-grid">
+            <div><label class="form-label" for="public-nav-position">Position</label><select class="form-select" id="public-nav-position"><option value="top">Top</option><option value="left">Left Sidebar</option><option value="floating">Floating Top</option></select></div>
+            <div><label class="form-label" for="public-nav-align">Link / Menu Alignment</label><select class="form-select" id="public-nav-align"><option value="left">Left</option><option value="center">Center</option><option value="right">Right</option></select></div>
+            <div><label class="form-label" for="public-nav-mode">Desktop Navigation</label><select class="form-select" id="public-nav-mode"><option value="links">Show Links</option><option value="menu">Menu Button</option></select></div>
+            <div><label class="form-label" for="public-nav-skin">Navbar Surface</label><select class="form-select" id="public-nav-skin"><option value="gradient">Gradient</option><option value="solid">Solid</option><option value="glass">Glass</option></select></div>
+          </div>
+          <div class="studio2-note">These options only rearrange/style the existing navigation DOM. The same hrefs and Admin dropdown links remain intact.</div>
+        </section>
+
+        <section class="studio2-section">
+          <div class="studio2-heading"><div><span class="eyebrow">Page Styling</span><h2>Website Details</h2></div></div>
+          <div class="studio2-field-grid">
+            <div><label class="form-label" for="public-hero">Hero Style</label><select class="form-select" id="public-hero"><option value="bold">Bold</option><option value="clean">Clean</option><option value="soft">Soft</option><option value="minimal">Minimal</option><option value="split">Split</option><option value="banner">Banner</option></select></div>
+            <div><label class="form-label" for="public-content-width">Content Width</label><select class="form-select" id="public-content-width"><option value="wide">Wide</option><option value="boxed">Boxed</option></select></div>
+            <div><label class="form-label" for="public-font">Font</label><select class="form-select" id="public-font"><option value="system">System</option><option value="rounded">Rounded</option><option value="serif">Classic Serif</option></select></div>
+            <div><label class="form-label" for="public-radius">Corners</label><select class="form-select" id="public-radius"><option value="square">Square</option><option value="soft">Soft</option><option value="rounded">Rounded</option><option value="pill">Extra Rounded</option></select></div>
+            <div><label class="form-label" for="public-density">Spacing</label><select class="form-select" id="public-density"><option value="comfortable">Comfortable</option><option value="compact">Compact</option></select></div>
+            <div><label class="form-label" for="public-cards">Cards</label><select class="form-select" id="public-cards"><option value="elevated">Elevated</option><option value="flat">Flat</option><option value="bordered">Bordered</option></select></div>
+          </div>
+        </section>
+
+        <section class="studio2-section">
+          <div class="studio2-heading"><div><span class="eyebrow">Admin Interface</span><h2>Admin UI Presets</h2><p>Changes System Admin and Content Admin appearance only; permissions remain unchanged.</p></div><span class="studio2-badge">6 presets</span></div>
+          <input id="admin-preset" type="hidden" value="civic">
+          <div class="studio2-presets">
+            <button class="studio2-preset" type="button" data-scope="admin" data-design-preset="civic"><div class="studio2-thumb left"></div><strong>Civic</strong><small>Green control center</small></button>
+            <button class="studio2-preset" type="button" data-scope="admin" data-design-preset="executive"><div class="studio2-thumb left"></div><strong>Executive</strong><small>Dark compact workspace</small></button>
+            <button class="studio2-preset" type="button" data-scope="admin" data-design-preset="modern"><div class="studio2-thumb modern"></div><strong>Modern</strong><small>Rounded clean cards</small></button>
+            <button class="studio2-preset" type="button" data-scope="admin" data-design-preset="minimal"><div class="studio2-thumb classic"></div><strong>Minimal</strong><small>Light compact interface</small></button>
+            <button class="studio2-preset" type="button" data-scope="admin" data-design-preset="clean"><div class="studio2-thumb top"></div><strong>Clean</strong><small>Light flat panels</small></button>
+            <button class="studio2-preset" type="button" data-scope="admin" data-design-preset="classic"><div class="studio2-thumb classic"></div><strong>Classic</strong><small>Serif + dark navigation</small></button>
+          </div>
+          <div class="studio2-field-grid">
+            <div><label class="form-label" for="admin-font">Font</label><select class="form-select" id="admin-font"><option value="system">System</option><option value="rounded">Rounded</option><option value="serif">Classic Serif</option></select></div>
+            <div><label class="form-label" for="admin-radius">Corners</label><select class="form-select" id="admin-radius"><option value="square">Square</option><option value="soft">Soft</option><option value="rounded">Rounded</option><option value="pill">Extra Rounded</option></select></div>
+            <div><label class="form-label" for="admin-density">Spacing</label><select class="form-select" id="admin-density"><option value="comfortable">Comfortable</option><option value="compact">Compact</option></select></div>
+            <div><label class="form-label" for="admin-sidebar">Navigation Surface</label><select class="form-select" id="admin-sidebar"><option value="brand">Brand Green</option><option value="dark">Dark</option><option value="light">Light</option></select></div>
+            <div class="studio2-full"><label class="form-label" for="admin-cards">Cards</label><select class="form-select" id="admin-cards"><option value="elevated">Elevated</option><option value="flat">Flat</option><option value="bordered">Bordered</option></select></div>
+          </div>
+        </section>
+
+        <section class="studio2-section">
+          <div class="studio2-actions"><button class="btn btn-dark" id="design-save" type="submit">Save & Apply Design</button><button class="btn btn-outline-secondary" id="design-reset" type="button">Load Defaults</button></div>
+          <div id="design-studio-status" class="studio2-status" aria-live="polite"></div>
+        </section>
       </div>
-      <div class="design-preview-shell"><section class="section-card"><span class="eyebrow">Live Preview</span><h2 class="h5 mt-2">Public Website</h2><div class="design-preview mt-3" id="public-design-preview"><div class="design-preview-nav"><strong>Barangay Website</strong><span>Home</span><span>Services</span><span>Directory</span></div><div class="design-preview-hero"><small>Official Community Website</small><h3>Welcome to Our Barangay</h3><p class="mb-0">Public information, services, programs, and community updates.</p></div><div class="p-3"><div class="design-preview-card"><strong>Barangay Services</strong><p class="small text-secondary mb-0 mt-1">Cards, spacing, typography, navigation, and hero styling preview.</p></div></div></div></section><section class="section-card"><span class="eyebrow">Live Preview</span><h2 class="h5 mt-2">Admin UI</h2><div class="design-preview mt-3" id="admin-design-preview"><div class="design-preview-bar">BRGYWEB-LITE · System Admin</div><div class="design-preview-body"><div class="design-preview-card"><small class="text-secondary">Dashboard</small><h3 class="h5 mt-1">Content Status</h3><div class="row g-2 mt-1"><div class="col-4"><div class="border rounded p-2"><small>Published</small><strong class="d-block">24</strong></div></div><div class="col-4"><div class="border rounded p-2"><small>Draft</small><strong class="d-block">3</strong></div></div><div class="col-4"><div class="border rounded p-2"><small>Content Admins</small><strong class="d-block">2</strong></div></div></div></div></div></div></section><section class="section-card border-success-subtle"><span class="eyebrow">Protected Logic</span><h2 class="h6 mt-2">What Design Studio does not change</h2><p class="small text-secondary mb-0">Supabase queries, login roles, RLS policies, verification records, CRUD functions, element IDs, form handlers, page routes, and Content Admin permissions remain untouched.</p></section></div>
+
+      <aside class="studio2-preview-column">
+        <section class="studio2-preview-card"><span class="eyebrow">Live Preview</span><h3>Public Website</h3><div class="studio2-browser"><div class="studio2-browser-top"><i></i><i></i><i></i></div><div class="studio2-web" id="public-design-preview" data-preview-position="top" data-preview-mode="links" data-preview-align="right"><div class="studio2-web-nav"><strong>Barangay</strong><span>Home</span><span>Profile</span><span>Services</span><span>Verify</span><b class="studio2-web-menu">☰</b></div><div class="studio2-web-hero"><small>OFFICIAL COMMUNITY WEBSITE</small><strong>Welcome to Our Barangay</strong><div>Public information and services.</div></div><div class="studio2-web-body"><div></div><div></div><div></div></div></div></div></section>
+        <section class="studio2-preview-card"><span class="eyebrow">Live Preview</span><h3>Admin Interface</h3><div class="studio2-admin-preview" id="admin-design-preview"><div class="studio2-admin-side"><strong>BRGYWEB-LITE</strong><span>Dashboard</span><span>Content</span><span>Settings</span></div><div class="studio2-admin-main"><strong>Dashboard</strong><div class="studio2-admin-cards"><div></div><div></div><div></div></div></div></div></section>
+        <section class="studio2-preview-card"><div class="studio2-protected"><span>✓</span><div><strong>Logic protection</strong><div>Design Studio does not rewrite routes, Supabase queries, element IDs, form handlers, verification logic, RLS, or role permissions.</div></div></div></section>
+      </aside>
     </form>
   </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../assets/js/supabase-config.js?v=20260831-clickfix1"></script>
-<script src="../assets/js/design-theme.js?v=20260831-clickfix1"></script>
-<script src="../assets/js/design-studio.js?v=20260831-clickfix1"></script>
+<script src="../assets/js/supabase-config.js?v=20260901-studio2"></script>
+<script src="../assets/js/design-theme.js?v=20260901-studio2"></script>
+<script src="../assets/js/design-studio.js?v=20260901-studio2"></script>
 </body>
 </html>
