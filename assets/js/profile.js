@@ -1,6 +1,7 @@
 (() => {
   'use strict';
 
+  const PROFILE_CACHE_KEY = 'brgyweb:public-profile:v1';
   const client = window.BRGY_SUPABASE;
   const publicContainer = document.getElementById('barangay-profile-content');
   const homepageAbout = document.getElementById('homepage-profile-about');
@@ -11,6 +12,21 @@
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
+
+  function readCache() {
+    try {
+      const raw = localStorage.getItem(PROFILE_CACHE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      return Array.isArray(parsed?.rows) ? parsed.rows : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function writeCache(rows) {
+    try { localStorage.setItem(PROFILE_CACHE_KEY, JSON.stringify({ savedAt: Date.now(), rows })); } catch {}
+  }
 
   function paragraphs(value) {
     return escapeHtml(value || '')
@@ -23,6 +39,7 @@
 
   function renderPublic(rows) {
     if (!publicContainer) return;
+    publicContainer.removeAttribute('aria-busy');
     const map = new Map(rows.map((row) => [row.slug, row]));
     const about = map.get('barangay-about')?.content || '';
     const history = map.get('barangay-history')?.content || '';
@@ -70,6 +87,11 @@
     homepageAbout.textContent = shortText;
   }
 
+  function render(rows) {
+    renderPublic(rows);
+    renderHomepage(rows);
+  }
+
   async function load() {
     if (!client) throw new Error('Public data service unavailable.');
     const { data, error } = await client
@@ -79,14 +101,22 @@
       .in('slug', ['barangay-about', 'barangay-history', 'barangay-vision', 'barangay-mission', 'barangay-highlights'])
       .order('sort_order', { ascending: true });
     if (error) throw error;
-    renderPublic(data || []);
-    renderHomepage(data || []);
+    const rows = data || [];
+    render(rows);
+    writeCache(rows);
   }
+
+  const cachedRows = readCache();
+  if (cachedRows) render(cachedRows);
 
   document.addEventListener('DOMContentLoaded', () => {
     load().catch((error) => {
       console.warn('Unable to load public barangay profile:', error);
-      if (publicContainer) publicContainer.innerHTML = '<div class="empty-state border border-danger-subtle">Barangay profile is temporarily unavailable. Please try again later.</div>';
+      if (cachedRows) return;
+      if (publicContainer) {
+        publicContainer.removeAttribute('aria-busy');
+        publicContainer.innerHTML = '<div class="empty-state border border-danger-subtle">Barangay profile is temporarily unavailable. Please try again later.</div>';
+      }
       if (homepageAbout) homepageAbout.textContent = 'Barangay profile is temporarily unavailable.';
     });
   });
