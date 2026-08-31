@@ -13,29 +13,8 @@
       <div><span class="eyebrow">Content Manager</span><h1 class="h3 mb-0">Barangay Services</h1></div>
       <div class="d-flex gap-2"><a class="btn btn-outline-dark" href="dashboard.html">Dashboard</a><a class="btn btn-outline-secondary" href="../services.html">Public Page</a></div>
     </div>
-
-    <section class="section-card mb-4">
-      <div class="section-card-head"><div><span class="eyebrow">Service Details</span><h2 class="h5 mb-0" id="service-form-title">Add Service</h2></div></div>
-      <form id="service-form" class="row g-3 mt-1">
-        <input id="service-id" type="hidden">
-        <div class="col-md-8"><label class="form-label" for="service-name">Service Name</label><input class="form-control" id="service-name" type="text" required maxlength="180"></div>
-        <div class="col-md-4"><label class="form-label" for="service-order">Display Order</label><input class="form-control" id="service-order" type="number" min="0" step="1" value="0"></div>
-        <div class="col-12"><label class="form-label" for="service-description">Description</label><textarea class="form-control" id="service-description" rows="3"></textarea></div>
-        <div class="col-12"><label class="form-label" for="service-requirements">Requirements</label><textarea class="form-control" id="service-requirements" rows="4" placeholder="One requirement per line or a short paragraph"></textarea></div>
-        <div class="col-md-6"><label class="form-label" for="service-fee">Fee / Cost</label><input class="form-control" id="service-fee" type="text" placeholder="Free, ₱50, Depends on request"></div>
-        <div class="col-md-6"><label class="form-label" for="service-processing">Processing Time</label><input class="form-control" id="service-processing" type="text" placeholder="Same day, 1-2 business days"></div>
-        <div class="col-12"><div class="form-check"><input class="form-check-input" id="service-active" type="checkbox" checked><label class="form-check-label" for="service-active">Published / Visible to public</label></div></div>
-        <div class="col-12 d-flex flex-wrap gap-2 align-items-center"><button class="btn btn-dark" type="submit">Save Service</button><button class="btn btn-outline-secondary d-none" id="service-cancel" type="button">Cancel Edit</button><span class="small text-secondary" id="service-status" role="status"></span></div>
-      </form>
-    </section>
-
-    <section class="section-card">
-      <div class="section-card-head"><div><span class="eyebrow">Published Content</span><h2 class="h5 mb-0">Service List</h2></div></div>
-      <div class="table-responsive mt-3"><table class="table align-middle"><thead><tr><th>Order</th><th>Service</th><th>Fee</th><th>Processing</th><th>Status</th><th class="text-end">Actions</th></tr></thead><tbody id="services-admin-list"><tr><td colspan="6" class="text-secondary">Loading services...</td></tr></tbody></table></div>
-    </section>
+    <section class="section-card mb-4"><div class="section-card-head"><div><span class="eyebrow">Service Details</span><h2 class="h5 mb-0" id="service-form-title">Add Service</h2></div></div><form id="service-form" class="row g-3 mt-1"><input id="service-id" type="hidden"><div class="col-md-8"><label class="form-label" for="service-name">Service Name</label><input class="form-control" id="service-name" type="text" required maxlength="180"></div><div class="col-md-4"><label class="form-label" for="service-order">Display Order</label><input class="form-control" id="service-order" type="number" min="0" step="1" value="0"></div><div class="col-12"><label class="form-label" for="service-description">Description</label><textarea class="form-control" id="service-description" rows="3"></textarea></div><div class="col-12"><label class="form-label" for="service-requirements">Requirements</label><textarea class="form-control" id="service-requirements" rows="4"></textarea></div><div class="col-md-6"><label class="form-label" for="service-fee">Fee / Cost</label><input class="form-control" id="service-fee" type="text"></div><div class="col-md-6"><label class="form-label" for="service-processing">Processing Time</label><input class="form-control" id="service-processing" type="text"></div><div class="col-12"><div class="form-check"><input class="form-check-input" id="service-active" type="checkbox" checked><label class="form-check-label" for="service-active">Published / Visible to public</label></div></div><div class="col-12 d-flex flex-wrap gap-2 align-items-center"><button class="btn btn-dark" type="submit">Save Service</button><button class="btn btn-outline-secondary d-none" id="service-cancel" type="button">Cancel Edit</button><span class="small text-secondary" id="service-status"></span></div></form></section>
+    <section class="section-card"><div class="table-responsive mt-3"><table class="table align-middle"><thead><tr><th>Order</th><th>Service</th><th>Fee</th><th>Processing</th><th>Status</th><th class="text-end">Actions</th></tr></thead><tbody id="services-admin-list"><tr><td colspan="6" class="text-secondary">Loading services...</td></tr></tbody></table></div></section>
   </main>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../assets/js/supabase-config.js"></script>
-  <script src="../assets/js/services-admin.js"></script>
-</body>
-</html>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="../assets/js/supabase-config.js"></script><script src="../assets/js/services-admin.js"></script><script src="../assets/js/staff-context.js"></script>
+</body></html>
