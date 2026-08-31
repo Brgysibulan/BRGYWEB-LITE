@@ -1,4 +1,7 @@
-/* Design Studio v2 public layout layer. Presentation only; links and element IDs are unchanged. */
+/* Design Studio public layout layer. Presentation only; links and element IDs are unchanged. */
+
+html[data-public-nav-position]{max-width:100%;overflow-x:clip}
+html[data-public-nav-position] body{max-width:100%;overflow-x:clip}
 
 /* Navigation surface */
 html[data-public-nav-skin="solid"] .site-header{background:var(--brand-primary-dark);backdrop-filter:none}
@@ -40,13 +43,12 @@ html[data-public-content-width="boxed"] .site-header .container{max-width:1120px
   html[data-public-nav-mode="menu"]:not([data-public-nav-position="left"]) .site-header .nav-link{padding:.6rem .7rem;border-radius:9px}
   html[data-public-nav-mode="menu"]:not([data-public-nav-position="left"]) .site-header .nav-link:hover,
   html[data-public-nav-mode="menu"]:not([data-public-nav-position="left"]) .site-header .nav-link.active{background:rgba(255,255,255,.10)}
-  html[data-public-nav-mode="menu"]:not([data-public-nav-position="left"]) .site-header .nav-item.dropdown{margin-left:0!important;margin-top:.25rem}
   html[data-public-nav-mode="menu"][data-public-nav-align="left"] .site-header .navbar-collapse{left:.75rem;right:auto}
   html[data-public-nav-mode="menu"][data-public-nav-align="center"] .site-header .navbar-collapse{left:50%;right:auto;transform:translateX(-50%)}
 }
 
-/* Left navigation rail on desktop */
-@media(min-width:1200px){
+/* Left navigation rail only on a genuinely wide mouse/trackpad desktop. */
+@media(min-width:1366px) and (hover:hover) and (pointer:fine){
   html[data-public-nav-position="left"] body{padding-left:248px}
   html[data-public-nav-position="left"] .site-header{position:fixed!important;inset:0 auto 0 0!important;width:248px;height:100vh;z-index:1030;border-radius:0;overflow-y:auto}
   html[data-public-nav-position="left"] .site-header .navbar{height:100%;min-height:100%;align-items:stretch;padding:0}
@@ -58,24 +60,27 @@ html[data-public-content-width="boxed"] .site-header .container{max-width:1120px
   html[data-public-nav-position="left"] .site-header .nav-link{padding:.62rem .7rem;border-radius:9px}
   html[data-public-nav-position="left"] .site-header .nav-link:hover,
   html[data-public-nav-position="left"] .site-header .nav-link.active{background:rgba(255,255,255,.11)}
-  html[data-public-nav-position="left"] .site-header .nav-item.dropdown{margin-left:0!important;margin-top:.4rem}
-  html[data-public-nav-position="left"] .site-header .dropdown-menu{position:static!important;transform:none!important;margin-top:.35rem;background:rgba(255,255,255,.96);box-shadow:none}
   html[data-public-nav-position="left"][data-public-nav-mode="menu"] .site-header .navbar-toggler{display:block!important;margin:0 0 .75rem}
   html[data-public-nav-position="left"][data-public-nav-mode="menu"] .site-header .navbar-collapse{display:none!important}
   html[data-public-nav-position="left"][data-public-nav-mode="menu"] .site-header .navbar-collapse.show{display:block!important}
 }
 
-/* Hero variations strengthened for v2 previews */
+/* Hero variations */
 html[data-public-hero="split"] .hero-section{background:linear-gradient(90deg,var(--brand-primary-dark) 0 58%,color-mix(in srgb,var(--brand-primary) 86%,white) 58% 100%)}
 html[data-public-hero="split"] .hero-copy{max-width:620px}
 html[data-public-hero="banner"] .hero-section{min-height:48vh;background:linear-gradient(115deg,var(--brand-primary-dark),var(--brand-primary));border-bottom:8px solid color-mix(in srgb,var(--brand-accent) 78%,white)}
 
-/* Mobile always uses safe top navigation regardless of desktop preset. */
-@media(max-width:1199.98px){
-  html[data-public-nav-position="left"] body{padding-left:0}
+/* Safety fallback for phones, tablets, desktop-mode-on-phone, and intermediate widths. */
+@media(max-width:1365.98px),(hover:none),(pointer:coarse){
+  html[data-public-nav-position] body{padding-left:0!important;width:auto!important;min-width:0!important}
+  html[data-public-nav-position] body>main,
+  html[data-public-nav-position] body>.site-footer{width:100%!important;max-width:100%!important;margin-left:0!important;margin-right:0!important}
   html[data-public-nav-position="left"] .site-header,
-  html[data-public-nav-position="floating"] .site-header{position:sticky!important;inset:auto!important;top:0!important;width:auto;height:auto;margin:0;border-radius:0;overflow:visible}
-  html[data-public-nav-position="left"] .site-header .navbar{height:auto;min-height:64px}
-  html[data-public-nav-position="left"] .site-header .container{height:auto;display:flex;flex-direction:row;align-items:center!important;padding-left:calc(var(--bs-gutter-x)*.5);padding-right:calc(var(--bs-gutter-x)*.5)}
-  html[data-public-nav-position="left"] .site-header .navbar-brand{margin-right:1rem;margin-bottom:0}
+  html[data-public-nav-position="floating"] .site-header{position:sticky!important;inset:auto!important;left:0!important;right:0!important;top:0!important;width:100%!important;max-width:100%!important;height:auto!important;margin:0!important;border-radius:0!important;overflow:visible!important}
+  html[data-public-nav-position="left"] .site-header .navbar,
+  html[data-public-nav-position="floating"] .site-header .navbar{height:auto!important;min-height:64px!important}
+  html[data-public-nav-position="left"] .site-header .container,
+  html[data-public-nav-position="floating"] .site-header .container{height:auto!important;min-width:0!important;display:flex!important;flex-direction:row!important;align-items:center!important;padding-left:calc(var(--bs-gutter-x)*.5)!important;padding-right:calc(var(--bs-gutter-x)*.5)!important}
+  html[data-public-nav-position="left"] .site-header .navbar-brand,
+  html[data-public-nav-position="floating"] .site-header .navbar-brand{margin-right:1rem!important;margin-bottom:0!important}
 }
