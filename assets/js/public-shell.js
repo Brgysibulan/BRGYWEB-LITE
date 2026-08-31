@@ -37,6 +37,7 @@
     ['officials.html', 'Officials'],
     ['announcements.html', 'Announcements'],
     ['services.html', 'Services'],
+    ['forms.html', 'Forms'],
     ['barangay-directory.html', 'Directory'],
     ['barangay-disclosure.html', 'Disclosure'],
     ['gallery.html', 'Gallery'],
@@ -52,6 +53,6 @@
 
   if (footer) {
     footer.classList.add('py-5');
-    footer.innerHTML = `<div class="container"><div class="row g-4 align-items-start"><div class="col-lg-7"><h2 class="h5 mb-2" id="footer-name">${escapeHtml(initialName)}</h2><p class="mb-0 text-white-50">Official barangay information, transparency, verification, and public service portal.</p></div><div class="col-lg-5 text-lg-end"><p class="mb-1" id="footer-address">${escapeHtml(initialAddress)}</p><p class="mb-3" id="footer-contact">${escapeHtml(initialContact)}</p><a class="btn btn-sm btn-outline-light" href="contact.html">Contact Barangay Office</a></div></div><hr class="border-light opacity-25 my-4"><p class="small mb-0 text-white-50">&copy; <span id="current-year"></span> <span id="copyright-name">${escapeHtml(initialName)}</span>. All rights reserved.</p></div>`;
+    footer.innerHTML = `<div class="container"><div class="row g-4 align-items-start"><div class="col-lg-7"><h2 class="h5 mb-2" id="footer-name">${escapeHtml(initialName)}</h2><p class="mb-0 text-white-50">Official barangay information, transparency, verification, downloadable forms, and public service portal.</p></div><div class="col-lg-5 text-lg-end"><p class="mb-1" id="footer-address">${escapeHtml(initialAddress)}</p><p class="mb-3" id="footer-contact">${escapeHtml(initialContact)}</p><a class="btn btn-sm btn-outline-light" href="contact.html">Contact Barangay Office</a></div></div><hr class="border-light opacity-25 my-4"><p class="small mb-0 text-white-50">&copy; <span id="current-year"></span> <span id="copyright-name">${escapeHtml(initialName)}</span>. All rights reserved.</p></div>`;
   }
 })();
