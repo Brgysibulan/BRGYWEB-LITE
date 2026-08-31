@@ -62,6 +62,7 @@
     const {data,error}=await client.from('site_settings').select('design_theme').eq('id',1).single();
     if(error)throw error;
     const config=data?.design_theme||{};
+    theme.writeCache?.(config);
     writePublic(config.public||theme.PUBLIC_DEFAULT);
     writeAdmin(config.admin||theme.ADMIN_DEFAULT);
     refreshPreview();
@@ -75,7 +76,9 @@
     try{
       const {data,error}=await client.from('site_settings').update({design_theme:payload,updated_at:new Date().toISOString()}).eq('id',1).select('design_theme').single();
       if(error)throw error;
-      writePublic(data.design_theme.public||payload.public);writeAdmin(data.design_theme.admin||payload.admin);refreshPreview();
+      const saved=data.design_theme||payload;
+      theme.writeCache?.(saved);
+      writePublic(saved.public||payload.public);writeAdmin(saved.admin||payload.admin);refreshPreview();
       setStatus('Design saved. Public view and staff UI will use this theme on reload.');
     }catch(error){console.error(error);setStatus(error.message||'Unable to save design.',true);}finally{saveButton.disabled=false;}
   }
