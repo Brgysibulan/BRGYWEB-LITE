@@ -1,6 +1,7 @@
 (() => {
   'use strict';
 
+  const THEME_CACHE_KEY = 'brgyweb:design-theme:v1';
   const PUBLIC_DEFAULT = Object.freeze({preset:'civic',font:'system',radius:'rounded',density:'comfortable',nav:'gradient',hero:'bold',cards:'elevated'});
   const ADMIN_DEFAULT = Object.freeze({preset:'civic',font:'system',radius:'rounded',density:'comfortable',sidebar:'brand',cards:'elevated'});
 
@@ -22,6 +23,20 @@
     public:{font:['system','rounded','serif'],radius:['square','soft','rounded','pill'],density:['comfortable','compact'],nav:['gradient','solid','glass'],hero:['bold','clean','soft','minimal'],cards:['elevated','flat','bordered']},
     admin:{font:['system','rounded','serif'],radius:['square','soft','rounded','pill'],density:['comfortable','compact'],sidebar:['brand','dark','light'],cards:['elevated','flat','bordered']}
   };
+
+  function readCache(){
+    try{
+      const raw=localStorage.getItem(THEME_CACHE_KEY);
+      if(!raw)return null;
+      const parsed=JSON.parse(raw);
+      const config=parsed?.config||parsed;
+      return config&&typeof config==='object'?config:null;
+    }catch{return null;}
+  }
+
+  function writeCache(config){
+    try{localStorage.setItem(THEME_CACHE_KEY,JSON.stringify({version:1,savedAt:Date.now(),config}));}catch{}
+  }
 
   function pick(value, allowed, fallback){return allowed.includes(value)?value:fallback;}
   function normalizePublic(input={}){return {preset:String(input.preset||PUBLIC_DEFAULT.preset),font:pick(input.font,choices.public.font,PUBLIC_DEFAULT.font),radius:pick(input.radius,choices.public.radius,PUBLIC_DEFAULT.radius),density:pick(input.density,choices.public.density,PUBLIC_DEFAULT.density),nav:pick(input.nav,choices.public.nav,PUBLIC_DEFAULT.nav),hero:pick(input.hero,choices.public.hero,PUBLIC_DEFAULT.hero),cards:pick(input.cards,choices.public.cards,PUBLIC_DEFAULT.cards)};}
@@ -56,24 +71,43 @@
     root.dataset.adminDensity=theme.density;
     root.dataset.adminSidebar=theme.sidebar;
     root.dataset.adminCards=theme.cards;
+    root.dataset.adminThemeReady='true';
     return theme;
   }
 
   async function load(client,scope='admin'){
-    if(!client)return scope==='public'?applyPublic():applyAdmin();
+    const cached=readCache();
+    if(cached){
+      if(scope==='public')applyPublic(cached.public||{});
+      else applyAdmin(cached.admin||{});
+    }
+
+    if(!client){
+      if(cached)return scope==='public'?normalizePublic(cached.public||{}):normalizeAdmin(cached.admin||{});
+      return scope==='public'?applyPublic():applyAdmin();
+    }
+
     try{
       const {data,error}=await client.from('site_settings').select('design_theme').eq('id',1).single();
       if(error)throw error;
       const config=data?.design_theme||{};
+      writeCache(config);
       return scope==='public'?applyPublic(config.public||{}):applyAdmin(config.admin||{});
     }catch(error){
-      console.warn('Design theme fallback in use:',error);
+      console.warn('Design theme refresh failed; using last known theme:',error);
+      if(cached)return scope==='public'?normalizePublic(cached.public||{}):normalizeAdmin(cached.admin||{});
       return scope==='public'?applyPublic():applyAdmin();
     }
   }
 
-  window.BRGY_THEME=Object.freeze({PUBLIC_DEFAULT,ADMIN_DEFAULT,publicPresets,adminPresets,normalizePublic,normalizeAdmin,applyPublic,applyAdmin,load,ensureStyles});
+  window.BRGY_THEME=Object.freeze({PUBLIC_DEFAULT,ADMIN_DEFAULT,publicPresets,adminPresets,normalizePublic,normalizeAdmin,applyPublic,applyAdmin,load,ensureStyles,readCache,writeCache});
   ensureStyles();
+
+  const cachedAtBoot=readCache();
+  if(cachedAtBoot){
+    if(/\/(admin|editor)\//.test(location.pathname))applyAdmin(cachedAtBoot.admin||{});
+    else applyPublic(cachedAtBoot.public||{});
+  }
 
   if(/\/(admin|editor)\//.test(location.pathname)){
     const boot=()=>load(window.BRGY_SUPABASE,'admin');
