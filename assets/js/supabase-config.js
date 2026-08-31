@@ -3,7 +3,7 @@
 
   const SUPABASE_URL = 'https://pkvorwvkqjnbgktkgjhr.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_RbaENAflMzLgXpemymGApA_TkVAhMoU';
-  const STAFF_ASSET_VERSION = '20260901-access5';
+  const STAFF_ASSET_VERSION = '20260901-forms1';
   const path = window.location.pathname;
   const isStaffPage = /\/(admin|editor)\//.test(path);
   const isAccessPage = /\/(admin|editor)\/(?:login|apply|activate)\.html$/.test(path);
@@ -28,10 +28,18 @@
     syncReady();
   }
 
+  function addStaffScript(src, dataKey) {
+    if (document.querySelector(`script[${dataKey}]`)) return;
+    const script = document.createElement('script');
+    script.src = src;
+    script.setAttribute(dataKey, 'true');
+    document.head.appendChild(script);
+  }
+
   function loadStaffAssets() {
     if (!isStaffPage) return;
 
-    // Admin design settings must also apply to login / access pages.
+    // Admin design settings also apply to login / access pages.
     if (!isDesignStudio && !document.querySelector('script[data-brgy-design-theme]')) {
       const script = document.createElement('script');
       script.src = `../assets/js/design-theme.js?v=${STAFF_ASSET_VERSION}`;
@@ -47,6 +55,11 @@
       shellScript.dataset.brgyAdminShell = 'true';
       shellScript.addEventListener('error', () => markAssetFailure('shell'), { once:true });
       document.head.appendChild(shellScript);
+    }
+
+    // Shared content tool entry for both System Admin and Content Admin.
+    if (!isAccessPage) {
+      addStaffScript(`../assets/js/staff-forms-nav.js?v=${STAFF_ASSET_VERSION}`, 'data-brgy-staff-forms-nav');
     }
 
     if (!isAccessPage) {
