@@ -2,7 +2,7 @@
   'use strict';
 
   const SITE_CACHE_KEY = 'brgyweb:site-settings:v2';
-  const UI_VERSION = '20260901-mobilefix2';
+  const UI_VERSION = '20260901-responsive3';
   const header = document.querySelector('.site-header');
   const footer = document.querySelector('.site-footer');
   const page = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
@@ -27,6 +27,10 @@
     .replaceAll('>', '&gt;')
     .replaceAll('"', '&quot;')
     .replaceAll("'", '&#039;');
+
+  function isCompactNavigation() {
+    return window.matchMedia('(max-width:1199.98px), (hover:none), (pointer:coarse)').matches || navigator.maxTouchPoints > 0;
+  }
 
   function readCachedSite() {
     try {
@@ -97,11 +101,11 @@
     header.querySelector('.public-menu-close')?.addEventListener('click', closeMenu);
     backdrop.addEventListener('click', closeMenu);
     collapseElement?.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => {
-      if (window.matchMedia('(max-width:1199.98px)').matches) closeMenu();
+      if (isCompactNavigation()) closeMenu();
     }));
     window.addEventListener('resize', () => {
-      if (window.innerWidth >= 1200) setMenuState(false);
-    });
+      if (!isCompactNavigation()) setMenuState(false);
+    }, { passive:true });
   }
 
   if (footer) {
