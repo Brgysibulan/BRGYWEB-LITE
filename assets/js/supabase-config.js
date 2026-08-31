@@ -50,6 +50,10 @@
 
     addStaffStyle(`../assets/css/premium-admin.css?v=${STAFF_ASSET_VERSION}`, 'data-brgy-premium-admin');
 
+    if (isDesignStudio) {
+      addStaffScript(`../assets/js/premium-presets.js?v=${STAFF_ASSET_VERSION}`, 'data-brgy-premium-presets');
+    }
+
     // Admin design settings also apply to login / access pages.
     if (!isDesignStudio && !document.querySelector('script[data-brgy-design-theme]')) {
       const script = document.createElement('script');
