@@ -3,7 +3,7 @@
 
   const SUPABASE_URL = 'https://pkvorwvkqjnbgktkgjhr.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_RbaENAflMzLgXpemymGApA_TkVAhMoU';
-  const STAFF_ASSET_VERSION = '20260901-studio2';
+  const STAFF_ASSET_VERSION = '20260901-access5';
   const path = window.location.pathname;
   const isStaffPage = /\/(admin|editor)\//.test(path);
   const isAccessPage = /\/(admin|editor)\/(?:login|apply|activate)\.html$/.test(path);
@@ -29,8 +29,9 @@
   }
 
   function loadStaffAssets() {
-    if (!isStaffPage || isAccessPage) return;
+    if (!isStaffPage) return;
 
+    // Admin design settings must also apply to login / access pages.
     if (!isDesignStudio && !document.querySelector('script[data-brgy-design-theme]')) {
       const script = document.createElement('script');
       script.src = `../assets/js/design-theme.js?v=${STAFF_ASSET_VERSION}`;
@@ -39,7 +40,8 @@
       document.head.appendChild(script);
     }
 
-    if (!document.querySelector('script[data-brgy-admin-shell]')) {
+    // The unified sidebar/navigation shell is only for authenticated workspaces.
+    if (!isAccessPage && !document.querySelector('script[data-brgy-admin-shell]')) {
       const shellScript = document.createElement('script');
       shellScript.src = `../assets/js/admin-shell.js?v=${STAFF_ASSET_VERSION}`;
       shellScript.dataset.brgyAdminShell = 'true';
@@ -47,17 +49,19 @@
       document.head.appendChild(shellScript);
     }
 
-    window.setTimeout(() => {
-      const root = document.documentElement;
-      if (root.dataset.adminUiReady !== 'true') {
-        console.warn('Admin UI boot exceeded safe wait time; releasing the interface fallback.');
-        root.dataset.adminShellReady = 'true';
-        root.dataset.adminThemeReady = 'true';
-        root.dataset.adminUiReady = 'true';
-        root.classList.remove('admin-menu-open');
-        document.querySelector('.admin-mobile-overlay')?.setAttribute('aria-hidden','true');
-      }
-    }, 4500);
+    if (!isAccessPage) {
+      window.setTimeout(() => {
+        const root = document.documentElement;
+        if (root.dataset.adminUiReady !== 'true') {
+          console.warn('Admin UI boot exceeded safe wait time; releasing the interface fallback.');
+          root.dataset.adminShellReady = 'true';
+          root.dataset.adminThemeReady = 'true';
+          root.dataset.adminUiReady = 'true';
+          root.classList.remove('admin-menu-open');
+          document.querySelector('.admin-mobile-overlay')?.setAttribute('aria-hidden','true');
+        }
+      }, 4500);
+    }
   }
 
   loadStaffAssets();
