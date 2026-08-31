@@ -74,4 +74,10 @@
 
   window.BRGY_THEME=Object.freeze({PUBLIC_DEFAULT,ADMIN_DEFAULT,publicPresets,adminPresets,normalizePublic,normalizeAdmin,applyPublic,applyAdmin,load,ensureStyles});
   ensureStyles();
+
+  if(/\/(admin|editor)\//.test(location.pathname)){
+    const boot=()=>load(window.BRGY_SUPABASE,'admin');
+    if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});
+    else boot();
+  }
 })();
