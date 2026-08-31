@@ -30,6 +30,11 @@
     const mission = map.get('barangay-mission')?.content || '';
     const highlights = map.get('barangay-highlights')?.content || '';
 
+    if (!about && !history && !vision && !mission && !highlights) {
+      publicContainer.innerHTML = '<div class="empty-state">Barangay profile information has not been published yet.</div>';
+      return;
+    }
+
     const highlightItems = highlights.split('\n').map((item) => item.trim()).filter(Boolean);
 
     publicContainer.innerHTML = `
@@ -37,7 +42,7 @@
         <div class="col-lg-8">
           <div class="content-panel h-100">
             <h2>About the Barangay</h2>
-            ${about ? paragraphs(about) : '<p class="text-secondary">Profile information will be published here.</p>'}
+            ${about ? paragraphs(about) : '<p class="text-secondary">General barangay information has not been published yet.</p>'}
             ${history ? `<h3 class="mt-4">History</h3>${paragraphs(history)}` : ''}
             <div class="row g-4 mt-1">
               ${vision ? `<div class="col-md-6"><h3>Vision</h3>${paragraphs(vision)}</div>` : ''}
@@ -48,7 +53,7 @@
         <div class="col-lg-4">
           <div class="service-card h-100">
             <h3>Profile Highlights</h3>
-            ${highlightItems.length ? `<ul class="mb-0 ps-3">${highlightItems.map((item) => `<li class="mb-2">${escapeHtml(item)}</li>`).join('')}</ul>` : '<p class="text-secondary mb-0">Community highlights will appear here.</p>'}
+            ${highlightItems.length ? `<ul class="mb-0 ps-3">${highlightItems.map((item) => `<li class="mb-2">${escapeHtml(item)}</li>`).join('')}</ul>` : '<p class="text-secondary mb-0">Community highlights have not been published yet.</p>'}
           </div>
         </div>
       </div>`;
@@ -66,10 +71,11 @@
   }
 
   async function load() {
-    if (!client) return;
+    if (!client) throw new Error('Public data service unavailable.');
     const { data, error } = await client
       .from('pages')
       .select('slug,title,content,sort_order')
+      .eq('is_published', true)
       .in('slug', ['barangay-about', 'barangay-history', 'barangay-vision', 'barangay-mission', 'barangay-highlights'])
       .order('sort_order', { ascending: true });
     if (error) throw error;
@@ -80,7 +86,8 @@
   document.addEventListener('DOMContentLoaded', () => {
     load().catch((error) => {
       console.warn('Unable to load public barangay profile:', error);
-      if (publicContainer) publicContainer.innerHTML = '<div class="empty-state">Barangay profile is temporarily unavailable.</div>';
+      if (publicContainer) publicContainer.innerHTML = '<div class="empty-state border border-danger-subtle">Barangay profile is temporarily unavailable. Please try again later.</div>';
+      if (homepageAbout) homepageAbout.textContent = 'Barangay profile is temporarily unavailable.';
     });
   });
 })();
