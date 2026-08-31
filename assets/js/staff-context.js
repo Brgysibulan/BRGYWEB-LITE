@@ -6,8 +6,6 @@
 
   const editorDashboard = '../editor/dashboard.html';
   const editorLogin = '../editor/login.html';
-  const adminDashboard = 'dashboard.html';
-  const adminLogin = 'login.html';
 
   function loadDesignTheme() {
     if (window.BRGY_THEME) return window.BRGY_THEME.load(client, 'admin');
@@ -32,11 +30,13 @@
 
       if (currentRole === 'editor') {
         document.querySelectorAll('a[href="dashboard.html"]').forEach((link) => { link.href = editorDashboard; });
-        document.querySelectorAll('.sidebar-role').forEach((el) => { el.textContent = 'Content Editor'; });
       }
+      document.querySelectorAll('.sidebar-role').forEach((el) => {
+        el.textContent = currentRole === 'admin' ? 'System Admin' : 'Content Admin';
+      });
       return currentRole;
     } catch (error) {
-      console.warn('Unable to resolve staff context:', error);
+      console.warn('Unable to resolve admin context:', error);
       return null;
     }
   }
