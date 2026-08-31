@@ -1,23 +1,34 @@
 (() => {
   'use strict';
 
-  const base = window.BRGY_THEME;
-  if (!base) return;
+  let attempts = 0;
 
-  const publicPremium = {
-    preset:'premium',font:'system',radius:'rounded',density:'comfortable',
-    navSkin:'glass',nav:'glass',navPosition:'floating',navAlign:'right',navMode:'links',
-    hero:'split',cards:'elevated',contentWidth:'wide'
-  };
-  const adminControl = {
-    preset:'control',font:'system',radius:'rounded',density:'comfortable',sidebar:'brand',cards:'elevated'
-  };
+  function boot() {
+    const base = window.BRGY_THEME;
+    if (!base) {
+      if (attempts++ < 40) window.setTimeout(boot, 50);
+      return;
+    }
 
-  window.BRGY_THEME = Object.freeze({
-    ...base,
-    publicPresets:Object.freeze({...base.publicPresets,premium:publicPremium}),
-    adminPresets:Object.freeze({...base.adminPresets,control:adminControl})
-  });
+    if (!base.publicPresets?.premium || !base.adminPresets?.control) {
+      const publicPremium = {
+        preset:'premium',font:'system',radius:'rounded',density:'comfortable',
+        navSkin:'glass',nav:'glass',navPosition:'floating',navAlign:'right',navMode:'links',
+        hero:'split',cards:'elevated',contentWidth:'wide'
+      };
+      const adminControl = {
+        preset:'control',font:'system',radius:'rounded',density:'comfortable',sidebar:'brand',cards:'elevated'
+      };
+
+      window.BRGY_THEME = Object.freeze({
+        ...base,
+        publicPresets:Object.freeze({...base.publicPresets,premium:publicPremium}),
+        adminPresets:Object.freeze({...base.adminPresets,control:adminControl})
+      });
+    }
+
+    injectButtons();
+  }
 
   function injectButtons() {
     const publicGrid = document.querySelector('[data-studio-panel="public"] .studio3-presets');
@@ -47,6 +58,6 @@
     }
   }
 
-  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', injectButtons, { once:true });
-  else injectButtons();
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot, { once:true });
+  else boot();
 })();
