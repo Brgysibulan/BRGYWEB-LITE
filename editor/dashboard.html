@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Editor Dashboard</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/admin.css">
+  <link rel="stylesheet" href="../assets/css/admin.css?v=20260831-clickfix1">
 </head>
 <body class="dashboard-page">
 <div class="dashboard-shell">
@@ -28,42 +28,14 @@
       <div class="d-flex gap-2"><button class="btn btn-outline-dark" id="editor-refresh" type="button">Refresh Data</button></div>
     </header>
 
-    <section id="overview" class="dashboard-section">
-      <div class="row g-3">
-        <div class="col-6 col-xl-3"><div class="metric-card metric-accent"><span>Published</span><strong id="editor-metric-published">—</strong><small>Visible public content</small></div></div>
-        <div class="col-6 col-xl-3"><div class="metric-card"><span>Hidden / Draft</span><strong id="editor-metric-hidden">—</strong><small>Content awaiting publication</small></div></div>
-        <div class="col-6 col-xl-3"><div class="metric-card"><span>Announcements</span><strong id="editor-metric-announcements">—</strong><small>Published notices</small></div></div>
-        <div class="col-6 col-xl-3"><div class="metric-card"><span>Gallery</span><strong id="editor-metric-gallery">—</strong><small>Published photos</small></div></div>
-      </div>
-    </section>
-
-    <section class="dashboard-section">
-      <div class="row g-3">
-        <div class="col-xl-7"><div class="section-card h-100"><div class="section-card-head"><div><span class="eyebrow">Content Status</span><h2 class="h5 mb-0">Published by Section</h2></div></div><div id="editor-module-bars" class="module-bars mt-4"><div class="text-secondary">Loading content statistics…</div></div></div></div>
-        <div class="col-xl-5"><div class="section-card h-100"><div class="section-card-head"><div><span class="eyebrow">Quick Actions</span><h2 class="h5 mb-0">Common Tasks</h2></div></div><div class="quick-action-grid mt-3"><a href="../admin/announcements.html"><strong>Announcements</strong><span>Post or update public notices</span></a><a href="../admin/gallery.html"><strong>Gallery</strong><span>Upload community photos</span></a><a href="../admin/disclosure.html"><strong>Disclosure</strong><span>Manage public documents</span></a><a href="../admin/services.html"><strong>Services</strong><span>Update public service guidance</span></a></div></div></div>
-      </div>
-    </section>
-
-    <section id="workspace" class="dashboard-section">
-      <div class="section-card">
-        <div class="section-card-head"><div><span class="eyebrow">Content Workspace</span><h2 class="h5 mb-0">Available Editor Tools</h2></div><span class="badge text-bg-success">Content access</span></div>
-        <div class="row g-3 mt-1">
-          <div class="col-md-6 col-xl-4"><a class="manage-card" href="../admin/profile.html"><strong>Barangay Profile</strong><span>History, vision, mission and highlights</span></a></div>
-          <div class="col-md-6 col-xl-4"><a class="manage-card" href="../admin/officials.html"><strong>Officials</strong><span>Names, positions and public profiles</span></a></div>
-          <div class="col-md-6 col-xl-4"><a class="manage-card" href="../admin/announcements.html"><strong>Announcements</strong><span>News and community notices</span></a></div>
-          <div class="col-md-6 col-xl-4"><a class="manage-card" href="../admin/services.html"><strong>Services</strong><span>Requirements and public guidance</span></a></div>
-          <div class="col-md-6 col-xl-4"><a class="manage-card" href="../admin/directory.html"><strong>Directory</strong><span>Offices, contacts and locations</span></a></div>
-          <div class="col-md-6 col-xl-4"><a class="manage-card" href="../admin/disclosure.html"><strong>Disclosure</strong><span>Public documents and reports</span></a></div>
-          <div class="col-md-6 col-xl-4"><a class="manage-card" href="../admin/gallery.html"><strong>Gallery</strong><span>Photos, albums and captions</span></a></div>
-        </div>
-      </div>
-    </section>
-
+    <section id="overview" class="dashboard-section"><div class="row g-3"><div class="col-6 col-xl-3"><div class="metric-card metric-accent"><span>Published</span><strong id="editor-metric-published">—</strong><small>Visible public content</small></div></div><div class="col-6 col-xl-3"><div class="metric-card"><span>Hidden / Draft</span><strong id="editor-metric-hidden">—</strong><small>Content awaiting publication</small></div></div><div class="col-6 col-xl-3"><div class="metric-card"><span>Announcements</span><strong id="editor-metric-announcements">—</strong><small>Published notices</small></div></div><div class="col-6 col-xl-3"><div class="metric-card"><span>Gallery</span><strong id="editor-metric-gallery">—</strong><small>Published photos</small></div></div></div></section>
+    <section class="dashboard-section"><div class="row g-3"><div class="col-xl-7"><div class="section-card h-100"><div class="section-card-head"><div><span class="eyebrow">Content Status</span><h2 class="h5 mb-0">Published by Section</h2></div></div><div id="editor-module-bars" class="module-bars mt-4"><div class="text-secondary">Loading content statistics…</div></div></div></div><div class="col-xl-5"><div class="section-card h-100"><div class="section-card-head"><div><span class="eyebrow">Quick Actions</span><h2 class="h5 mb-0">Common Tasks</h2></div></div><div class="quick-action-grid mt-3"><a href="../admin/announcements.html"><strong>Announcements</strong><span>Post or update public notices</span></a><a href="../admin/gallery.html"><strong>Gallery</strong><span>Upload community photos</span></a><a href="../admin/disclosure.html"><strong>Disclosure</strong><span>Manage public documents</span></a><a href="../admin/services.html"><strong>Services</strong><span>Update public service guidance</span></a></div></div></div></div></section>
+    <section id="workspace" class="dashboard-section"><div class="section-card"><div class="section-card-head"><div><span class="eyebrow">Content Workspace</span><h2 class="h5 mb-0">Available Editor Tools</h2></div><span class="badge text-bg-success">Content access</span></div><div class="row g-3 mt-1"><div class="col-md-6 col-xl-4"><a class="manage-card" href="../admin/profile.html"><strong>Barangay Profile</strong><span>History, vision, mission and highlights</span></a></div><div class="col-md-6 col-xl-4"><a class="manage-card" href="../admin/officials.html"><strong>Officials</strong><span>Names, positions and public profiles</span></a></div><div class="col-md-6 col-xl-4"><a class="manage-card" href="../admin/announcements.html"><strong>Announcements</strong><span>News and community notices</span></a></div><div class="col-md-6 col-xl-4"><a class="manage-card" href="../admin/services.html"><strong>Services</strong><span>Requirements and public guidance</span></a></div><div class="col-md-6 col-xl-4"><a class="manage-card" href="../admin/directory.html"><strong>Directory</strong><span>Offices, contacts and locations</span></a></div><div class="col-md-6 col-xl-4"><a class="manage-card" href="../admin/disclosure.html"><strong>Disclosure</strong><span>Public documents and reports</span></a></div><div class="col-md-6 col-xl-4"><a class="manage-card" href="../admin/gallery.html"><strong>Gallery</strong><span>Photos, albums and captions</span></a></div></div></div></section>
     <section class="dashboard-section"><div class="section-card admin-only-card"><span class="eyebrow">Restricted</span><h2 class="h5 mt-2">Administrator-only areas</h2><p class="text-secondary mb-0">Verification / QR records, site branding and settings, Editor account management, and security controls remain unavailable to Editor accounts.</p></div></section>
   </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../assets/js/supabase-config.js"></script>
-<script src="../assets/js/editor.js"></script>
+<script src="../assets/js/supabase-config.js?v=20260831-clickfix1"></script>
+<script src="../assets/js/editor.js?v=20260831-clickfix1"></script>
 </body>
 </html>
