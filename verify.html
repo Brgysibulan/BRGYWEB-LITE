@@ -1,1 +1,44 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="description" content="Secure barangay ID verification"><title>Verify | Barangay Website</title><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet"><link rel="stylesheet" href="assets/css/style.css"></head><body><header class="site-header sticky-top"></header><main><section class="page-hero section-space section-soft"><div class="container"><span class="eyebrow">Secure Verification</span><h1 class="display-5 fw-bold mt-2">Barangay ID Verification</h1><p class="lead mb-0">Scan the official ID QR for automatic verification, or verify manually using the control number and holder's last name.</p></div></section><section class="section-space"><div class="container"><div class="content-panel mx-auto" style="max-width:760px"><div class="mb-4"><h2 class="h4">Verify an ID</h2><p class="text-secondary mb-0">QR links verify one exact record automatically. Manual verification still requires both the control number and last name.</p></div><form id="verify-form" class="row g-3"><div class="col-md-6"><label for="control-number" class="form-label">Control Number</label><input id="control-number" class="form-control form-control-lg" type="text" placeholder="e.g. 2026001" maxlength="40" autocomplete="off" required></div><div class="col-md-6"><label for="last-name" class="form-label">Last Name</label><input id="last-name" class="form-control form-control-lg" type="text" placeholder="As printed on the ID" maxlength="80" autocomplete="off" required></div><div class="col-12"><button class="btn btn-primary btn-lg" type="submit">Verify Record</button></div></form><div id="verify-result" class="empty-state mt-4">Enter the ID details above or scan an official QR code.</div></div></div></section></main><footer class="site-footer"></footer><script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script><script src="assets/js/public-shell.js"></script><script src="assets/js/supabase-config.js"></script><script src="assets/js/site-config.js"></script><script src="assets/js/app.js"></script><script src="assets/js/verify.js"></script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="Secure barangay ID and record verification">
+  <title>Verify | Barangay Website</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+<header class="site-header sticky-top"></header>
+<main>
+  <section class="page-hero section-space section-soft"><div class="container"><span class="eyebrow">Secure Verification</span><h1 class="display-5 fw-bold mt-2">Barangay Record Verification</h1><p class="lead mb-0">Confirm supported barangay records through an official QR link or by entering the control number and holder's last name.</p></div></section>
+  <section class="section-space">
+    <div class="container">
+      <div class="verify-shell">
+        <div class="verify-trust-grid" aria-label="Verification information">
+          <div class="verify-trust-item"><strong>Official Database Check</strong><span>Queries the barangay's published verification endpoint.</span></div>
+          <div class="verify-trust-item"><strong>QR or Manual</strong><span>Scan an official QR or enter the printed record details.</span></div>
+          <div class="verify-trust-item"><strong>Limited Public Details</strong><span>Only verification-relevant information is displayed publicly.</span></div>
+        </div>
+        <div class="content-panel verify-main-card">
+          <div class="mb-4"><span class="eyebrow">Verification Portal</span><h2 class="h3 mt-2 mb-2">Verify a Record</h2><p class="text-secondary mb-0">QR links verify one exact record automatically. For manual lookup, enter both fields exactly as shown on the barangay-issued record.</p></div>
+          <form id="verify-form" class="row g-3">
+            <div class="col-md-6"><label for="control-number" class="form-label">Control Number</label><input id="control-number" class="form-control form-control-lg" type="text" placeholder="e.g. 2026001" maxlength="40" autocomplete="off" required></div>
+            <div class="col-md-6"><label for="last-name" class="form-label">Last Name</label><input id="last-name" class="form-control form-control-lg" type="text" placeholder="As printed on the record" maxlength="80" autocomplete="off" required></div>
+            <div class="col-12 d-flex flex-wrap align-items-center gap-3"><button class="btn btn-primary btn-lg" type="submit">Verify Record</button><span class="small text-secondary">Use only official barangay-issued control details.</span></div>
+          </form>
+          <div id="verify-result" class="empty-state mt-4">Enter the record details above or scan an official QR code.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+<footer class="site-footer"></footer>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/js/bootstrap.bundle.min.js"></script>
+<script src="assets/js/public-shell.js?v=20260901-premium2"></script>
+<script src="assets/js/supabase-config.js?v=20260901-premium2"></script>
+<script src="assets/js/site-config.js"></script>
+<script src="assets/js/app.js?v=20260901-premium2"></script>
+<script src="assets/js/verify.js?v=20260901-premium2"></script>
+</body>
+</html>
