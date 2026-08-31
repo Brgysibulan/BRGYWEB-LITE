@@ -2,20 +2,23 @@
   'use strict';
 
   const SITE_CACHE_KEY = 'brgyweb:site-settings:v2';
-  const UI_VERSION = '20260901-premium1';
+  const UI_VERSION = '20260901-premium2';
   const header = document.querySelector('.site-header');
   const footer = document.querySelector('.site-footer');
   const page = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
 
-  function ensurePremiumStyles() {
-    if (document.querySelector('link[data-brgy-premium-public]')) return;
+  function addStyle(key, file) {
+    if (document.querySelector(`link[data-brgy-${key}]`)) return;
     const link = document.createElement('link');
     link.rel = 'stylesheet';
-    link.href = `assets/css/premium-public.css?v=${UI_VERSION}`;
-    link.dataset.brgyPremiumPublic = 'true';
+    link.href = `assets/css/${file}?v=${UI_VERSION}`;
+    link.setAttribute(`data-brgy-${key}`, 'true');
     document.head.appendChild(link);
   }
-  ensurePremiumStyles();
+
+  addStyle('premium-public', 'premium-public.css');
+  addStyle('premium-pages', 'premium-pages.css');
+  document.body.dataset.publicPage = page.replace(/\.html$/,'') || 'home';
 
   const escapeHtml = (value) => String(value ?? '')
     .replaceAll('&', '&amp;')
