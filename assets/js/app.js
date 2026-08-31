@@ -43,7 +43,7 @@
         return;
       }
       const script=document.createElement('script');
-      script.src='assets/js/design-theme.js';
+      script.src='assets/js/design-theme.js?v=20260901-studio2';
       script.dataset.brgyDesignTheme='true';
       script.onload=()=>resolve(window.BRGY_THEME);
       script.onerror=()=>resolve(null);
