@@ -85,8 +85,45 @@
 
       <section id="users" class="dashboard-section">
         <div class="section-card">
-          <div class="section-card-head"><div><span class="eyebrow">Access</span><h2 class="h5 mb-0">Editor Account</h2></div></div>
-          <p class="text-secondary mb-0">The editor can manage approved public-facing modules but cannot change authentication, roles, security, or system configuration.</p>
+          <div class="section-card-head flex-wrap">
+            <div>
+              <span class="eyebrow">Access</span>
+              <h2 class="h5 mb-0">Editor Accounts</h2>
+            </div>
+            <span class="badge text-bg-light border">Admin only</span>
+          </div>
+          <p class="text-secondary mt-2">Invite editors by email. Editors choose their own password and cannot access system/security settings.</p>
+
+          <form id="editor-invite-form" class="row g-3 align-items-end mt-1">
+            <div class="col-md-5">
+              <label class="form-label" for="editor-display-name">Display Name</label>
+              <input class="form-control" id="editor-display-name" type="text" maxlength="120" placeholder="Editor name">
+            </div>
+            <div class="col-md-5">
+              <label class="form-label" for="editor-email">Email</label>
+              <input class="form-control" id="editor-email" type="email" autocomplete="off" required placeholder="editor@example.com">
+            </div>
+            <div class="col-md-2 d-grid">
+              <button class="btn btn-dark" type="submit">Invite Editor</button>
+            </div>
+          </form>
+          <div id="editor-manage-status" class="small text-secondary mt-3" role="status"></div>
+
+          <div class="table-responsive mt-4">
+            <table class="table align-middle mb-0">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Status</th>
+                  <th class="text-end">Action</th>
+                </tr>
+              </thead>
+              <tbody id="editor-list">
+                <tr><td colspan="4" class="text-secondary">Loading editor accounts...</td></tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </section>
     </main>
