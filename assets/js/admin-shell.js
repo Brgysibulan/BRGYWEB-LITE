@@ -2,11 +2,14 @@
   'use strict';
 
   const ROLE_CACHE_KEY = 'brgyweb:staff-role:v1';
+  const ASSET_VERSION = '20260831d';
   const path = window.location.pathname;
   const inAdmin = /\/admin\//.test(path);
   const inEditor = /\/editor\//.test(path);
   const file = (path.split('/').pop() || '').toLowerCase();
   if ((!inAdmin && !inEditor) || file === 'login.html') return;
+
+  let stylesPromise = null;
 
   function syncUiReady() {
     const root = document.documentElement;
@@ -44,12 +47,25 @@
   ];
 
   function ensureStyles() {
-    if (document.querySelector('link[data-brgy-admin-shell]')) return;
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.dataset.brgyAdminShell = 'true';
-    link.href = '../assets/css/admin-shell.css';
-    document.head.appendChild(link);
+    if (stylesPromise) return stylesPromise;
+    stylesPromise = new Promise((resolve) => {
+      let link = document.querySelector('link[data-brgy-admin-shell]');
+      if (link) {
+        if (link.dataset.loaded === 'true' || link.sheet) { resolve(); return; }
+        link.addEventListener('load', () => { link.dataset.loaded = 'true'; resolve(); }, { once:true });
+        link.addEventListener('error', resolve, { once:true });
+        return;
+      }
+      link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.dataset.brgyAdminShell = 'true';
+      link.href = `../assets/css/admin-shell.css?v=${ASSET_VERSION}`;
+      link.addEventListener('load', () => { link.dataset.loaded = 'true'; resolve(); }, { once:true });
+      link.addEventListener('error', resolve, { once:true });
+      document.head.appendChild(link);
+      setTimeout(resolve, 2500);
+    });
+    return stylesPromise;
   }
 
   function hrefFor(target, role = currentRole) {
@@ -78,7 +94,7 @@
   }
 
   function preserveLegacyHooks(sidebar, main) {
-    if (!sidebar || !main) return;
+    if (!main) return;
     let compat = main.querySelector(':scope > .admin-shell-compat');
     if (!compat) {
       compat = document.createElement('div');
@@ -86,7 +102,12 @@
       compat.hidden = true;
       main.appendChild(compat);
     }
-    sidebar.querySelectorAll('#admin-signout,#editor-signout,#profile-signout,#directory-signout').forEach((node) => compat.appendChild(node));
+    const selector = '#admin-signout,#editor-signout,#profile-signout,#directory-signout';
+    [sidebar, main].filter(Boolean).forEach((root) => {
+      root.querySelectorAll(selector).forEach((node) => {
+        if (!compat.contains(node)) compat.appendChild(node);
+      });
+    });
   }
 
   function ensureLayout() {
@@ -117,10 +138,12 @@
     main.classList.add('dashboard-main','admin-module-main');
     main.classList.remove('py-4','py-lg-5');
 
-    if (!document.querySelector('.admin-mobile-overlay')) {
-      const overlay = document.createElement('div');
+    let overlay = document.querySelector('.admin-mobile-overlay');
+    if (!overlay) {
+      overlay = document.createElement('div');
       overlay.className = 'admin-mobile-overlay';
       overlay.dataset.adminMenuClose = 'true';
+      overlay.setAttribute('aria-hidden','true');
       document.body.appendChild(overlay);
     }
 
@@ -130,7 +153,7 @@
       mobile.innerHTML = `<button class="admin-mobile-menu-btn" type="button" aria-label="Open admin menu" aria-expanded="false" data-admin-menu-toggle>☰</button><div class="admin-mobile-title"><strong>${labels[file] || document.title || 'Admin Panel'}</strong><small data-mobile-role>Staff workspace</small></div><a class="admin-mobile-public" href="../index.html">Public site</a>`;
       main.prepend(mobile);
     }
-    return { shell, main, sidebar };
+    return { shell, main, sidebar, overlay };
   }
 
   function render(role) {
@@ -146,8 +169,17 @@
     syncUiReady();
   }
 
-  function closeMenu() { document.documentElement.classList.remove('admin-menu-open'); document.querySelector('[data-admin-menu-toggle]')?.setAttribute('aria-expanded','false'); }
-  function openMenu() { document.documentElement.classList.add('admin-menu-open'); document.querySelector('[data-admin-menu-toggle]')?.setAttribute('aria-expanded','true'); }
+  function closeMenu() {
+    document.documentElement.classList.remove('admin-menu-open');
+    document.querySelector('[data-admin-menu-toggle]')?.setAttribute('aria-expanded','false');
+    document.querySelector('.admin-mobile-overlay')?.setAttribute('aria-hidden','true');
+  }
+
+  function openMenu() {
+    document.documentElement.classList.add('admin-menu-open');
+    document.querySelector('[data-admin-menu-toggle]')?.setAttribute('aria-expanded','true');
+    document.querySelector('.admin-mobile-overlay')?.setAttribute('aria-hidden','false');
+  }
 
   async function resolveRole() {
     const client = window.BRGY_SUPABASE;
@@ -165,6 +197,7 @@
   async function signOut() {
     const client = window.BRGY_SUPABASE;
     const role = currentRole;
+    closeMenu();
     writeRoleCache(null);
     try { if (client) await client.auth.signOut(); } catch (error) { console.warn('Sign out warning:', error); }
     if (role === 'editor') window.location.href = inEditor ? 'login.html' : '../editor/login.html';
@@ -173,16 +206,23 @@
 
   document.addEventListener('click', (event) => {
     const toggle = event.target.closest('[data-admin-menu-toggle]');
-    if (toggle) { event.preventDefault(); document.documentElement.classList.contains('admin-menu-open') ? closeMenu() : openMenu(); return; }
+    if (toggle) {
+      event.preventDefault();
+      document.documentElement.classList.contains('admin-menu-open') ? closeMenu() : openMenu();
+      return;
+    }
     if (event.target.closest('[data-admin-menu-close]')) { closeMenu(); return; }
     if (event.target.closest('.unified-sidebar a') && window.matchMedia('(max-width:900px)').matches) closeMenu();
     if (event.target.closest('[data-unified-signout]')) { event.preventDefault(); signOut(); }
   });
+
   document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeMenu(); });
   window.addEventListener('resize', () => { if (window.innerWidth > 900) closeMenu(); });
+  window.addEventListener('pageshow', closeMenu);
 
   async function init() {
-    ensureStyles();
+    closeMenu();
+    await ensureStyles();
     const cached = readRoleCache();
     if (cached) render(cached);
 
