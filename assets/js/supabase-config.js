@@ -3,6 +3,7 @@
 
   const SUPABASE_URL = 'https://pkvorwvkqjnbgktkgjhr.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_RbaENAflMzLgXpemymGApA_TkVAhMoU';
+  const STAFF_ASSET_VERSION = '20260831-reloadfix4';
 
   window.BRGY_SUPABASE_CONFIG = {
     url: SUPABASE_URL,
@@ -33,14 +34,14 @@
 
   if (isStaffPage && !isDesignStudio && !document.querySelector('script[data-brgy-design-theme]')) {
     const script = document.createElement('script');
-    script.src = '../assets/js/design-theme.js';
+    script.src = `../assets/js/design-theme.js?v=${STAFF_ASSET_VERSION}`;
     script.dataset.brgyDesignTheme = 'true';
     document.head.appendChild(script);
   }
 
   if (isStaffPage && !isLoginPage && !document.querySelector('script[data-brgy-admin-shell]')) {
     const shellScript = document.createElement('script');
-    shellScript.src = '../assets/js/admin-shell.js';
+    shellScript.src = `../assets/js/admin-shell.js?v=${STAFF_ASSET_VERSION}`;
     shellScript.dataset.brgyAdminShell = 'true';
     document.head.appendChild(shellScript);
   }
