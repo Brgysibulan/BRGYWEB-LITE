@@ -9,6 +9,17 @@
   const adminDashboard = 'dashboard.html';
   const adminLogin = 'login.html';
 
+  function loadDesignTheme() {
+    if (window.BRGY_THEME) return window.BRGY_THEME.load(client, 'admin');
+    return new Promise((resolve) => {
+      const script = document.createElement('script');
+      script.src = '../assets/js/design-theme.js';
+      script.onload = async () => resolve(await window.BRGY_THEME?.load(client, 'admin'));
+      script.onerror = () => resolve(null);
+      document.head.appendChild(script);
+    });
+  }
+
   async function detectRole() {
     try {
       const { data: userData } = await client.auth.getUser();
@@ -39,5 +50,8 @@
     window.location.href = editorLogin;
   }, true);
 
-  document.addEventListener('DOMContentLoaded', detectRole);
+  document.addEventListener('DOMContentLoaded', () => {
+    loadDesignTheme();
+    detectRole();
+  });
 })();
