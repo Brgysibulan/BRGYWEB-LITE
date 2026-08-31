@@ -10,35 +10,14 @@
   let currentRole = inEditor ? 'editor' : 'staff';
 
   const labels = {
-    'dashboard.html':'Dashboard',
-    'announcements.html':'Announcements',
-    'officials.html':'Officials',
-    'services.html':'Services',
-    'directory.html':'Directory',
-    'disclosure.html':'Disclosure',
-    'gallery.html':'Gallery',
-    'profile.html':'Barangay Profile',
-    'verification.html':'Verification / QR',
-    'settings.html':'Site Settings',
-    'design-studio.html':'Design Studio',
-    'editors.html':'Editor Accounts'
+    'dashboard.html':'Dashboard','announcements.html':'Announcements','officials.html':'Officials','services.html':'Services','directory.html':'Directory','disclosure.html':'Disclosure','gallery.html':'Gallery','profile.html':'Barangay Profile','verification.html':'Verification / QR','settings.html':'Site Settings','design-studio.html':'Design Studio','editors.html':'Editor Accounts'
   };
 
   const contentItems = [
-    ['announcements.html','Announcements'],
-    ['officials.html','Officials'],
-    ['services.html','Services'],
-    ['directory.html','Directory'],
-    ['disclosure.html','Disclosure'],
-    ['gallery.html','Gallery'],
-    ['profile.html','Barangay Profile']
+    ['announcements.html','Announcements'],['officials.html','Officials'],['services.html','Services'],['directory.html','Directory'],['disclosure.html','Disclosure'],['gallery.html','Gallery'],['profile.html','Barangay Profile']
   ];
-
   const adminItems = [
-    ['verification.html','Verification / QR'],
-    ['settings.html','Site Settings'],
-    ['design-studio.html','Design Studio'],
-    ['editors.html','Editor Accounts']
+    ['verification.html','Verification / QR'],['settings.html','Site Settings'],['design-studio.html','Design Studio'],['editors.html','Editor Accounts']
   ];
 
   function ensureStyles() {
@@ -46,7 +25,7 @@
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.dataset.brgyAdminShell = 'true';
-    link.href = inAdmin ? '../assets/css/admin-shell.css' : '../assets/css/admin-shell.css';
+    link.href = '../assets/css/admin-shell.css';
     document.head.appendChild(link);
   }
 
@@ -66,29 +45,25 @@
 
   function navLink(target, label, role) {
     const active = isActive(target, role) ? ' active' : '';
-    const current = active ? ' aria-current="page"' : '';
-    return `<a class="${active.trim()}" href="${hrefFor(target,role)}"${current}>${label}</a>`;
+    return `<a class="${active.trim()}" href="${hrefFor(target,role)}"${active ? ' aria-current="page"' : ''}>${label}</a>`;
   }
 
   function sidebarMarkup(role) {
-    const isAdminRole = role === 'admin';
-    const roleLabel = isAdminRole ? 'Administrator' : role === 'editor' ? 'Content Editor' : 'Staff';
-    const content = contentItems.map(([target,label]) => navLink(target,label,role)).join('');
-    const administration = isAdminRole
-      ? `<div class="sidebar-label">Administration</div>${adminItems.map(([target,label]) => navLink(target,label,role)).join('')}`
-      : '';
+    const roleLabel = role === 'admin' ? 'Administrator' : role === 'editor' ? 'Content Editor' : 'Staff';
+    const administration = role === 'admin' ? `<div class="sidebar-label">Administration</div>${adminItems.map(([target,label]) => navLink(target,label,role)).join('')}` : '';
+    return `<div class="sidebar-head"><div class="sidebar-logo">B</div><div><div class="sidebar-brand">BRGYWEB-LITE</div><div class="sidebar-role-badge"><span class="sidebar-role-dot"></span><span class="sidebar-role">${roleLabel}</span></div></div></div><nav class="sidebar-nav mt-3"><div class="sidebar-label">Overview</div>${navLink('dashboard.html','Dashboard',role)}<div class="sidebar-label">Content</div>${contentItems.map(([target,label]) => navLink(target,label,role)).join('')}${administration}<div class="sidebar-divider"></div><button class="unified-signout" type="button" data-unified-signout>Sign out</button></nav><a class="sidebar-exit" href="../index.html">View public site</a>`;
+  }
 
-    return `<div class="sidebar-head"><div class="sidebar-logo">B</div><div><div class="sidebar-brand">BRGYWEB-LITE</div><div class="sidebar-role-badge"><span class="sidebar-role-dot"></span><span class="sidebar-role">${roleLabel}</span></div></div></div>
-      <nav class="sidebar-nav mt-3">
-        <div class="sidebar-label">Overview</div>
-        ${navLink('dashboard.html','Dashboard',role)}
-        <div class="sidebar-label">Content</div>
-        ${content}
-        ${administration}
-        <div class="sidebar-divider"></div>
-        <button class="unified-signout" type="button" data-unified-signout>Sign out</button>
-      </nav>
-      <a class="sidebar-exit" href="../index.html">View public site</a>`;
+  function preserveLegacyHooks(sidebar, main) {
+    if (!sidebar || !main) return;
+    let compat = main.querySelector(':scope > .admin-shell-compat');
+    if (!compat) {
+      compat = document.createElement('div');
+      compat.className = 'admin-shell-compat';
+      compat.hidden = true;
+      main.appendChild(compat);
+    }
+    sidebar.querySelectorAll('#admin-signout,#editor-signout,#profile-signout,#directory-signout').forEach((node) => compat.appendChild(node));
   }
 
   function ensureLayout() {
@@ -101,10 +76,7 @@
       shell.classList.add('unified-admin-shell');
       main = shell.querySelector(':scope > main') || shell.querySelector('.dashboard-main');
       sidebar = shell.querySelector(':scope > .sidebar');
-      if (!sidebar) {
-        sidebar = document.createElement('aside');
-        shell.prepend(sidebar);
-      }
+      if (!sidebar) { sidebar = document.createElement('aside'); shell.prepend(sidebar); }
     } else {
       main = document.querySelector('body > main');
       if (!main) return null;
@@ -117,6 +89,7 @@
     }
 
     if (!main) return null;
+    preserveLegacyHooks(sidebar, main);
     sidebar.className = 'sidebar unified-sidebar';
     main.classList.add('dashboard-main','admin-module-main');
     main.classList.remove('py-4','py-lg-5');
@@ -134,7 +107,6 @@
       mobile.innerHTML = `<button class="admin-mobile-menu-btn" type="button" aria-label="Open admin menu" aria-expanded="false" data-admin-menu-toggle>☰</button><div class="admin-mobile-title"><strong>${labels[file] || document.title || 'Admin Panel'}</strong><small data-mobile-role>Staff workspace</small></div><a class="admin-mobile-public" href="../index.html">Public site</a>`;
       main.prepend(mobile);
     }
-
     return { shell, main, sidebar };
   }
 
@@ -148,15 +120,8 @@
     document.documentElement.dataset.staffRole = currentRole;
   }
 
-  function closeMenu() {
-    document.documentElement.classList.remove('admin-menu-open');
-    document.querySelector('[data-admin-menu-toggle]')?.setAttribute('aria-expanded','false');
-  }
-
-  function openMenu() {
-    document.documentElement.classList.add('admin-menu-open');
-    document.querySelector('[data-admin-menu-toggle]')?.setAttribute('aria-expanded','true');
-  }
+  function closeMenu() { document.documentElement.classList.remove('admin-menu-open'); document.querySelector('[data-admin-menu-toggle]')?.setAttribute('aria-expanded','false'); }
+  function openMenu() { document.documentElement.classList.add('admin-menu-open'); document.querySelector('[data-admin-menu-toggle]')?.setAttribute('aria-expanded','true'); }
 
   async function resolveRole() {
     const client = window.BRGY_SUPABASE;
@@ -167,9 +132,7 @@
       const { data: profile, error: profileError } = await client.from('profiles').select('role,is_active').eq('user_id',data.user.id).maybeSingle();
       if (profileError || profile?.is_active !== true) return currentRole;
       if (profile.role === 'admin' || profile.role === 'editor') return profile.role;
-    } catch (error) {
-      console.warn('Unable to resolve unified admin shell role:', error);
-    }
+    } catch (error) { console.warn('Unable to resolve unified admin shell role:', error); }
     return currentRole;
   }
 
@@ -183,23 +146,11 @@
 
   document.addEventListener('click', (event) => {
     const toggle = event.target.closest('[data-admin-menu-toggle]');
-    if (toggle) {
-      event.preventDefault();
-      document.documentElement.classList.contains('admin-menu-open') ? closeMenu() : openMenu();
-      return;
-    }
-    if (event.target.closest('[data-admin-menu-close]')) {
-      closeMenu();
-      return;
-    }
-    const nav = event.target.closest('.unified-sidebar a');
-    if (nav && window.matchMedia('(max-width:900px)').matches) closeMenu();
-    if (event.target.closest('[data-unified-signout]')) {
-      event.preventDefault();
-      signOut();
-    }
+    if (toggle) { event.preventDefault(); document.documentElement.classList.contains('admin-menu-open') ? closeMenu() : openMenu(); return; }
+    if (event.target.closest('[data-admin-menu-close]')) { closeMenu(); return; }
+    if (event.target.closest('.unified-sidebar a') && window.matchMedia('(max-width:900px)').matches) closeMenu();
+    if (event.target.closest('[data-unified-signout]')) { event.preventDefault(); signOut(); }
   });
-
   document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeMenu(); });
   window.addEventListener('resize', () => { if (window.innerWidth > 900) closeMenu(); });
 
