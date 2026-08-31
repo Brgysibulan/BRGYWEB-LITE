@@ -10,9 +10,14 @@
 <body class="dashboard-page admin-control-center">
 <div class="dashboard-shell">
   <aside class="sidebar">
-    <div><div class="sidebar-brand">BRGYWEB-LITE</div><div class="sidebar-role">Administrator</div></div>
+    <div class="sidebar-head">
+      <div class="sidebar-logo">B</div>
+      <div><div class="sidebar-brand">BRGYWEB-LITE</div><div class="sidebar-role">Administrator</div></div>
+    </div>
     <nav class="sidebar-nav mt-4">
+      <div class="sidebar-label">Overview</div>
       <a class="active" href="dashboard.html">Dashboard</a>
+      <div class="sidebar-label">Content</div>
       <a href="announcements.html">Announcements</a>
       <a href="officials.html">Officials</a>
       <a href="services.html">Services</a>
@@ -20,6 +25,7 @@
       <a href="disclosure.html">Disclosure</a>
       <a href="gallery.html">Gallery</a>
       <a href="profile.html">Barangay Profile</a>
+      <div class="sidebar-label">Administration</div>
       <a href="verification.html">Verification / QR</a>
       <a href="settings.html">Site Settings</a>
       <a href="editors.html">Editor Accounts</a>
@@ -27,39 +33,47 @@
     <a class="sidebar-exit" href="../index.html">View public site</a>
   </aside>
 
-  <main class="dashboard-main">
+  <main class="dashboard-main compact-dashboard">
     <header class="dashboard-topbar control-topbar">
-      <div><span class="eyebrow">Control Center</span><h1 class="h3 mb-1">Admin Dashboard</h1><p class="text-secondary mb-0">Quick live overview and common actions.</p></div>
-      <div class="d-flex gap-2"><button class="btn btn-outline-dark" id="dashboard-refresh" type="button">Refresh</button><button class="btn btn-dark" type="button" id="admin-signout">Sign out</button></div>
+      <div>
+        <span class="eyebrow">Control Center</span>
+        <h1 class="h3 mb-1">Dashboard</h1>
+        <p class="text-secondary mb-0">Barangay content and system overview.</p>
+      </div>
+      <div class="dashboard-actions">
+        <div class="admin-chip"><span class="admin-avatar">A</span><span>Administrator</span></div>
+        <button class="btn btn-outline-dark" id="dashboard-refresh" type="button">Refresh</button>
+        <button class="btn btn-dark" type="button" id="admin-signout">Sign out</button>
+      </div>
     </header>
 
-    <section id="overview" class="dashboard-section">
+    <section id="overview" class="dashboard-section compact-metrics">
       <div class="row g-3">
-        <div class="col-6 col-xl-3"><div class="metric-card metric-accent"><span>Published</span><strong id="metric-published">—</strong><small id="metric-published-note">Loading…</small></div></div>
-        <div class="col-6 col-xl-3"><div class="metric-card"><span>Hidden / Draft</span><strong id="metric-hidden">—</strong><small>Not public yet</small></div></div>
-        <div class="col-6 col-xl-3"><div class="metric-card"><span>Verification</span><strong id="metric-verification">—</strong><small>Secure records</small></div></div>
-        <div class="col-6 col-xl-3"><div class="metric-card"><span>Active Editors</span><strong id="metric-editors">—</strong><small>Content access</small></div></div>
+        <div class="col-6 col-xl-3"><div class="metric-card metric-published-card"><div class="metric-top"><span>Published</span><span class="metric-dot"></span></div><strong id="metric-published">—</strong><small id="metric-published-note">Loading…</small></div></div>
+        <div class="col-6 col-xl-3"><div class="metric-card metric-draft-card"><div class="metric-top"><span>Hidden / Draft</span><span class="metric-dot"></span></div><strong id="metric-hidden">—</strong><small>Not public yet</small></div></div>
+        <div class="col-6 col-xl-3"><div class="metric-card metric-record-card"><div class="metric-top"><span>Verification</span><span class="metric-dot"></span></div><strong id="metric-verification">—</strong><small>Secure records</small></div></div>
+        <div class="col-6 col-xl-3"><div class="metric-card metric-editor-card"><div class="metric-top"><span>Active Editors</span><span class="metric-dot"></span></div><strong id="metric-editors">—</strong><small>Content access</small></div></div>
       </div>
     </section>
 
     <section class="dashboard-section">
       <div class="row g-3">
-        <div class="col-xl-5">
-          <div class="section-card h-100">
-            <div class="section-card-head"><div><span class="eyebrow">Publishing</span><h2 class="h5 mb-0">Content Status</h2></div><span id="content-health-label" class="badge text-bg-light border">Loading</span></div>
-            <div class="chart-summary mt-3">
+        <div class="col-xl-4">
+          <div class="section-card dashboard-panel h-100">
+            <div class="section-card-head"><div><span class="eyebrow">Publishing</span><h2 class="h6 mb-0">Content Status</h2></div><span id="content-health-label" class="status-pill">Loading</span></div>
+            <div class="chart-summary compact-chart mt-2">
               <div class="donut-chart" id="content-donut" style="--published-angle:0deg"><div><strong id="chart-published-percent">0%</strong><span>published</span></div></div>
               <div class="chart-legend">
                 <div><span class="legend-dot published"></span><div><strong id="legend-published">0</strong><small>Published</small></div></div>
-                <div><span class="legend-dot hidden"></span><div><strong id="legend-hidden">0</strong><small>Hidden / Draft</small></div></div>
+                <div><span class="legend-dot hidden"></span><div><strong id="legend-hidden">0</strong><small>Hidden</small></div></div>
               </div>
             </div>
           </div>
         </div>
-        <div class="col-xl-7">
-          <div class="section-card h-100">
-            <div class="section-card-head"><div><span class="eyebrow">Modules</span><h2 class="h5 mb-0">Published by Section</h2></div></div>
-            <div id="module-bars" class="module-bars mt-3"><div class="text-secondary">Loading statistics…</div></div>
+        <div class="col-xl-8">
+          <div class="section-card dashboard-panel h-100">
+            <div class="section-card-head"><div><span class="eyebrow">Content</span><h2 class="h6 mb-0">Published by Section</h2></div><a class="small text-decoration-none fw-semibold" href="announcements.html">Manage content →</a></div>
+            <div id="module-bars" class="module-bars compact-bars mt-3"><div class="text-secondary">Loading statistics…</div></div>
           </div>
         </div>
       </div>
@@ -67,20 +81,20 @@
 
     <section class="dashboard-section mb-0">
       <div class="row g-3">
-        <div class="col-xl-7">
-          <div class="section-card h-100">
-            <div class="section-card-head"><div><span class="eyebrow">Recent Activity</span><h2 class="h5 mb-0">Latest Content Changes</h2></div><button class="btn btn-sm btn-outline-dark" id="activity-refresh" type="button">Refresh</button></div>
-            <div id="recent-activity" class="activity-list mt-2"><div class="text-secondary">Loading recent activity…</div></div>
+        <div class="col-xl-8">
+          <div class="section-card dashboard-panel h-100">
+            <div class="section-card-head"><div><span class="eyebrow">Activity</span><h2 class="h6 mb-0">Recent Content Changes</h2></div><button class="btn btn-sm btn-outline-dark" id="activity-refresh" type="button">Refresh</button></div>
+            <div id="recent-activity" class="activity-list compact-activity mt-2"><div class="text-secondary">Loading recent activity…</div></div>
           </div>
         </div>
-        <div class="col-xl-5">
-          <div class="section-card h-100">
-            <div class="section-card-head"><div><span class="eyebrow">Quick Actions</span><h2 class="h5 mb-0">Common Tasks</h2></div></div>
-            <div class="quick-action-grid mt-3">
-              <a href="announcements.html"><strong>Announcement</strong><span>Post a public update</span></a>
-              <a href="gallery.html"><strong>Gallery</strong><span>Upload a photo</span></a>
-              <a href="disclosure.html"><strong>Disclosure</strong><span>Add a document</span></a>
-              <a href="verification.html"><strong>Verification</strong><span>Manage IDs and QR</span></a>
+        <div class="col-xl-4">
+          <div class="section-card dashboard-panel h-100">
+            <div class="section-card-head"><div><span class="eyebrow">Shortcuts</span><h2 class="h6 mb-0">Quick Actions</h2></div></div>
+            <div class="quick-action-grid compact-actions mt-3">
+              <a href="announcements.html"><strong>Announcement</strong><span>Post update</span></a>
+              <a href="gallery.html"><strong>Gallery</strong><span>Upload photo</span></a>
+              <a href="disclosure.html"><strong>Disclosure</strong><span>Add document</span></a>
+              <a href="verification.html"><strong>Verification</strong><span>IDs and QR</span></a>
             </div>
           </div>
         </div>
