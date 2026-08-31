@@ -18,6 +18,10 @@
         <a class="active" href="#overview">Overview</a>
         <a href="#site-settings">Site Settings</a>
         <a href="#content">Content</a>
+        <a href="#profile">Barangay Profile</a>
+        <a href="#directory">Directory</a>
+        <a href="#disclosure">Disclosure</a>
+        <a href="#verify">Verify</a>
         <a href="#officials">Officials</a>
         <a href="#announcements">Announcements</a>
         <a href="#services">Services</a>
@@ -61,7 +65,10 @@
         <div class="section-card">
           <div class="section-card-head"><div><span class="eyebrow">Public Pages</span><h2 class="h5 mb-0">Content Manager</h2></div></div>
           <div class="row g-3 mt-1">
-            <div class="col-md-6 col-xl-4"><div class="manage-card"><strong>Barangay Profile</strong><span>History, vision, mission, highlights</span></div></div>
+            <div class="col-md-6 col-xl-4"><div class="manage-card"><strong>Barangay Profile</strong><span>History, vision, mission, statistics, highlights</span></div></div>
+            <div class="col-md-6 col-xl-4"><div class="manage-card"><strong>Barangay Directory</strong><span>Office contacts, departments, hotlines, locations</span></div></div>
+            <div class="col-md-6 col-xl-4"><div class="manage-card"><strong>Barangay Disclosure</strong><span>Documents, reports, notices, downloadable files</span></div></div>
+            <div class="col-md-6 col-xl-4"><div class="manage-card"><strong>Verification</strong><span>Verification content, labels, status presentation</span></div></div>
             <div class="col-md-6 col-xl-4"><div class="manage-card"><strong>Officials</strong><span>Names, positions, photos, order</span></div></div>
             <div class="col-md-6 col-xl-4"><div class="manage-card"><strong>Announcements</strong><span>News, notices, featured updates</span></div></div>
             <div class="col-md-6 col-xl-4"><div class="manage-card"><strong>Services</strong><span>Requirements and public guidance</span></div></div>
@@ -71,10 +78,15 @@
         </div>
       </section>
 
+      <section id="profile" class="dashboard-section"><div class="section-card"><span class="eyebrow">Module</span><h2 class="h5 mt-2">Barangay Profile</h2><p class="text-secondary mb-0">Admin can manage public profile content and module visibility/order.</p></div></section>
+      <section id="directory" class="dashboard-section"><div class="section-card"><span class="eyebrow">Module</span><h2 class="h5 mt-2">Barangay Directory</h2><p class="text-secondary mb-0">Manage directory categories, entries, contact details, and display order.</p></div></section>
+      <section id="disclosure" class="dashboard-section"><div class="section-card"><span class="eyebrow">Module</span><h2 class="h5 mt-2">Barangay Disclosure</h2><p class="text-secondary mb-0">Manage public disclosure records, titles, dates, categories, and downloadable files.</p></div></section>
+      <section id="verify" class="dashboard-section"><div class="section-card"><span class="eyebrow">Module</span><h2 class="h5 mt-2">Verification</h2><p class="text-secondary mb-0">Manage verification settings and records once connected to Supabase.</p></div></section>
+
       <section id="users" class="dashboard-section">
         <div class="section-card">
           <div class="section-card-head"><div><span class="eyebrow">Access</span><h2 class="h5 mb-0">Editor Account</h2></div></div>
-          <p class="text-secondary mb-0">The editor will only be allowed to manage public-facing content. System settings and security remain admin-only.</p>
+          <p class="text-secondary mb-0">The editor can manage approved public-facing modules but cannot change authentication, roles, security, or system configuration.</p>
         </div>
       </section>
     </main>
