@@ -26,12 +26,22 @@
     }
   );
 
-  const isStaffPage = /\/(admin|editor)\//.test(window.location.pathname);
-  const isDesignStudio = /\/admin\/design-studio\.html$/.test(window.location.pathname);
+  const path = window.location.pathname;
+  const isStaffPage = /\/(admin|editor)\//.test(path);
+  const isLoginPage = /\/(admin|editor)\/login\.html$/.test(path);
+  const isDesignStudio = /\/admin\/design-studio\.html$/.test(path);
+
   if (isStaffPage && !isDesignStudio && !document.querySelector('script[data-brgy-design-theme]')) {
     const script = document.createElement('script');
     script.src = '../assets/js/design-theme.js';
     script.dataset.brgyDesignTheme = 'true';
     document.head.appendChild(script);
+  }
+
+  if (isStaffPage && !isLoginPage && !document.querySelector('script[data-brgy-admin-shell]')) {
+    const shellScript = document.createElement('script');
+    shellScript.src = '../assets/js/admin-shell.js';
+    shellScript.dataset.brgyAdminShell = 'true';
+    document.head.appendChild(shellScript);
   }
 })();
