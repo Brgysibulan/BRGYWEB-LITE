@@ -3,7 +3,7 @@
 
   const SUPABASE_URL = 'https://pkvorwvkqjnbgktkgjhr.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_RbaENAflMzLgXpemymGApA_TkVAhMoU';
-  const STAFF_ASSET_VERSION = '20260901-forms1';
+  const STAFF_ASSET_VERSION = '20260901-premium1';
   const path = window.location.pathname;
   const isStaffPage = /\/(admin|editor)\//.test(path);
   const isAccessPage = /\/(admin|editor)\/(?:login|apply|activate)\.html$/.test(path);
@@ -36,8 +36,19 @@
     document.head.appendChild(script);
   }
 
+  function addStaffStyle(href, dataKey) {
+    if (document.querySelector(`link[${dataKey}]`)) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href = href;
+    link.setAttribute(dataKey, 'true');
+    document.head.appendChild(link);
+  }
+
   function loadStaffAssets() {
     if (!isStaffPage) return;
+
+    addStaffStyle(`../assets/css/premium-admin.css?v=${STAFF_ASSET_VERSION}`, 'data-brgy-premium-admin');
 
     // Admin design settings also apply to login / access pages.
     if (!isDesignStudio && !document.querySelector('script[data-brgy-design-theme]')) {
