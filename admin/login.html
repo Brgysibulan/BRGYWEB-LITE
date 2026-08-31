@@ -2,36 +2,52 @@
 <html lang="en">
 <head>
   <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>System Admin Login</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/admin.css">
+  <link rel="stylesheet" href="../assets/css/admin.css?v=20260901-access5">
+  <link rel="stylesheet" href="../assets/css/access.css?v=20260901-access5">
 </head>
-<body class="auth-page">
-  <main class="auth-shell container py-5">
-    <section class="auth-card mx-auto">
-      <div class="mb-4">
-        <span class="eyebrow">BRGYWEB-LITE</span>
-        <h1 class="h3 mt-2 mb-2">System Admin Login</h1>
-        <p class="text-secondary mb-0">Full system access for website settings, secure records, accounts, and content.</p>
+<body class="access-page">
+  <main class="access-wrap">
+    <section class="access-login-card access-system-card">
+      <div class="access-brand">
+        <div class="access-brand-mark">B</div>
+        <div><strong>BRGYWEB-LITE</strong><small>System Administration Access</small></div>
       </div>
+
+      <span class="eyebrow">Secure Access</span>
+      <h1 class="h2 mt-2 mb-2">System Admin Login</h1>
+      <p class="text-secondary mb-4">Sign in with an active System Admin account to manage website settings, secure records, accounts, and content.</p>
+
       <form id="admin-login-form" novalidate>
         <div class="mb-3">
           <label class="form-label" for="admin-email">Email</label>
-          <input class="form-control form-control-lg" id="admin-email" type="email" autocomplete="username" required>
+          <input class="form-control" id="admin-email" type="email" autocomplete="username" required>
         </div>
         <div class="mb-3">
           <label class="form-label" for="admin-password">Password</label>
-          <input class="form-control form-control-lg" id="admin-password" type="password" autocomplete="current-password" required>
+          <input class="form-control" id="admin-password" type="password" autocomplete="current-password" required>
         </div>
         <button class="btn btn-dark btn-lg w-100" type="submit">Sign in</button>
-        <div id="admin-login-status" class="small mt-3 text-secondary" role="status"></div>
+        <div id="admin-login-status" class="small mt-3 text-secondary" role="status" aria-live="polite"></div>
       </form>
-      <a class="d-inline-block mt-4 small" href="../index.html">Back to public website</a>
+
+      <nav class="access-route-grid" aria-label="Other access options">
+        <a class="access-route-card" href="../index.html">
+          <small>Back to</small>
+          <strong>Public View</strong>
+        </a>
+        <a class="access-route-card access-route-admin" href="../editor/login.html">
+          <small>Content access</small>
+          <strong>Content Admin</strong>
+        </a>
+      </nav>
     </section>
   </main>
+
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../assets/js/supabase-config.js"></script>
-  <script src="../assets/js/admin.js"></script>
+  <script src="../assets/js/supabase-config.js?v=20260901-access5"></script>
+  <script src="../assets/js/admin.js?v=20260901-access5"></script>
 </body>
 </html>
