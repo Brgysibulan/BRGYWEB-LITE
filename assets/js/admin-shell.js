@@ -1,3 +1,215 @@
 (() => {
   'use strict';
+
+  const path = window.location.pathname;
+  const inAdmin = /\/admin\//.test(path);
+  const inEditor = /\/editor\//.test(path);
+  const file = (path.split('/').pop() || '').toLowerCase();
+  if ((!inAdmin && !inEditor) || file === 'login.html') return;
+
+  let currentRole = inEditor ? 'editor' : 'staff';
+
+  const labels = {
+    'dashboard.html':'Dashboard',
+    'announcements.html':'Announcements',
+    'officials.html':'Officials',
+    'services.html':'Services',
+    'directory.html':'Directory',
+    'disclosure.html':'Disclosure',
+    'gallery.html':'Gallery',
+    'profile.html':'Barangay Profile',
+    'verification.html':'Verification / QR',
+    'settings.html':'Site Settings',
+    'design-studio.html':'Design Studio',
+    'editors.html':'Editor Accounts'
+  };
+
+  const contentItems = [
+    ['announcements.html','Announcements'],
+    ['officials.html','Officials'],
+    ['services.html','Services'],
+    ['directory.html','Directory'],
+    ['disclosure.html','Disclosure'],
+    ['gallery.html','Gallery'],
+    ['profile.html','Barangay Profile']
+  ];
+
+  const adminItems = [
+    ['verification.html','Verification / QR'],
+    ['settings.html','Site Settings'],
+    ['design-studio.html','Design Studio'],
+    ['editors.html','Editor Accounts']
+  ];
+
+  function ensureStyles() {
+    if (document.querySelector('link[data-brgy-admin-shell]')) return;
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.dataset.brgyAdminShell = 'true';
+    link.href = inAdmin ? '../assets/css/admin-shell.css' : '../assets/css/admin-shell.css';
+    document.head.appendChild(link);
+  }
+
+  function hrefFor(target, role = currentRole) {
+    if (target === 'dashboard.html') {
+      if (role === 'editor') return inEditor ? 'dashboard.html' : '../editor/dashboard.html';
+      return inAdmin ? 'dashboard.html' : '../admin/dashboard.html';
+    }
+    return inAdmin ? target : `../admin/${target}`;
+  }
+
+  function isActive(target, role) {
+    if (target !== 'dashboard.html') return file === target;
+    if (role === 'editor') return inEditor && file === 'dashboard.html';
+    return inAdmin && file === 'dashboard.html';
+  }
+
+  function navLink(target, label, role) {
+    const active = isActive(target, role) ? ' active' : '';
+    const current = active ? ' aria-current="page"' : '';
+    return `<a class="${active.trim()}" href="${hrefFor(target,role)}"${current}>${label}</a>`;
+  }
+
+  function sidebarMarkup(role) {
+    const isAdminRole = role === 'admin';
+    const roleLabel = isAdminRole ? 'Administrator' : role === 'editor' ? 'Content Editor' : 'Staff';
+    const content = contentItems.map(([target,label]) => navLink(target,label,role)).join('');
+    const administration = isAdminRole
+      ? `<div class="sidebar-label">Administration</div>${adminItems.map(([target,label]) => navLink(target,label,role)).join('')}`
+      : '';
+
+    return `<div class="sidebar-head"><div class="sidebar-logo">B</div><div><div class="sidebar-brand">BRGYWEB-LITE</div><div class="sidebar-role-badge"><span class="sidebar-role-dot"></span><span class="sidebar-role">${roleLabel}</span></div></div></div>
+      <nav class="sidebar-nav mt-3">
+        <div class="sidebar-label">Overview</div>
+        ${navLink('dashboard.html','Dashboard',role)}
+        <div class="sidebar-label">Content</div>
+        ${content}
+        ${administration}
+        <div class="sidebar-divider"></div>
+        <button class="unified-signout" type="button" data-unified-signout>Sign out</button>
+      </nav>
+      <a class="sidebar-exit" href="../index.html">View public site</a>`;
+  }
+
+  function ensureLayout() {
+    document.body.classList.add('dashboard-page');
+    let shell = document.querySelector('.dashboard-shell');
+    let main;
+    let sidebar;
+
+    if (shell) {
+      shell.classList.add('unified-admin-shell');
+      main = shell.querySelector(':scope > main') || shell.querySelector('.dashboard-main');
+      sidebar = shell.querySelector(':scope > .sidebar');
+      if (!sidebar) {
+        sidebar = document.createElement('aside');
+        shell.prepend(sidebar);
+      }
+    } else {
+      main = document.querySelector('body > main');
+      if (!main) return null;
+      shell = document.createElement('div');
+      shell.className = 'dashboard-shell unified-admin-shell';
+      document.body.insertBefore(shell, main);
+      sidebar = document.createElement('aside');
+      shell.appendChild(sidebar);
+      shell.appendChild(main);
+    }
+
+    if (!main) return null;
+    sidebar.className = 'sidebar unified-sidebar';
+    main.classList.add('dashboard-main','admin-module-main');
+    main.classList.remove('py-4','py-lg-5');
+
+    if (!document.querySelector('.admin-mobile-overlay')) {
+      const overlay = document.createElement('div');
+      overlay.className = 'admin-mobile-overlay';
+      overlay.dataset.adminMenuClose = 'true';
+      document.body.appendChild(overlay);
+    }
+
+    if (!main.querySelector(':scope > .admin-mobile-bar')) {
+      const mobile = document.createElement('div');
+      mobile.className = 'admin-mobile-bar';
+      mobile.innerHTML = `<button class="admin-mobile-menu-btn" type="button" aria-label="Open admin menu" aria-expanded="false" data-admin-menu-toggle>☰</button><div class="admin-mobile-title"><strong>${labels[file] || document.title || 'Admin Panel'}</strong><small data-mobile-role>Staff workspace</small></div><a class="admin-mobile-public" href="../index.html">Public site</a>`;
+      main.prepend(mobile);
+    }
+
+    return { shell, main, sidebar };
+  }
+
+  function render(role) {
+    currentRole = role || currentRole;
+    const layout = ensureLayout();
+    if (!layout) return;
+    layout.sidebar.innerHTML = sidebarMarkup(currentRole);
+    const mobileRole = layout.main.querySelector('[data-mobile-role]');
+    if (mobileRole) mobileRole.textContent = currentRole === 'admin' ? 'Administrator' : currentRole === 'editor' ? 'Content Editor' : 'Staff workspace';
+    document.documentElement.dataset.staffRole = currentRole;
+  }
+
+  function closeMenu() {
+    document.documentElement.classList.remove('admin-menu-open');
+    document.querySelector('[data-admin-menu-toggle]')?.setAttribute('aria-expanded','false');
+  }
+
+  function openMenu() {
+    document.documentElement.classList.add('admin-menu-open');
+    document.querySelector('[data-admin-menu-toggle]')?.setAttribute('aria-expanded','true');
+  }
+
+  async function resolveRole() {
+    const client = window.BRGY_SUPABASE;
+    if (!client) return currentRole;
+    try {
+      const { data, error } = await client.auth.getUser();
+      if (error || !data?.user) return currentRole;
+      const { data: profile, error: profileError } = await client.from('profiles').select('role,is_active').eq('user_id',data.user.id).maybeSingle();
+      if (profileError || profile?.is_active !== true) return currentRole;
+      if (profile.role === 'admin' || profile.role === 'editor') return profile.role;
+    } catch (error) {
+      console.warn('Unable to resolve unified admin shell role:', error);
+    }
+    return currentRole;
+  }
+
+  async function signOut() {
+    const client = window.BRGY_SUPABASE;
+    const role = currentRole;
+    try { if (client) await client.auth.signOut(); } catch (error) { console.warn('Sign out warning:', error); }
+    if (role === 'editor') window.location.href = inEditor ? 'login.html' : '../editor/login.html';
+    else window.location.href = inAdmin ? 'login.html' : '../admin/login.html';
+  }
+
+  document.addEventListener('click', (event) => {
+    const toggle = event.target.closest('[data-admin-menu-toggle]');
+    if (toggle) {
+      event.preventDefault();
+      document.documentElement.classList.contains('admin-menu-open') ? closeMenu() : openMenu();
+      return;
+    }
+    if (event.target.closest('[data-admin-menu-close]')) {
+      closeMenu();
+      return;
+    }
+    const nav = event.target.closest('.unified-sidebar a');
+    if (nav && window.matchMedia('(max-width:900px)').matches) closeMenu();
+    if (event.target.closest('[data-unified-signout]')) {
+      event.preventDefault();
+      signOut();
+    }
+  });
+
+  document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeMenu(); });
+  window.addEventListener('resize', () => { if (window.innerWidth > 900) closeMenu(); });
+
+  async function init() {
+    ensureStyles();
+    render(currentRole);
+    const resolved = await resolveRole();
+    if (resolved !== currentRole) render(resolved);
+  }
+
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once:true });
+  else init();
 })();
