@@ -8,6 +8,13 @@
   const file = (path.split('/').pop() || '').toLowerCase();
   if ((!inAdmin && !inEditor) || file === 'login.html') return;
 
+  function syncUiReady() {
+    const root = document.documentElement;
+    if (root.dataset.adminShellReady === 'true' && root.dataset.adminThemeReady === 'true') {
+      root.dataset.adminUiReady = 'true';
+    }
+  }
+
   function readRoleCache() {
     try {
       const role = localStorage.getItem(ROLE_CACHE_KEY);
@@ -133,8 +140,10 @@
     layout.sidebar.innerHTML = sidebarMarkup(currentRole);
     const mobileRole = layout.main.querySelector('[data-mobile-role]');
     if (mobileRole) mobileRole.textContent = currentRole === 'admin' ? 'Administrator' : currentRole === 'editor' ? 'Content Editor' : 'Staff workspace';
-    document.documentElement.dataset.staffRole = currentRole;
-    document.documentElement.dataset.adminShellReady = 'true';
+    const root = document.documentElement;
+    root.dataset.staffRole = currentRole;
+    root.dataset.adminShellReady = 'true';
+    syncUiReady();
   }
 
   function closeMenu() { document.documentElement.classList.remove('admin-menu-open'); document.querySelector('[data-admin-menu-toggle]')?.setAttribute('aria-expanded','false'); }
