@@ -1,0 +1,23 @@
+/* Mobile navigation hotfix: keep the off-canvas drawer above its backdrop.
+   The backdrop is appended to <body>, while the drawer lives inside .site-header.
+   Without this stacking order the backdrop can sit above the drawer, blur it,
+   darken it, and intercept taps. */
+@media (max-width: 1199.98px) {
+  .site-header {
+    z-index: 1040 !important;
+  }
+
+  .public-nav-backdrop {
+    z-index: 1025 !important;
+  }
+
+  .site-header .navbar-collapse {
+    z-index: 1065 !important;
+    filter: none !important;
+    -webkit-filter: none !important;
+  }
+
+  body.public-menu-open .site-header .navbar-collapse {
+    pointer-events: auto !important;
+  }
+}
