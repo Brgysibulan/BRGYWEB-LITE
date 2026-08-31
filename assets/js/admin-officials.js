@@ -28,14 +28,13 @@
     setStatus('');
   }
 
-  async function ensureAdmin() {
+  async function ensureStaff() {
     if (!client) return false;
     const { data: userData } = await client.auth.getUser();
     const user = userData?.user;
     if (!user) return false;
     const { data: profile, error } = await client.from('profiles').select('role,is_active').eq('user_id', user.id).maybeSingle();
-    if (error || !profile || profile.role !== 'admin' || profile.is_active !== true) return false;
-    return true;
+    return !error && profile?.is_active === true && ['admin','editor'].includes(profile.role);
   }
 
   async function loadOfficials() {
@@ -138,7 +137,7 @@
 
   document.addEventListener('DOMContentLoaded', async () => {
     try {
-      if (!(await ensureAdmin())) return;
+      if (!(await ensureStaff())) return;
       await loadOfficials();
     } catch (error) {
       console.error(error);
