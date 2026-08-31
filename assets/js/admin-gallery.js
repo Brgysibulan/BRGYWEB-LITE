@@ -22,13 +22,13 @@
     return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
   }
 
-  async function requireAdmin() {
+  async function requireStaff() {
     if (!client) return false;
     const { data: userData, error: userError } = await client.auth.getUser();
     const user = userData?.user;
     if (userError || !user) return false;
     const { data: profile, error } = await client.from('profiles').select('role,is_active').eq('user_id', user.id).maybeSingle();
-    return !error && profile?.role === 'admin' && profile?.is_active === true;
+    return !error && profile?.is_active === true && ['admin','editor'].includes(profile.role);
   }
 
   function storagePathFromUrl(url) {
@@ -197,7 +197,7 @@
   refresh.addEventListener('click', () => loadItems().catch((error) => setStatus(error.message, true)));
 
   (async () => {
-    const allowed = await requireAdmin();
+    const allowed = await requireStaff();
     if (!allowed) {
       window.location.href = 'login.html';
       return;
