@@ -24,6 +24,11 @@
     admin:{font:['system','rounded','serif'],radius:['square','soft','rounded','pill'],density:['comfortable','compact'],sidebar:['brand','dark','light'],cards:['elevated','flat','bordered']}
   };
 
+  function syncUiReady(){
+    const root=document.documentElement;
+    if(root.dataset.adminShellReady==='true'&&root.dataset.adminThemeReady==='true')root.dataset.adminUiReady='true';
+  }
+
   function readCache(){
     try{
       const raw=localStorage.getItem(THEME_CACHE_KEY);
@@ -72,6 +77,7 @@
     root.dataset.adminSidebar=theme.sidebar;
     root.dataset.adminCards=theme.cards;
     root.dataset.adminThemeReady='true';
+    syncUiReady();
     return theme;
   }
 
