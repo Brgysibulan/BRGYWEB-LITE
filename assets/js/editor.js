@@ -119,7 +119,7 @@
         const profile = await getRole(data.user.id);
         if (!canUseEditorPanel(profile)) {
           await client.auth.signOut();
-          setStatus('This account does not have active staff access.', true);
+          setStatus('This account does not have active Content Admin access.', true);
           if (button) button.disabled = false;
           return;
         }
@@ -128,7 +128,7 @@
       } catch (error) {
         console.error(error);
         await client.auth.signOut();
-        setStatus('Unable to verify staff access.', true);
+        setStatus('Unable to verify Content Admin access.', true);
         if (button) button.disabled = false;
       }
     });
