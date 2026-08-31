@@ -8,9 +8,13 @@
     return String(input ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
   }
 
+  function showState(message, isError = false) {
+    list.innerHTML = `<div class="col-12"><div class="empty-state${isError ? ' border border-danger-subtle' : ''}">${escapeHtml(message)}</div></div>`;
+  }
+
   function render(items) {
     if (!Array.isArray(items) || items.length === 0) {
-      list.innerHTML = '<div class="col-12"><div class="empty-state">No published officials yet.</div></div>';
+      showState('No barangay officials have been published yet.');
       return;
     }
 
@@ -19,7 +23,7 @@
 
     list.innerHTML = visible.map((item) => {
       const photo = item.photo_url
-        ? `<img src="${escapeHtml(item.photo_url)}" alt="${escapeHtml(item.full_name)}" class="img-fluid rounded mb-3" loading="lazy">`
+        ? `<img src="${escapeHtml(item.photo_url)}" alt="${escapeHtml(item.full_name)}" class="img-fluid rounded mb-3" loading="lazy" decoding="async">`
         : '<div class="placeholder-avatar"></div>';
       const bio = item.bio ? `<p class="mb-0 text-secondary">${escapeHtml(item.bio)}</p>` : '';
       return `<div class="col-md-6 col-lg-4"><article class="placeholder-card h-100">${photo}<h3 class="h5">${escapeHtml(item.full_name)}</h3><p class="mb-2">${escapeHtml(item.position)}</p>${bio}</article></div>`;
@@ -28,7 +32,8 @@
 
   async function load() {
     const config = window.BRGY_SUPABASE_CONFIG;
-    if (!config?.url || !config?.publishableKey) return render([]);
+    showState('Loading barangay officials...');
+    if (!config?.url || !config?.publishableKey) throw new Error('Public data service unavailable.');
 
     const endpoint = `${config.url}/rest/v1/officials?is_active=eq.true&select=id,full_name,position,photo_url,bio,sort_order&order=sort_order.asc,id.asc`;
     const response = await fetch(endpoint, {
@@ -44,6 +49,6 @@
 
   load().catch((error) => {
     console.warn('Unable to load officials:', error);
-    render([]);
+    showState('Barangay officials are temporarily unavailable. Please try again later.', true);
   });
 })();
