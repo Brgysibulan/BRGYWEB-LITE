@@ -46,7 +46,7 @@
   addStyle('premium-public','premium-public.css');addStyle('premium-pages','premium-pages.css');addStyle('mobile-menu-fix','mobile-menu-fix.css');addStyle('nav-more','nav-more.css');addStyle('brand-name-fix','brand-name-fix.css');addStyle('footer-polish','footer-polish.css');ensureThemeEngine();addScript('responsive-guard','public-responsive-guard.js');
   document.body.dataset.publicPage=page.replace(/\.html$/,'')||'home';
   const escapeHtml=(value)=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
-  function isCompactNavigation(){return window.innerWidth < BREAKPOINT;}
+  function isCompactNavigation(){return window.innerWidth <= BREAKPOINT;}
   document.documentElement.dataset.publicStructure=isCompactNavigation()?'mobile-locked':'desktop-wide';
   function readCachedSite(){try{const raw=localStorage.getItem(SITE_CACHE_KEY);if(!raw)return null;const parsed=JSON.parse(raw);if(parsed?.version!==SITE_CACHE_VERSION)return null;const data=parsed?.data;return data&&typeof data==='object'?data:null;}catch{return null;}}
   const cachedSite=readCachedSite(),initialName=cachedSite?.siteName||'',initialAddress=cachedSite?.address||'',initialContact=[cachedSite?.phone,cachedSite?.email].filter(Boolean).join(' • '),initialMark=String(cachedSite?.shortName||cachedSite?.siteName||'B').trim().charAt(0).toUpperCase()||'B';
