@@ -1,5 +1,5 @@
 /* Public responsive structure. Design Studio may style colors, but this file owns navigation geometry and interaction. */
-@media (max-width:899.98px){
+@media (max-width:900px){
   html,body{width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;padding-left:0!important;padding-right:0!important;overflow-x:hidden!important;transform:none!important}
   body.public-menu-open{overflow:hidden!important}
 
@@ -38,7 +38,7 @@
   .site-header #mainNav .nav-item.ms-xl-2 .btn{display:flex!important;position:relative!important;z-index:20!important;align-items:center!important;justify-content:center!important;width:100%!important;min-height:50px!important;margin:0!important;transform:none!important;opacity:1!important;visibility:visible!important;pointer-events:auto!important;touch-action:manipulation!important;cursor:pointer!important}
 }
 
-@media (min-width:900px) and (max-width:1199.98px){
+@media (min-width:900.01px) and (max-width:1199.98px){
   body.public-menu-open{overflow:auto!important}
   .public-nav-backdrop,.public-nav-backdrop.show{display:none!important;opacity:0!important;visibility:hidden!important;pointer-events:none!important}
   .site-header{position:sticky!important;top:0!important;width:100%!important;margin:0!important;border-radius:0!important;overflow:visible!important}
