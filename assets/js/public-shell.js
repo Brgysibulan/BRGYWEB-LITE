@@ -3,14 +3,15 @@
 
   const SITE_CACHE_VERSION = 3;
   const SITE_CACHE_KEY = 'brgyweb:site-settings:v3';
-  const UI_VERSION = '20260901-stability4';
+  const UI_VERSION = '20260901-guard1';
   const header = document.querySelector('.site-header');
   const footer = document.querySelector('.site-footer');
   const page = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
 
   function addStyle(key,file){if(document.querySelector(`link[data-brgy-${key}]`))return;const link=document.createElement('link');link.rel='stylesheet';link.href=`assets/css/${file}?v=${UI_VERSION}`;link.setAttribute(`data-brgy-${key}`,'true');document.head.appendChild(link);}
+  function addScript(key,file){if(document.querySelector(`script[data-brgy-${key}]`))return;const script=document.createElement('script');script.src=`assets/js/${file}?v=${UI_VERSION}`;script.setAttribute(`data-brgy-${key}`,'true');document.head.appendChild(script);}
   function ensureThemeEngine(){if(window.BRGY_THEME||document.querySelector('script[data-brgy-design-theme]'))return;const script=document.createElement('script');script.src=`assets/js/design-theme.js?v=${UI_VERSION}`;script.dataset.brgyDesignTheme='true';document.head.appendChild(script);}
-  addStyle('premium-public','premium-public.css');addStyle('premium-pages','premium-pages.css');addStyle('mobile-menu-fix','mobile-menu-fix.css');ensureThemeEngine();
+  addStyle('premium-public','premium-public.css');addStyle('premium-pages','premium-pages.css');addStyle('mobile-menu-fix','mobile-menu-fix.css');ensureThemeEngine();addScript('responsive-guard','public-responsive-guard.js');
   document.body.dataset.publicPage=page.replace(/\.html$/,'')||'home';
   const escapeHtml=(value)=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
   function isCompactNavigation(){return window.innerWidth<900;}
@@ -24,7 +25,7 @@
     header.innerHTML=`<nav class="navbar navbar-expand-xl navbar-dark"><div class="container"><a class="navbar-brand d-flex align-items-center gap-2" href="index.html" aria-label="Home"><span class="brand-mark" id="brand-mark" aria-hidden="true">${escapeHtml(initialMark)}</span><img class="brand-logo d-none" id="brand-logo" alt=""><span id="site-name">${escapeHtml(initialName)}</span></a><button class="navbar-toggler" type="button" aria-controls="mainNav" aria-expanded="false" aria-label="Open navigation"><span class="navbar-toggler-icon"></span></button><div class="navbar-collapse" id="mainNav" aria-hidden="true"><div class="public-mobile-menu-head"><div><strong>Navigation</strong><small>Official barangay website</small></div><button class="public-menu-close" type="button" aria-label="Close navigation">×</button></div><ul class="navbar-nav ms-auto align-items-xl-center gap-xl-1">${navItems.map(([href,label])=>`<li class="nav-item"><a class="nav-link${page===href?' active':''}" href="${href}"${page===href?' aria-current="page"':''}>${label}</a></li>`).join('')}${adminMenu}</ul></div></div></nav>`;
     const backdrop=document.createElement('div');backdrop.className='public-nav-backdrop';backdrop.setAttribute('aria-hidden','true');document.body.appendChild(backdrop);
     const collapseElement=document.getElementById('mainNav'),toggler=header.querySelector('.navbar-toggler');
-    function setMenuState(open){const compact=isCompactNavigation();const shouldOpen=compact&&open;document.body.classList.toggle('public-menu-open',shouldOpen);collapseElement?.classList.toggle('show',shouldOpen);collapseElement?.setAttribute('aria-hidden',shouldOpen?'false':'true');backdrop.classList.toggle('show',shouldOpen);backdrop.setAttribute('aria-hidden',shouldOpen?'false':'true');toggler?.setAttribute('aria-expanded',shouldOpen?'true':'false');toggler?.setAttribute('aria-label',shouldOpen?'Close navigation':'Open navigation');}
+    function setMenuState(open){const compact=isCompactNavigation();const shouldOpen=compact&&open;document.body.classList.toggle('public-menu-open',shouldOpen);collapseElement?.classList.toggle('show',shouldOpen);collapseElement?.setAttribute('aria-hidden',shouldOpen?'false':compact?'true':'false');backdrop.classList.toggle('show',shouldOpen);backdrop.setAttribute('aria-hidden',shouldOpen?'false':'true');toggler?.setAttribute('aria-expanded',shouldOpen?'true':'false');toggler?.setAttribute('aria-label',shouldOpen?'Close navigation':'Open navigation');}
     function openMenu(){setMenuState(true);}function closeMenu(){setMenuState(false);}
     toggler?.addEventListener('click',(event)=>{event.preventDefault();document.body.classList.contains('public-menu-open')?closeMenu():openMenu();});
     header.querySelector('.public-menu-close')?.addEventListener('click',(event)=>{event.preventDefault();event.stopPropagation();closeMenu();});
