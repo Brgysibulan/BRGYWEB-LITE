@@ -8,6 +8,14 @@
   const footer = document.querySelector('.site-footer');
   const page = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
 
+  function registerCacheManager(){
+    if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
+    window.addEventListener('load',()=>{
+      navigator.serviceWorker.register(new URL('sw.js',location.href),{updateViaCache:'none'}).then((registration)=>registration.update()).catch((error)=>console.warn('Cache manager unavailable:',error));
+    },{once:true});
+  }
+  registerCacheManager();
+
   function addStyle(key,file){if(document.querySelector(`link[data-brgy-${key}]`))return;const link=document.createElement('link');link.rel='stylesheet';link.href=`assets/css/${file}?v=${UI_VERSION}`;link.setAttribute(`data-brgy-${key}`,'true');document.head.appendChild(link);}
   function addScript(key,file){if(document.querySelector(`script[data-brgy-${key}]`))return;const script=document.createElement('script');script.src=`assets/js/${file}?v=${UI_VERSION}`;script.setAttribute(`data-brgy-${key}`,'true');document.head.appendChild(script);}
   function ensureThemeEngine(){if(window.BRGY_THEME||document.querySelector('script[data-brgy-design-theme]'))return;const script=document.createElement('script');script.src=`assets/js/design-theme.js?v=${UI_VERSION}`;script.dataset.brgyDesignTheme='true';document.head.appendChild(script);}
