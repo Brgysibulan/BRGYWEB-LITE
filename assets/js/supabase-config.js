@@ -3,7 +3,7 @@
 
   const SUPABASE_URL = 'https://pkvorwvkqjnbgktkgjhr.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_RbaENAflMzLgXpemymGApA_TkVAhMoU';
-  const STAFF_ASSET_VERSION = '20260901-studio11';
+  const STAFF_ASSET_VERSION = '20260901-studiopro1';
   const path = window.location.pathname;
   const isStaffPage = /\/(admin|editor)\//.test(path);
   const isAccessPage = /\/(admin|editor)\/(?:login|apply|activate)\.html$/.test(path);
@@ -27,7 +27,7 @@
   function loadStaffAssets(){
     if(!isStaffPage)return;
     addStaffStyle(`../assets/css/premium-admin.css?v=${STAFF_ASSET_VERSION}`,'data-brgy-premium-admin');
-    /* Design Studio loads design-theme.js explicitly before design-studio.js. Presets now live in one source to avoid race/cache conflicts. */
+    /* Design Studio loads design-theme.js explicitly before design-studio.js. */
     if(!isDesignStudio&&!document.querySelector('script[data-brgy-design-theme]')){
       const script=document.createElement('script');script.src=`../assets/js/design-theme.js?v=${STAFF_ASSET_VERSION}`;script.dataset.brgyDesignTheme='true';script.addEventListener('error',()=>markAssetFailure('theme'),{once:true});document.head.appendChild(script);
     }
