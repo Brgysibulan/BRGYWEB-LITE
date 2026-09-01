@@ -129,10 +129,12 @@
       if (!window.confirm(`Approve ${applicantName} as Content Admin?`)) return;
       button.disabled = true;
       try {
-        setStatus('Approving application and preparing account...');
+        setStatus('Approving application and activating Content Admin access...');
         const redirectTo = new URL('../editor/activate.html', window.location.href).href;
         const data = await callManager({ action:'approve_application', application_id:applicationId, redirect_to:redirectTo });
-        setStatus(data.invited ? 'Approved. An activation email was sent to the applicant.' : 'Approved. The existing account was activated as Content Admin.');
+        setStatus(data.invited
+          ? 'Approved. A legacy activation email was sent to the applicant.'
+          : 'Approved. Content Admin access is active; the user can now sign in with the password created during signup.');
         await load();
       } catch (error) {
         console.error(error);
