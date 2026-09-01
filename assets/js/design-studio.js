@@ -27,12 +27,12 @@
 
   function syncSaveBarLayout(){
     if(saveBar){
-      if(dirty) saveBar.style.removeProperty('display'); else saveBar.style.display='none';
+      if(dirty)saveBar.style.removeProperty('display');else saveBar.style.display='none';
       saveBar.classList.toggle('is-visible',dirty);
       saveBar.setAttribute('aria-hidden',dirty?'false':'true');
     }
     if(studioMain){
-      if(window.matchMedia('(max-width:720px)').matches&&!dirty) studioMain.style.paddingBottom='1rem';
+      if(window.matchMedia('(max-width:720px)').matches&&!dirty)studioMain.style.paddingBottom='1rem';
       else studioMain.style.removeProperty('padding-bottom');
     }
     document.documentElement.classList.toggle('studio-design-dirty',dirty);
@@ -40,10 +40,10 @@
 
   function syncDirtyState(isDirty,message=''){
     dirty=Boolean(isDirty);
-    if(changeState) changeState.textContent=dirty?'Unsaved design changes':'No unsaved changes';
-    if(saveButton) saveButton.disabled=!dirty;
+    if(changeState)changeState.textContent=dirty?'Unsaved design changes':'No unsaved changes';
+    if(saveButton)saveButton.disabled=!dirty;
     syncSaveBarLayout();
-    if(message) setStatus(message);
+    if(message)setStatus(message);
   }
 
   async function requireAdmin(){
@@ -52,66 +52,42 @@
     if(error||!data?.user){location.href='login.html';return false;}
     const {data:profile,error:profileError}=await client.from('profiles').select('role,is_active').eq('user_id',data.user.id).maybeSingle();
     if(profileError||profile?.role!=='admin'||profile?.is_active!==true){
-      await client.auth.signOut();
-      location.href='login.html';
-      return false;
+      await client.auth.signOut();location.href='login.html';return false;
     }
     return true;
   }
 
-  function injectAdminPalette(){
-    if(field('admin-primary-color')) return;
+  function ensureAdminPalette(){
+    if(field('admin-primary-color'))return;
     const controls=document.querySelector('[data-studio-panel="admin"] .studio3-controls');
-    if(!controls) return;
+    if(!controls)return;
     const details=[...controls.querySelectorAll('.studio3-section')].find((section)=>section.querySelector('#admin-font'));
     const section=document.createElement('section');
     section.className='studio3-section';
-    section.dataset.adminPalette='true';
-    section.innerHTML=`
-      <div class="studio3-heading"><div><span class="eyebrow">Dashboard Palette</span><h2>Admin Colors</h2><p>Shared colors for System Admin and Content Admin dashboards.</p></div><span class="studio3-count">4 colors</span></div>
-      <div class="studio3-palette">
-        <label class="studio3-color" for="admin-primary-color"><input id="admin-primary-color" type="color" value="#0b2f21"><span class="studio3-color-copy"><strong>Primary</strong><span>Sidebar and deep workspace areas</span><span class="studio3-color-code" id="admin-primary-code">#0b2f21</span></span></label>
-        <label class="studio3-color" for="admin-secondary-color"><input id="admin-secondary-color" type="color" value="#1b6b45"><span class="studio3-color-copy"><strong>Secondary</strong><span>Buttons, active states and charts</span><span class="studio3-color-code" id="admin-secondary-code">#1b6b45</span></span></label>
-        <label class="studio3-color" for="admin-accent-color"><input id="admin-accent-color" type="color" value="#d8b63e"><span class="studio3-color-copy"><strong>Accent</strong><span>Highlights and attention states</span><span class="studio3-color-code" id="admin-accent-code">#d8b63e</span></span></label>
-        <label class="studio3-color" for="admin-signal-color"><input id="admin-signal-color" type="color" value="#a63d40"><span class="studio3-color-copy"><strong>Signal</strong><span>Warnings and destructive actions</span><span class="studio3-color-code" id="admin-signal-code">#a63d40</span></span></label>
-      </div>
-      <div class="studio3-palette-note">These colors are separate from the public website palette. Saving here changes both System Admin and Content Admin dashboards only.</div>`;
-    if(details) controls.insertBefore(section,details); else controls.appendChild(section);
+    section.innerHTML=`<div class="studio3-heading"><div><span class="eyebrow">Dashboard Palette</span><h2>Admin Colors</h2><p>Shared colors for System Admin and Content Admin dashboards.</p></div><span class="studio3-count">4 colors</span></div><div class="studio3-palette"><label class="studio3-color" for="admin-primary-color"><input id="admin-primary-color" type="color" value="#0b2f21"><span class="studio3-color-copy"><strong>Primary</strong><span>Sidebar and deep workspace areas</span><span class="studio3-color-code" id="admin-primary-code">#0b2f21</span></span></label><label class="studio3-color" for="admin-secondary-color"><input id="admin-secondary-color" type="color" value="#1b6b45"><span class="studio3-color-copy"><strong>Secondary</strong><span>Buttons, active states and charts</span><span class="studio3-color-code" id="admin-secondary-code">#1b6b45</span></span></label><label class="studio3-color" for="admin-accent-color"><input id="admin-accent-color" type="color" value="#d8b63e"><span class="studio3-color-copy"><strong>Accent</strong><span>Highlights and attention states</span><span class="studio3-color-code" id="admin-accent-code">#d8b63e</span></span></label><label class="studio3-color" for="admin-signal-color"><input id="admin-signal-color" type="color" value="#a63d40"><span class="studio3-color-copy"><strong>Signal</strong><span>Warnings and destructive actions</span><span class="studio3-color-code" id="admin-signal-code">#a63d40</span></span></label></div>`;
+    if(details)controls.insertBefore(section,details);else controls.appendChild(section);
   }
 
   function readPublicColors(){
-    return theme.normalizeColors({
-      primary:value('public-primary-color'), secondary:value('public-secondary-color'),
-      accent:value('public-accent-color'), signal:value('public-signal-color')
-    });
+    return theme.normalizeColors({primary:value('public-primary-color'),secondary:value('public-secondary-color'),accent:value('public-accent-color'),signal:value('public-signal-color')});
   }
 
   function readAdminColors(){
-    return theme.normalizeAdminColors({
-      primary:value('admin-primary-color'), secondary:value('admin-secondary-color'),
-      accent:value('admin-accent-color'), signal:value('admin-signal-color')
-    });
+    return theme.normalizeAdminColors({primary:value('admin-primary-color'),secondary:value('admin-secondary-color'),accent:value('admin-accent-color'),signal:value('admin-signal-color')});
   }
 
   function syncColorCodes(scope,colors){
-    ['primary','secondary','accent','signal'].forEach((key)=>{
-      const el=field(`${scope}-${key}-code`);
-      if(el) el.textContent=colors[key];
-    });
+    ['primary','secondary','accent','signal'].forEach((key)=>{const el=field(`${scope}-${key}-code`);if(el)el.textContent=colors[key];});
   }
 
   function writePublicColors(colors){
     const c=theme.normalizeColors(colors||{});
-    setValue('public-primary-color',c.primary);setValue('public-secondary-color',c.secondary);
-    setValue('public-accent-color',c.accent);setValue('public-signal-color',c.signal);
-    syncColorCodes('public',c);
+    setValue('public-primary-color',c.primary);setValue('public-secondary-color',c.secondary);setValue('public-accent-color',c.accent);setValue('public-signal-color',c.signal);syncColorCodes('public',c);
   }
 
   function writeAdminColors(colors){
     const c=theme.normalizeAdminColors(colors||{});
-    setValue('admin-primary-color',c.primary);setValue('admin-secondary-color',c.secondary);
-    setValue('admin-accent-color',c.accent);setValue('admin-signal-color',c.signal);
-    syncColorCodes('admin',c);
+    setValue('admin-primary-color',c.primary);setValue('admin-secondary-color',c.secondary);setValue('admin-accent-color',c.accent);setValue('admin-signal-color',c.signal);syncColorCodes('admin',c);
   }
 
   function readPublic(){
@@ -125,7 +101,8 @@
   function readAdmin(){
     return theme.normalizeAdmin({
       preset:value('admin-preset')||'custom',font:value('admin-font'),radius:value('admin-radius'),density:value('admin-density'),
-      sidebar:value('admin-sidebar'),cards:value('admin-cards'),colors:readAdminColors()
+      sidebar:value('admin-sidebar'),sidebarWidth:value('admin-sidebar-width'),topbar:value('admin-topbar'),contentWidth:value('admin-content-width'),
+      buttons:value('admin-buttons'),tables:value('admin-tables'),cards:value('admin-cards'),colors:readAdminColors()
     });
   }
 
@@ -139,7 +116,8 @@
   function writeAdmin(config){
     const t=theme.normalizeAdmin(config);
     setValue('admin-preset',t.preset);setValue('admin-font',t.font);setValue('admin-radius',t.radius);setValue('admin-density',t.density);
-    setValue('admin-sidebar',t.sidebar);setValue('admin-cards',t.cards);writeAdminColors(t.colors);
+    setValue('admin-sidebar',t.sidebar);setValue('admin-sidebar-width',t.sidebarWidth);setValue('admin-topbar',t.topbar);setValue('admin-content-width',t.contentWidth);
+    setValue('admin-buttons',t.buttons);setValue('admin-tables',t.tables);setValue('admin-cards',t.cards);writeAdminColors(t.colors);
   }
 
   function syncSiteCache(payload){
@@ -182,16 +160,17 @@
 
   function renderAdminPreview(config){
     const preview=field('admin-design-preview');if(!preview)return;
-    const side=preview.querySelector('.studio3-admin-side'),main=preview.querySelector('.studio3-admin-main'),panel=preview.querySelector('.studio3-admin-panel'),top=preview.querySelector('.studio3-admin-top i'),cards=[...preview.querySelectorAll('.studio3-admin-cards>div')],c=config.colors;
+    const side=preview.querySelector('.studio3-admin-side'),main=preview.querySelector('.studio3-admin-main'),topbar=preview.querySelector('.studio3-admin-top'),topMarker=preview.querySelector('.studio3-admin-top i'),panel=preview.querySelector('.studio3-admin-panel'),button=preview.querySelector('.studio3-admin-demo-button'),table=preview.querySelector('.studio3-admin-demo-table'),cards=[...preview.querySelectorAll('.studio3-admin-cards>div')],c=config.colors;
     preview.dataset.previewPreset=config.preset;preview.style.fontFamily=fontValue(config.font);
-    if(side){
-      side.style.background=config.sidebar==='dark'?`linear-gradient(180deg,color-mix(in srgb, ${c.primary} 45%, #20262b),#11161a)`:config.sidebar==='light'?'#fff':`linear-gradient(180deg,${c.primary},${c.secondary})`;
-      side.style.color=config.sidebar==='light'?'#17201a':'#fff';side.style.borderRight=config.sidebar==='light'?`3px solid ${c.accent}`:'0';side.style.padding=config.density==='compact'?'.62rem .52rem':'.85rem .65rem';
-    }
-    if(main) main.style.padding=config.density==='compact'?'.65rem':'.9rem';
-    if(top) top.style.background=c.secondary;
+    preview.style.gridTemplateColumns=config.sidebarWidth==='compact'?'82px minmax(0,1fr)':config.sidebarWidth==='wide'?'132px minmax(0,1fr)':'112px minmax(0,1fr)';
+    if(side){side.style.background=config.sidebar==='dark'?`linear-gradient(180deg,color-mix(in srgb, ${c.primary} 45%, #20262b),#11161a)`:config.sidebar==='light'?'#fff':`linear-gradient(180deg,${c.primary},${c.secondary})`;side.style.color=config.sidebar==='light'?'#17201a':'#fff';side.style.borderRight=config.sidebar==='light'?`3px solid ${c.accent}`:'0';side.style.padding=config.density==='compact'?'.62rem .52rem':'.85rem .65rem';}
+    if(main){main.style.padding=config.density==='compact'?'.65rem':'.9rem';main.style.maxWidth=config.contentWidth==='boxed'?'330px':'none';main.style.margin=config.contentWidth==='boxed'?'0 auto':'0';main.style.width='100%';}
+    if(topbar){topbar.style.padding=config.topbar==='clean'?'0 0 .4rem':'.48rem .55rem';topbar.style.border=config.topbar==='clean'?'0':`1px solid color-mix(in srgb, ${c.primary} 12%, #dfe5df)`;topbar.style.borderRadius=config.topbar==='clean'?'0':radiusValue(config.radius);topbar.style.background=config.topbar==='glass'?'rgba(255,255,255,.72)':config.topbar==='soft'?`color-mix(in srgb, ${c.secondary} 7%, #fff)`:'transparent';topbar.style.backdropFilter=config.topbar==='glass'?'blur(10px)':'none';}
+    if(topMarker)topMarker.style.background=c.secondary;
     cards.forEach((card,index)=>{card.style.borderRadius=radiusValue(config.radius);card.style.boxShadow=config.cards==='elevated'?`0 7px 18px color-mix(in srgb, ${c.primary} 12%, transparent)`:'none';card.style.borderWidth=config.cards==='bordered'?'2px':'1px';card.style.minHeight=config.density==='compact'?'56px':'72px';card.style.borderColor=config.cards==='bordered'?c.secondary:'#dfe5df';card.style.borderTop=`3px solid ${index===1?c.accent:index===2?c.signal:c.secondary}`;});
     if(panel){panel.style.borderRadius=radiusValue(config.radius);panel.style.boxShadow=config.cards==='elevated'?`0 7px 18px color-mix(in srgb, ${c.primary} 10%, transparent)`:'none';panel.style.borderWidth=config.cards==='bordered'?'2px':'1px';panel.style.borderTop=`3px solid ${c.accent}`;}
+    if(button){button.style.borderRadius=radiusValue(config.radius);button.style.border=`1px solid ${c.secondary}`;button.style.color=config.buttons==='solid'?'#fff':c.secondary;button.style.background=config.buttons==='solid'?c.secondary:config.buttons==='soft'?`color-mix(in srgb, ${c.secondary} 12%, #fff)`:'transparent';}
+    if(table){table.dataset.previewTable=config.tables;table.style.setProperty('--admin-preview-secondary',c.secondary);}
     syncColorCodes('admin',c);
   }
 
@@ -216,22 +195,45 @@
   }
 
   function applyPreset(scope,name){
-    if(scope==='public'){const preset=theme.publicPresets[name];if(!preset)return;writePublic(preset);}
-    else{const preset=theme.adminPresets[name];if(!preset)return;writeAdmin(preset);}
-    showWorkspace(scope);refreshPreview(scope);syncDirtyState(true,`${scope==='public'?'Public website':'Admin interface'} preset loaded. Preview updated — save when ready.`);
+    const source=scope==='public'?theme.publicPresets:theme.adminPresets;
+    const preset=source?.[name];
+    if(!preset){setStatus(`Preset “${name}” is unavailable. Reload the Design Studio.`,true);return;}
+    if(scope==='public')writePublic(preset);else writeAdmin(preset);
+    showWorkspace(scope);refreshPreview(scope);
+    const selected=document.querySelector(`[data-scope="${scope}"][data-design-preset="${name}"]`);
+    selected?.classList.add('preset-just-selected');window.setTimeout(()=>selected?.classList.remove('preset-just-selected'),320);
+    syncDirtyState(true,`${scope==='public'?'Public website':'Admin interface'} preset loaded. Preview updated — tap Save & Apply Design to publish.`);
+  }
+
+  function bindPresetButtons(){
+    theme.syncStudioPresetUi?.();
+    let invalid=0;
+    document.querySelectorAll('[data-design-preset]').forEach((button)=>{
+      if(button.dataset.presetBound==='true')return;
+      const scope=button.dataset.scope==='admin'?'admin':'public';
+      const name=button.dataset.designPreset;
+      const exists=Boolean((scope==='public'?theme.publicPresets:theme.adminPresets)?.[name]);
+      button.dataset.presetBound='true';button.disabled=!exists;
+      if(!exists){button.classList.add('is-invalid');button.title='Preset configuration is missing';invalid+=1;return;}
+      button.addEventListener('click',(event)=>{event.preventDefault();applyPreset(scope,name);});
+    });
+    if(invalid)setStatus(`${invalid} preset configuration${invalid===1?' is':'s are'} unavailable. Reload after the latest update.`,true);
   }
 
   async function loadTheme(){
     setStatus('Loading saved design…');if(saveButton)saveButton.disabled=true;
-    const {data,error}=await client.from('site_settings').select('design_theme,primary_color,secondary_color,accent_color').eq('id',1).single();
-    if(error)throw error;
+    const {data,error}=await client.from('site_settings').select('design_theme,primary_color,secondary_color,accent_color').eq('id',1).single();if(error)throw error;
     const config=data?.design_theme||{};
     const publicConfig={...(config.public||theme.PUBLIC_DEFAULT),colors:{...(config.public?.colors||{}),primary:config.public?.colors?.primary||data.primary_color||theme.COLOR_DEFAULTS.primary,secondary:config.public?.colors?.secondary||data.secondary_color||theme.COLOR_DEFAULTS.secondary,accent:config.public?.colors?.accent||data.accent_color||theme.COLOR_DEFAULTS.accent,signal:config.public?.colors?.signal||theme.COLOR_DEFAULTS.signal}};
     const cached={version:theme.THEME_SCHEMA_VERSION,public:theme.normalizePublic(publicConfig),admin:theme.normalizeAdmin(config.admin||theme.ADMIN_DEFAULT)};
-    theme.writeCache?.(cached);writePublic(cached.public);writeAdmin(cached.admin);refreshPreview('all');syncDirtyState(false,'Saved design loaded. Choose a preset or change an option to preview it instantly.');
+    theme.writeCache?.(cached);writePublic(cached.public);writeAdmin(cached.admin);refreshPreview('all');syncDirtyState(false,'Saved design loaded. Presets and selections are ready.');
   }
 
   function sameColors(a,b){return ['primary','secondary','accent','signal'].every((key)=>a?.[key]===b?.[key]);}
+
+  function sameAdmin(a,b){
+    return ['font','radius','density','sidebar','sidebarWidth','topbar','contentWidth','buttons','tables','cards'].every((key)=>a?.[key]===b?.[key])&&sameColors(a?.colors,b?.colors);
+  }
 
   async function saveTheme(){
     if(!dirty)return;
@@ -242,7 +244,8 @@
       if(error)throw error;
       const saved=data?.design_theme;if(!saved?.public||!saved?.admin)throw new Error('Save completed but the saved design could not be verified.');
       const verifiedPublic=theme.normalizePublic(saved.public),verifiedAdmin=theme.normalizeAdmin(saved.admin);
-      if(verifiedPublic.font!==publicTheme.font||verifiedPublic.radius!==publicTheme.radius||verifiedPublic.density!==publicTheme.density||verifiedPublic.navSkin!==publicTheme.navSkin||verifiedPublic.navPosition!==publicTheme.navPosition||verifiedPublic.navAlign!==publicTheme.navAlign||verifiedPublic.navMode!==publicTheme.navMode||verifiedPublic.hero!==publicTheme.hero||verifiedPublic.cards!==publicTheme.cards||verifiedPublic.contentWidth!==publicTheme.contentWidth||!sameColors(verifiedPublic.colors,publicTheme.colors)||verifiedAdmin.font!==adminTheme.font||verifiedAdmin.radius!==adminTheme.radius||verifiedAdmin.density!==adminTheme.density||verifiedAdmin.sidebar!==adminTheme.sidebar||verifiedAdmin.cards!==adminTheme.cards||!sameColors(verifiedAdmin.colors,adminTheme.colors)) throw new Error('The server returned a design that does not match the selected settings.');
+      const publicMatches=verifiedPublic.font===publicTheme.font&&verifiedPublic.radius===publicTheme.radius&&verifiedPublic.density===publicTheme.density&&verifiedPublic.navSkin===publicTheme.navSkin&&verifiedPublic.navPosition===publicTheme.navPosition&&verifiedPublic.navAlign===publicTheme.navAlign&&verifiedPublic.navMode===publicTheme.navMode&&verifiedPublic.hero===publicTheme.hero&&verifiedPublic.cards===publicTheme.cards&&verifiedPublic.contentWidth===publicTheme.contentWidth&&sameColors(verifiedPublic.colors,publicTheme.colors);
+      if(!publicMatches||!sameAdmin(verifiedAdmin,adminTheme))throw new Error('The server returned a design that does not match the selected settings.');
       const verified={version:theme.THEME_SCHEMA_VERSION,public:verifiedPublic,admin:verifiedAdmin};
       theme.writeCache?.(verified);syncSiteCache(verified);theme.applyAdmin?.(verified.admin);writePublic(verified.public);writeAdmin(verified.admin);refreshPreview('all');syncDirtyState(false,'Published and verified. Public website, System Admin and Content Admin are now using the saved design.');
     }catch(error){console.error(error);syncDirtyState(true,error.message||'Unable to save design.');status?.classList.add('text-danger');}
@@ -268,14 +271,13 @@
   });
 
   form?.addEventListener('submit',(event)=>{event.preventDefault();saveTheme();});
-  document.addEventListener('click',(event)=>{const button=event.target.closest('[data-design-preset]');if(button)applyPreset(button.dataset.scope,button.dataset.designPreset);});
   resetButton?.addEventListener('click',()=>{if(activeScope==='public')writePublic(theme.PUBLIC_DEFAULT);else writeAdmin(theme.ADMIN_DEFAULT);refreshPreview(activeScope);syncDirtyState(true,`${activeScope==='public'?'Public website':'Admin interface'} defaults loaded in preview. Save to apply them.`);});
   window.addEventListener('resize',()=>{if(activeScope==='public')syncResponsiveNote(readPublic());syncSaveBarLayout();},{passive:true});
 
   async function init(){
     syncDirtyState(false);
     if(!theme){setStatus('Theme engine failed to load.',true);return;}
-    injectAdminPalette();showWorkspace('public');
+    ensureAdminPalette();bindPresetButtons();showWorkspace('public');
     const allowed=await requireAdmin();if(!allowed)return;
     try{await loadTheme();}catch(error){console.error(error);setStatus(error.message||'Unable to load Design Studio.',true);}
   }
