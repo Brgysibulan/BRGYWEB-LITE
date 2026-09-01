@@ -43,6 +43,28 @@
 
   function radiusValue(kind){return {square:'3px',soft:'8px',rounded:'12px',pill:'22px'}[kind]||'12px';}
   function fontValue(kind){return kind==='serif'?'Georgia, serif':kind==='rounded'?'Trebuchet MS, sans-serif':'Inter, system-ui, sans-serif';}
+  function navLabel(kind){return {top:'Top',left:'Left Sidebar',floating:'Floating Top'}[kind]||'Top';}
+
+  function syncResponsiveNote(config){
+    const previewCard=field('public-design-preview')?.closest('.studio3-preview-card');
+    if(!previewCard)return;
+    let note=field('public-responsive-note');
+    if(!note){
+      note=document.createElement('div');
+      note.id='public-responsive-note';
+      note.className='studio3-responsive-note';
+      const head=previewCard.querySelector('.studio3-preview-head');
+      head?.insertAdjacentElement('afterend',note);
+    }
+    const effective=typeof theme.effectiveNavPosition==='function'?theme.effectiveNavPosition(config.navPosition):config.navPosition;
+    if(effective===config.navPosition){
+      note.classList.remove('is-fallback');
+      note.textContent=`This device supports the saved ${navLabel(config.navPosition)} navigation.`;
+    }else{
+      note.classList.add('is-fallback');
+      note.textContent=`Desktop setting: ${navLabel(config.navPosition)}. This phone/tablet safely uses Top navigation.`;
+    }
+  }
 
   function renderPublicPreview(config){
     const preview=field('public-design-preview');if(!preview)return;
@@ -56,7 +78,7 @@
     }
     if(body){body.style.background=c.surface;body.style.padding=config.contentWidth==='boxed'?'1rem 1.7rem':config.density==='compact'?'.6rem':'.8rem';body.style.gap=config.density==='compact'?'.38rem':'.55rem';}
     cards.forEach((card,index)=>{card.style.borderRadius=radiusValue(config.radius);card.style.boxShadow=config.cards==='elevated'?'0 7px 18px rgba(17,33,24,.09)':'none';card.style.borderWidth=config.cards==='bordered'?'2px':'1px';card.style.minHeight=config.density==='compact'?'48px':'62px';card.style.padding=config.density==='compact'?'.42rem':'.6rem';card.style.borderColor=config.cards==='bordered'?c.secondary:'#dfe5df';card.style.borderTopColor=index===0?c.accent:index===2?c.signal:card.style.borderColor;card.style.borderTopWidth=index===0?'3px':index===2?'2px':card.style.borderWidth;});
-    syncColorCodes(c);
+    syncColorCodes(c);syncResponsiveNote(config);
   }
 
   function renderAdminPreview(config){
@@ -82,12 +104,12 @@
     const {data,error}=await client.from('site_settings').select('design_theme,primary_color,secondary_color,accent_color').eq('id',1).single();if(error)throw error;
     const config=data?.design_theme||{};
     const publicConfig={...(config.public||theme.PUBLIC_DEFAULT),colors:{...(config.public?.colors||{}),primary:config.public?.colors?.primary||data.primary_color||theme.COLOR_DEFAULTS.primary,secondary:config.public?.colors?.secondary||data.secondary_color||theme.COLOR_DEFAULTS.secondary,accent:config.public?.colors?.accent||data.accent_color||theme.COLOR_DEFAULTS.accent,signal:config.public?.colors?.signal||theme.COLOR_DEFAULTS.signal}};
-    const cached={...config,public:theme.normalizePublic(publicConfig),admin:theme.normalizeAdmin(config.admin||theme.ADMIN_DEFAULT),version:5};theme.writeCache?.(cached);writePublic(cached.public);writeAdmin(cached.admin);refreshPreview('all');syncDirtyState(false,'Saved design loaded. Choose a preset or change a color/option to preview it instantly.');
+    const cached={...config,public:theme.normalizePublic(publicConfig),admin:theme.normalizeAdmin(config.admin||theme.ADMIN_DEFAULT),version:6};theme.writeCache?.(cached);writePublic(cached.public);writeAdmin(cached.admin);refreshPreview('all');syncDirtyState(false,'Saved design loaded. Choose a preset or change a color/option to preview it instantly.');
   }
 
   async function saveTheme(){
     if(!dirty)return;
-    const publicTheme=readPublic(),payload={version:5,public:publicTheme,admin:readAdmin()};saveButton.disabled=true;resetButton.disabled=true;setStatus('Saving design…');
+    const publicTheme=readPublic(),payload={version:6,public:publicTheme,admin:readAdmin()};saveButton.disabled=true;resetButton.disabled=true;setStatus('Saving design…');
     try{
       const {data,error}=await client.from('site_settings').update({design_theme:payload,primary_color:publicTheme.colors.primary,secondary_color:publicTheme.colors.secondary,accent_color:publicTheme.colors.accent,updated_at:new Date().toISOString()}).eq('id',1).select('design_theme,primary_color,secondary_color,accent_color').single();
       if(error)throw error;
@@ -104,6 +126,7 @@
   form?.addEventListener('submit',(event)=>{event.preventDefault();saveTheme();});
   document.addEventListener('click',(event)=>{const button=event.target.closest('[data-design-preset]');if(button)applyPreset(button.dataset.scope,button.dataset.designPreset);});
   resetButton?.addEventListener('click',()=>{if(activeScope==='public')writePublic(theme.PUBLIC_DEFAULT);else writeAdmin(theme.ADMIN_DEFAULT);refreshPreview(activeScope);syncDirtyState(true,`${activeScope==='public'?'Public website':'Admin interface'} defaults loaded in preview. Save to apply them.`);});
+  window.addEventListener('resize',()=>{if(activeScope==='public')syncResponsiveNote(readPublic());},{passive:true});
 
   async function init(){if(!theme){setStatus('Theme engine failed to load.',true);return;}showWorkspace('public');const allowed=await requireAdmin();if(!allowed)return;try{await loadTheme();}catch(error){console.error(error);setStatus(error.message||'Unable to load Design Studio.',true);}}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
