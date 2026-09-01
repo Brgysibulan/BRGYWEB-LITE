@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Admin Login</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="assets/css/admin.css?v=20260902-login1">
+  <link rel="stylesheet" href="assets/css/access.css?v=20260902-login1">
+</head>
+<body class="access-page">
+  <main class="access-wrap">
+    <section class="access-login-card">
+      <div class="access-brand"><div class="access-brand-mark">B</div><div><strong>BRGYWEB-LITE</strong><small>Administration Access</small></div></div>
+      <span class="eyebrow">Secure Workspace</span>
+      <h1 class="h2 mt-2 mb-2">Admin Login</h1>
+      <p class="text-secondary mb-3">Choose the workspace you want to enter, then sign in with your account.</p>
+
+      <div class="access-route-grid mt-0 pt-0 border-0" role="group" aria-label="Choose admin workspace">
+        <button class="access-route-card access-route-admin" id="login-role-editor" type="button" data-login-role="editor" aria-pressed="true"><small>Public content</small><strong>Content Admin</strong></button>
+        <button class="access-route-card" id="login-role-admin" type="button" data-login-role="admin" aria-pressed="false"><small>Full control</small><strong>System Admin</strong></button>
+      </div>
+
+      <div class="application-note mt-3" id="login-role-note">Content Admin can manage approved public-facing content and downloadable forms.</div>
+
+      <form id="unified-login-form" class="mt-4" novalidate>
+        <div class="mb-3"><label class="form-label" for="login-email">Email</label><input class="form-control" id="login-email" type="email" autocomplete="username" required></div>
+        <div class="mb-3"><label class="form-label" for="login-password">Password</label><input class="form-control" id="login-password" type="password" autocomplete="current-password" required></div>
+        <button class="btn btn-dark btn-lg w-100" id="unified-login-submit" type="submit">Sign in as Content Admin</button>
+        <div id="unified-login-status" class="small mt-3 text-secondary" role="status" aria-live="polite"></div>
+      </form>
+
+      <div class="access-secondary"><p>Need Content Admin access?</p><a class="btn btn-outline-success w-100" href="editor/apply.html">Apply for Content Admin</a></div>
+      <nav class="access-route-grid" aria-label="Other access options"><a class="access-route-card" href="index.html"><small>Back to</small><strong>Public Website</strong></a><span class="access-route-card"><small>Selected workspace</small><strong id="login-selected-label">Content Admin</strong></span></nav>
+    </section>
+  </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="assets/js/supabase-config.js?v=20260902-login1"></script>
+  <script>
+    (()=>{
+      'use strict';
+      const client=window.BRGY_SUPABASE;
+      const form=document.getElementById('unified-login-form');
+      const status=document.getElementById('unified-login-status');
+      const submit=document.getElementById('unified-login-submit');
+      const note=document.getElementById('login-role-note');
+      const label=document.getElementById('login-selected-label');
+      const buttons=[...document.querySelectorAll('[data-login-role]')];
+      let selected='editor';
+
+      const setStatus=(message,error=false)=>{status.textContent=message||'';status.classList.toggle('text-danger',error);status.classList.toggle('text-secondary',!error);};
+      const cacheRole=(role)=>{try{localStorage.setItem('brgyweb:staff-role:v1',role);}catch{}};
+      const setSelected=(role)=>{
+        selected=role==='admin'?'admin':'editor';
+        buttons.forEach((button)=>{const active=button.dataset.loginRole===selected;button.classList.toggle('access-route-admin',active);button.setAttribute('aria-pressed',String(active));});
+        const system=selected==='admin';
+        submit.textContent=system?'Sign in as System Admin':'Sign in as Content Admin';
+        label.textContent=system?'System Admin':'Content Admin';
+        note.textContent=system?'System Admin has full control over settings, accounts, secure records, content, forms, and presentation.':'Content Admin can manage approved public-facing content and downloadable forms.';
+        setStatus('');
+      };
+      buttons.forEach((button)=>button.addEventListener('click',()=>setSelected(button.dataset.loginRole)));
+
+      async function getRole(userId){const {data,error}=await client.from('profiles').select('role,is_active').eq('user_id',userId).maybeSingle();if(error)throw error;return data;}
+      async function routeExisting(){if(!client)return;try{const {data}=await client.auth.getUser();if(!data?.user)return;const profile=await getRole(data.user.id);if(profile?.is_active!==true)return;if(profile.role==='admin'){cacheRole('admin');location.replace('admin/dashboard.html');return;}if(profile.role==='editor'){cacheRole('editor');location.replace('editor/dashboard.html');}}catch(error){console.warn('Unable to route existing session:',error);}}
+
+      form.addEventListener('submit',async(event)=>{
+        event.preventDefault();
+        if(!client)return setStatus('Supabase connection is unavailable.',true);
+        const email=document.getElementById('login-email').value.trim();
+        const password=document.getElementById('login-password').value;
+        if(!email||!password)return setStatus('Enter your email and password.',true);
+        submit.disabled=true;setStatus('Signing in...');
+        try{
+          const {data,error}=await client.auth.signInWithPassword({email,password});
+          if(error||!data?.user)throw error||new Error('Unable to sign in.');
+          const profile=await getRole(data.user.id);
+          const expected=selected;
+          if(profile?.is_active!==true||profile?.role!==expected){
+            await client.auth.signOut();
+            const expectedLabel=expected==='admin'?'System Admin':'Content Admin';
+            throw new Error(`This account does not have active ${expectedLabel} access.`);
+          }
+          cacheRole(profile.role);
+          location.href=profile.role==='admin'?'admin/dashboard.html':'editor/dashboard.html';
+        }catch(error){setStatus(error?.message||'Unable to sign in.',true);submit.disabled=false;}
+      });
+
+      setSelected('editor');
+      routeExisting();
+    })();
+  </script>
+</body>
+</html>
