@@ -1,10 +1,299 @@
 (() => {
-'use strict';
-const THEME_SCHEMA_VERSION=6,THEME_CACHE_KEY='brgyweb:design-theme:v6',LEGACY_THEME_CACHE_KEYS=['brgyweb:design-theme:v1'],ASSET_VERSION='20260901-viewport1',COLOR_DEFAULTS=Object.freeze({primary:'#0b2f21',secondary:'#1b6b45',accent:'#d8b63e',signal:'#a63d40',surface:'#f5f8f5'}),BREAKPOINT=900;let lastPublicTheme=null,resizeTimer=0;
-const PUBLIC_DEFAULT=Object.freeze({preset:'civic',font:'system',radius:'rounded',density:'comfortable',navSkin:'gradient',navPosition:'top',navAlign:'right',navMode:'links',hero:'bold',cards:'elevated',contentWidth:'wide',colors:{...COLOR_DEFAULTS}}),ADMIN_DEFAULT=Object.freeze({preset:'civic',font:'system',radius:'rounded',density:'comfortable',sidebar:'brand',cards:'elevated'}),signalRed=COLOR_DEFAULTS.signal;
-const publicPresets=Object.freeze({premium:{preset:'premium',font:'system',radius:'rounded',density:'comfortable',navSkin:'glass',navPosition:'floating',navAlign:'right',navMode:'links',hero:'split',cards:'elevated',contentWidth:'wide',colors:{primary:'#0b2f21',secondary:'#1b6b45',accent:'#d8b63e',signal:signalRed}},civic:{...PUBLIC_DEFAULT,preset:'civic',colors:{primary:'#0b2f21',secondary:'#1b6b45',accent:'#d8b63e',signal:signalRed}},modern:{preset:'modern',font:'rounded',radius:'pill',density:'comfortable',navSkin:'glass',navPosition:'top',navAlign:'center',navMode:'links',hero:'soft',cards:'elevated',contentWidth:'boxed',colors:{primary:'#134e4a',secondary:'#0f766e',accent:'#d6a93a',signal:signalRed}},portal:{preset:'portal',font:'system',radius:'soft',density:'compact',navSkin:'solid',navPosition:'left',navAlign:'left',navMode:'links',hero:'clean',cards:'flat',contentWidth:'wide',colors:{primary:'#172554',secondary:'#1d4ed8',accent:'#d6a93a',signal:signalRed}},floating:{preset:'floating',font:'rounded',radius:'rounded',density:'comfortable',navSkin:'glass',navPosition:'floating',navAlign:'center',navMode:'links',hero:'split',cards:'elevated',contentWidth:'boxed',colors:{primary:'#14532d',secondary:'#15803d',accent:'#d8b63e',signal:signalRed}},minimal:{preset:'minimal',font:'system',radius:'square',density:'compact',navSkin:'solid',navPosition:'top',navAlign:'right',navMode:'menu',hero:'minimal',cards:'bordered',contentWidth:'boxed',colors:{primary:'#0f172a',secondary:'#334155',accent:'#caa43a',signal:signalRed}},classic:{preset:'classic',font:'serif',radius:'soft',density:'comfortable',navSkin:'solid',navPosition:'top',navAlign:'center',navMode:'links',hero:'banner',cards:'bordered',contentWidth:'boxed',colors:{primary:'#4c1d1d',secondary:'#7f1d1d',accent:'#c9a43b',signal:'#9f3438'}},compact:{preset:'compact',font:'system',radius:'soft',density:'compact',navSkin:'gradient',navPosition:'left',navAlign:'left',navMode:'menu',hero:'minimal',cards:'flat',contentWidth:'wide',colors:{primary:'#052e16',secondary:'#166534',accent:'#c7aa3a',signal:signalRed}},bold:{preset:'bold',font:'rounded',radius:'pill',density:'comfortable',navSkin:'gradient',navPosition:'floating',navAlign:'right',navMode:'menu',hero:'bold',cards:'elevated',contentWidth:'wide',colors:{primary:'#0c4a6e',secondary:'#0369a1',accent:'#d59b38',signal:signalRed}}}),adminPresets=Object.freeze({control:{preset:'control',font:'system',radius:'rounded',density:'comfortable',sidebar:'brand',cards:'elevated'},civic:{preset:'civic',font:'system',radius:'rounded',density:'comfortable',sidebar:'brand',cards:'elevated'},executive:{preset:'executive',font:'system',radius:'soft',density:'compact',sidebar:'dark',cards:'elevated'},modern:{preset:'modern',font:'rounded',radius:'pill',density:'comfortable',sidebar:'brand',cards:'flat'},minimal:{preset:'minimal',font:'system',radius:'square',density:'compact',sidebar:'light',cards:'bordered'},clean:{preset:'clean',font:'system',radius:'soft',density:'comfortable',sidebar:'light',cards:'flat'},classic:{preset:'classic',font:'serif',radius:'soft',density:'comfortable',sidebar:'dark',cards:'bordered'}}),choices={public:{font:['system','rounded','serif'],radius:['square','soft','rounded','pill'],density:['comfortable','compact'],navSkin:['gradient','solid','glass'],navPosition:['top','left','floating'],navAlign:['left','center','right'],navMode:['links','menu'],hero:['bold','clean','soft','minimal','split','banner'],cards:['elevated','flat','bordered'],contentWidth:['wide','boxed']},admin:{font:['system','rounded','serif'],radius:['square','soft','rounded','pill'],density:['comfortable','compact'],sidebar:['brand','dark','light'],cards:['elevated','flat','bordered']}};
-const isHex=v=>/^#[0-9a-f]{6}$/i.test(String(v||'')),color=(v,f)=>isHex(v)?String(v).toLowerCase():f,pick=(v,a,f)=>a.includes(v)?v:f;function syncUiReady(){const r=document.documentElement;if(r.dataset.adminShellReady==='true'&&r.dataset.adminThemeReady==='true')r.dataset.adminUiReady='true';}function readCache(){try{const raw=localStorage.getItem(THEME_CACHE_KEY);if(!raw)return null;const p=JSON.parse(raw);if(p?.version!==THEME_SCHEMA_VERSION)return null;return p?.config&&typeof p.config==='object'?p.config:null;}catch{return null;}}function writeCache(config){try{localStorage.setItem(THEME_CACHE_KEY,JSON.stringify({version:THEME_SCHEMA_VERSION,savedAt:Date.now(),config}));LEGACY_THEME_CACHE_KEYS.forEach(k=>localStorage.removeItem(k));}catch{}}function normalizeColors(i={}){return{primary:color(i.primary,COLOR_DEFAULTS.primary),secondary:color(i.secondary,COLOR_DEFAULTS.secondary),accent:color(i.accent,COLOR_DEFAULTS.accent),signal:color(i.signal||i.danger,COLOR_DEFAULTS.signal),surface:COLOR_DEFAULTS.surface};}function normalizePublic(i={}){const navSkin=pick(i.navSkin||i.nav,choices.public.navSkin,PUBLIC_DEFAULT.navSkin);return{preset:String(i.preset||PUBLIC_DEFAULT.preset),font:pick(i.font,choices.public.font,PUBLIC_DEFAULT.font),radius:pick(i.radius,choices.public.radius,PUBLIC_DEFAULT.radius),density:pick(i.density,choices.public.density,PUBLIC_DEFAULT.density),navSkin,nav:navSkin,navPosition:pick(i.navPosition,choices.public.navPosition,PUBLIC_DEFAULT.navPosition),navAlign:pick(i.navAlign,choices.public.navAlign,PUBLIC_DEFAULT.navAlign),navMode:pick(i.navMode,choices.public.navMode,PUBLIC_DEFAULT.navMode),hero:pick(i.hero,choices.public.hero,PUBLIC_DEFAULT.hero),cards:pick(i.cards,choices.public.cards,PUBLIC_DEFAULT.cards),contentWidth:pick(i.contentWidth,choices.public.contentWidth,PUBLIC_DEFAULT.contentWidth),colors:normalizeColors(i.colors||{})};}function normalizeAdmin(i={}){return{preset:String(i.preset||ADMIN_DEFAULT.preset),font:pick(i.font,choices.admin.font,ADMIN_DEFAULT.font),radius:pick(i.radius,choices.admin.radius,ADMIN_DEFAULT.radius),density:pick(i.density,choices.admin.density,ADMIN_DEFAULT.density),sidebar:pick(i.sidebar,choices.admin.sidebar,ADMIN_DEFAULT.sidebar),cards:pick(i.cards,choices.admin.cards,ADMIN_DEFAULT.cards)};}function supportsAdvancedDesktopNav(){return window.innerWidth>=1200;}function effectiveNavPosition(r){if(window.innerWidth<BREAKPOINT)return'top';if(window.innerWidth<1200)return'top';return r;}function ensureStyles(){if(!document.querySelector('link[data-brgy-design-themes]')){const l=document.createElement('link');l.rel='stylesheet';l.dataset.brgyDesignThemes='true';l.href=/\/(admin|editor)\//.test(location.pathname)?`../assets/css/design-themes.css?v=${ASSET_VERSION}`:`assets/css/design-themes.css?v=${ASSET_VERSION}`;document.head.appendChild(l);}if(!document.querySelector('link[data-brgy-design-layouts]')){const l=document.createElement('link');l.rel='stylesheet';l.dataset.brgyDesignLayouts='true';l.href=/\/(admin|editor)\//.test(location.pathname)?`../assets/css/design-layouts.css?v=${ASSET_VERSION}`:`assets/css/design-layouts.css?v=${ASSET_VERSION}`;document.head.appendChild(l);}}
-function syncStudioPresetUi(){if(!/\/admin\/design-studio\.html$/.test(location.pathname))return;const publicGrid=document.querySelector('[data-studio-panel="public"] .studio3-presets'),adminGrid=document.querySelector('[data-studio-panel="admin"] .studio3-presets');if(publicGrid&&!publicGrid.querySelector('[data-design-preset="premium"]')){const b=document.createElement('button');b.className='studio3-preset';b.type='button';b.dataset.scope='public';b.dataset.designPreset='premium';b.innerHTML='<div class="studio3-thumb float"></div><strong>Civic Premium</strong><small>Dark green + gold · floating glass · split hero</small>';publicGrid.prepend(b);}if(adminGrid&&!adminGrid.querySelector('[data-design-preset="control"]')){const b=document.createElement('button');b.className='studio3-preset';b.type='button';b.dataset.scope='admin';b.dataset.designPreset='control';b.innerHTML='<div class="studio3-thumb left"></div><strong>Control Center</strong><small>Premium green workspace · elevated panels</small>';adminGrid.prepend(b);}const pc=document.querySelector('[data-studio-panel="public"] .studio3-count'),ac=document.querySelector('[data-studio-panel="admin"] .studio3-count');if(pc)pc.textContent=`${Object.keys(publicPresets).length} presets`;if(ac)ac.textContent=`${Object.keys(adminPresets).length} presets`;}
-function applyPublic(i={}){ensureStyles();const t=normalizePublic(i),r=document.documentElement,desktop=window.innerWidth>=1200,e=effectiveNavPosition(t.navPosition),effectiveMode=desktop?t.navMode:'links',effectiveAlign=desktop?t.navAlign:'right',structure=window.innerWidth<BREAKPOINT?'mobile-locked':'desktop-wide';lastPublicTheme=t;Object.assign(r.dataset,{publicPreset:t.preset,publicFont:t.font,publicRadius:t.radius,publicDensity:t.density,publicNav:t.navSkin,publicNavSkin:t.navSkin,publicNavRequested:t.navPosition,publicNavPosition:e,publicNavRequestedAlign:t.navAlign,publicNavAlign:effectiveAlign,publicNavRequestedMode:t.navMode,publicNavMode:effectiveMode,publicStructure:structure,publicResponsiveMode:structure,publicHero:t.hero,publicCards:t.cards,publicContentWidth:t.contentWidth,publicThemeReady:'true'});r.style.setProperty('--brand-primary',t.colors.primary);r.style.setProperty('--brand-secondary',t.colors.secondary);r.style.setProperty('--brand-primary-dark',t.colors.primary);r.style.setProperty('--brand-accent',t.colors.accent);r.style.setProperty('--brand-signal',t.colors.signal);r.style.setProperty('--brand-danger',t.colors.signal);r.style.setProperty('--soft-bg',t.colors.surface);return{...t,effectiveNavPosition:e,effectiveNavMode:effectiveMode,effectiveNavAlign:effectiveAlign};}function applyAdmin(i={}){ensureStyles();const t=normalizeAdmin(i),r=document.documentElement;Object.assign(r.dataset,{adminPreset:t.preset,adminFont:t.font,adminRadius:t.radius,adminDensity:t.density,adminSidebar:t.sidebar,adminCards:t.cards,adminThemeReady:'true'});syncUiReady();return t;}function applyForCurrentPage(config={}){if(/\/(admin|editor)\//.test(location.pathname))return applyAdmin(config.admin||{});return applyPublic(config.public||{});}async function load(client,scope='admin'){const cached=readCache();if(cached){scope==='public'?applyPublic(cached.public||{}):applyAdmin(cached.admin||{});}if(!client){if(cached)return scope==='public'?normalizePublic(cached.public||{}):normalizeAdmin(cached.admin||{});return scope==='public'?applyPublic():applyAdmin();}try{const{data,error}=await client.from('site_settings').select('design_theme').eq('id',1).single();if(error)throw error;const config=data?.design_theme||{};writeCache(config);return scope==='public'?applyPublic(config.public||{}):applyAdmin(config.admin||{});}catch(error){console.warn('Design theme refresh failed; using last known theme:',error);if(cached)return scope==='public'?normalizePublic(cached.public||{}):normalizeAdmin(cached.admin||{});return scope==='public'?applyPublic():applyAdmin();}}
-window.addEventListener('storage',(event)=>{if(event.key!==THEME_CACHE_KEY||!event.newValue)return;try{const parsed=JSON.parse(event.newValue);if(parsed?.version!==THEME_SCHEMA_VERSION||!parsed?.config)return;applyForCurrentPage(parsed.config);}catch{}});window.addEventListener('resize',()=>{if(!lastPublicTheme)return;clearTimeout(resizeTimer);resizeTimer=setTimeout(()=>applyPublic(lastPublicTheme),80);},{passive:true});window.BRGY_THEME=Object.freeze({THEME_SCHEMA_VERSION,THEME_CACHE_KEY,COLOR_DEFAULTS,PUBLIC_DEFAULT,ADMIN_DEFAULT,publicPresets,adminPresets,normalizeColors,normalizePublic,normalizeAdmin,effectiveNavPosition,supportsAdvancedDesktopNav,applyPublic,applyAdmin,applyForCurrentPage,load,ensureStyles,readCache,writeCache,syncStudioPresetUi});ensureStyles();syncStudioPresetUi();const cachedAtBoot=readCache();if(cachedAtBoot)applyForCurrentPage(cachedAtBoot);if(/\/(admin|editor)\//.test(location.pathname)){const boot=()=>load(window.BRGY_SUPABASE,'admin');document.readyState==='loading'?document.addEventListener('DOMContentLoaded',boot,{once:true}):boot();}
+  'use strict';
+
+  const THEME_SCHEMA_VERSION = 7;
+  const THEME_CACHE_KEY = 'brgyweb:design-theme:v7';
+  const LEGACY_THEME_CACHE_KEYS = ['brgyweb:design-theme:v6', 'brgyweb:design-theme:v1'];
+  const ASSET_VERSION = '20260901-admincolors1';
+  const BREAKPOINT = 900;
+
+  const COLOR_DEFAULTS = Object.freeze({
+    primary: '#0b2f21',
+    secondary: '#1b6b45',
+    accent: '#d8b63e',
+    signal: '#a63d40',
+    surface: '#f5f8f5'
+  });
+
+  const ADMIN_COLOR_DEFAULTS = Object.freeze({
+    primary: '#0b2f21',
+    secondary: '#1b6b45',
+    accent: '#d8b63e',
+    signal: '#a63d40'
+  });
+
+  const PUBLIC_DEFAULT = Object.freeze({
+    preset: 'civic', font: 'system', radius: 'rounded', density: 'comfortable',
+    navSkin: 'gradient', navPosition: 'top', navAlign: 'right', navMode: 'links',
+    hero: 'bold', cards: 'elevated', contentWidth: 'wide', colors: { ...COLOR_DEFAULTS }
+  });
+
+  const ADMIN_DEFAULT = Object.freeze({
+    preset: 'civic', font: 'system', radius: 'rounded', density: 'comfortable',
+    sidebar: 'brand', cards: 'elevated', colors: { ...ADMIN_COLOR_DEFAULTS }
+  });
+
+  const signalRed = COLOR_DEFAULTS.signal;
+
+  const publicPresets = Object.freeze({
+    premium: { preset:'premium', font:'system', radius:'rounded', density:'comfortable', navSkin:'glass', navPosition:'floating', navAlign:'right', navMode:'links', hero:'split', cards:'elevated', contentWidth:'wide', colors:{ primary:'#0b2f21', secondary:'#1b6b45', accent:'#d8b63e', signal:signalRed } },
+    civic: { ...PUBLIC_DEFAULT, preset:'civic', colors:{ primary:'#0b2f21', secondary:'#1b6b45', accent:'#d8b63e', signal:signalRed } },
+    modern: { preset:'modern', font:'rounded', radius:'pill', density:'comfortable', navSkin:'glass', navPosition:'top', navAlign:'center', navMode:'links', hero:'soft', cards:'elevated', contentWidth:'boxed', colors:{ primary:'#134e4a', secondary:'#0f766e', accent:'#d6a93a', signal:signalRed } },
+    portal: { preset:'portal', font:'system', radius:'soft', density:'compact', navSkin:'solid', navPosition:'left', navAlign:'left', navMode:'links', hero:'clean', cards:'flat', contentWidth:'wide', colors:{ primary:'#172554', secondary:'#1d4ed8', accent:'#d6a93a', signal:signalRed } },
+    floating: { preset:'floating', font:'rounded', radius:'rounded', density:'comfortable', navSkin:'glass', navPosition:'floating', navAlign:'center', navMode:'links', hero:'split', cards:'elevated', contentWidth:'boxed', colors:{ primary:'#14532d', secondary:'#15803d', accent:'#d8b63e', signal:signalRed } },
+    minimal: { preset:'minimal', font:'system', radius:'square', density:'compact', navSkin:'solid', navPosition:'top', navAlign:'right', navMode:'menu', hero:'minimal', cards:'bordered', contentWidth:'boxed', colors:{ primary:'#0f172a', secondary:'#334155', accent:'#caa43a', signal:signalRed } },
+    classic: { preset:'classic', font:'serif', radius:'soft', density:'comfortable', navSkin:'solid', navPosition:'top', navAlign:'center', navMode:'links', hero:'banner', cards:'bordered', contentWidth:'boxed', colors:{ primary:'#4c1d1d', secondary:'#7f1d1d', accent:'#c9a43b', signal:'#9f3438' } },
+    compact: { preset:'compact', font:'system', radius:'soft', density:'compact', navSkin:'gradient', navPosition:'left', navAlign:'left', navMode:'menu', hero:'minimal', cards:'flat', contentWidth:'wide', colors:{ primary:'#052e16', secondary:'#166534', accent:'#c7aa3a', signal:signalRed } },
+    bold: { preset:'bold', font:'rounded', radius:'pill', density:'comfortable', navSkin:'gradient', navPosition:'floating', navAlign:'right', navMode:'menu', hero:'bold', cards:'elevated', contentWidth:'wide', colors:{ primary:'#0c4a6e', secondary:'#0369a1', accent:'#d59b38', signal:signalRed } }
+  });
+
+  const adminPresets = Object.freeze({
+    control: { preset:'control', font:'system', radius:'rounded', density:'comfortable', sidebar:'brand', cards:'elevated', colors:{ primary:'#0b2f21', secondary:'#1b6b45', accent:'#d8b63e', signal:'#a63d40' } },
+    civic: { preset:'civic', font:'system', radius:'rounded', density:'comfortable', sidebar:'brand', cards:'elevated', colors:{ primary:'#0b2f21', secondary:'#1b6b45', accent:'#d8b63e', signal:'#a63d40' } },
+    executive: { preset:'executive', font:'system', radius:'soft', density:'compact', sidebar:'dark', cards:'elevated', colors:{ primary:'#1f2937', secondary:'#475569', accent:'#d6aa3c', signal:'#b33f46' } },
+    modern: { preset:'modern', font:'rounded', radius:'pill', density:'comfortable', sidebar:'brand', cards:'flat', colors:{ primary:'#0f4c5c', secondary:'#168aad', accent:'#f4b942', signal:'#b33f46' } },
+    minimal: { preset:'minimal', font:'system', radius:'square', density:'compact', sidebar:'light', cards:'bordered', colors:{ primary:'#334155', secondary:'#64748b', accent:'#d4a72c', signal:'#b33f46' } },
+    clean: { preset:'clean', font:'system', radius:'soft', density:'comfortable', sidebar:'light', cards:'flat', colors:{ primary:'#14532d', secondary:'#3f8f5d', accent:'#d8b63e', signal:'#a63d40' } },
+    classic: { preset:'classic', font:'serif', radius:'soft', density:'comfortable', sidebar:'dark', cards:'bordered', colors:{ primary:'#4c1d1d', secondary:'#7f1d1d', accent:'#c9a43b', signal:'#9f3438' } }
+  });
+
+  const choices = {
+    public: {
+      font:['system','rounded','serif'], radius:['square','soft','rounded','pill'], density:['comfortable','compact'],
+      navSkin:['gradient','solid','glass'], navPosition:['top','left','floating'], navAlign:['left','center','right'],
+      navMode:['links','menu'], hero:['bold','clean','soft','minimal','split','banner'], cards:['elevated','flat','bordered'], contentWidth:['wide','boxed']
+    },
+    admin: {
+      font:['system','rounded','serif'], radius:['square','soft','rounded','pill'], density:['comfortable','compact'],
+      sidebar:['brand','dark','light'], cards:['elevated','flat','bordered']
+    }
+  };
+
+  let lastPublicTheme = null;
+  let resizeTimer = 0;
+
+  const isHex = (value) => /^#[0-9a-f]{6}$/i.test(String(value || ''));
+  const color = (value, fallback) => isHex(value) ? String(value).toLowerCase() : fallback;
+  const pick = (value, allowed, fallback) => allowed.includes(value) ? value : fallback;
+
+  function normalizeColors(input = {}) {
+    return {
+      primary: color(input.primary, COLOR_DEFAULTS.primary),
+      secondary: color(input.secondary, COLOR_DEFAULTS.secondary),
+      accent: color(input.accent, COLOR_DEFAULTS.accent),
+      signal: color(input.signal || input.danger, COLOR_DEFAULTS.signal),
+      surface: COLOR_DEFAULTS.surface
+    };
+  }
+
+  function normalizeAdminColors(input = {}) {
+    return {
+      primary: color(input.primary, ADMIN_COLOR_DEFAULTS.primary),
+      secondary: color(input.secondary, ADMIN_COLOR_DEFAULTS.secondary),
+      accent: color(input.accent, ADMIN_COLOR_DEFAULTS.accent),
+      signal: color(input.signal || input.danger, ADMIN_COLOR_DEFAULTS.signal)
+    };
+  }
+
+  function normalizePublic(input = {}) {
+    const navSkin = pick(input.navSkin || input.nav, choices.public.navSkin, PUBLIC_DEFAULT.navSkin);
+    return {
+      preset: String(input.preset || PUBLIC_DEFAULT.preset),
+      font: pick(input.font, choices.public.font, PUBLIC_DEFAULT.font),
+      radius: pick(input.radius, choices.public.radius, PUBLIC_DEFAULT.radius),
+      density: pick(input.density, choices.public.density, PUBLIC_DEFAULT.density),
+      navSkin,
+      nav: navSkin,
+      navPosition: pick(input.navPosition, choices.public.navPosition, PUBLIC_DEFAULT.navPosition),
+      navAlign: pick(input.navAlign, choices.public.navAlign, PUBLIC_DEFAULT.navAlign),
+      navMode: pick(input.navMode, choices.public.navMode, PUBLIC_DEFAULT.navMode),
+      hero: pick(input.hero, choices.public.hero, PUBLIC_DEFAULT.hero),
+      cards: pick(input.cards, choices.public.cards, PUBLIC_DEFAULT.cards),
+      contentWidth: pick(input.contentWidth, choices.public.contentWidth, PUBLIC_DEFAULT.contentWidth),
+      colors: normalizeColors(input.colors || {})
+    };
+  }
+
+  function normalizeAdmin(input = {}) {
+    return {
+      preset: String(input.preset || ADMIN_DEFAULT.preset),
+      font: pick(input.font, choices.admin.font, ADMIN_DEFAULT.font),
+      radius: pick(input.radius, choices.admin.radius, ADMIN_DEFAULT.radius),
+      density: pick(input.density, choices.admin.density, ADMIN_DEFAULT.density),
+      sidebar: pick(input.sidebar, choices.admin.sidebar, ADMIN_DEFAULT.sidebar),
+      cards: pick(input.cards, choices.admin.cards, ADMIN_DEFAULT.cards),
+      colors: normalizeAdminColors(input.colors || {})
+    };
+  }
+
+  function syncUiReady() {
+    const root = document.documentElement;
+    if (root.dataset.adminShellReady === 'true' && root.dataset.adminThemeReady === 'true') root.dataset.adminUiReady = 'true';
+  }
+
+  function readCache() {
+    try {
+      const raw = localStorage.getItem(THEME_CACHE_KEY);
+      if (!raw) return null;
+      const parsed = JSON.parse(raw);
+      if (parsed?.version !== THEME_SCHEMA_VERSION) return null;
+      return parsed?.config && typeof parsed.config === 'object' ? parsed.config : null;
+    } catch { return null; }
+  }
+
+  function writeCache(config) {
+    try {
+      localStorage.setItem(THEME_CACHE_KEY, JSON.stringify({ version: THEME_SCHEMA_VERSION, savedAt: Date.now(), config }));
+      LEGACY_THEME_CACHE_KEYS.forEach((key) => localStorage.removeItem(key));
+    } catch {}
+  }
+
+  function supportsAdvancedDesktopNav() { return window.innerWidth >= 1200; }
+  function effectiveNavPosition(requested) { return window.innerWidth < 1200 ? 'top' : requested; }
+
+  function ensureStyles() {
+    const adminPage = /\/(admin|editor)\//.test(location.pathname);
+    const base = adminPage ? '../assets/css/' : 'assets/css/';
+    const add = (selector, datasetKey, file) => {
+      if (document.querySelector(selector)) return;
+      const link = document.createElement('link');
+      link.rel = 'stylesheet';
+      link.dataset[datasetKey] = 'true';
+      link.href = `${base}${file}?v=${ASSET_VERSION}`;
+      document.head.appendChild(link);
+    };
+    add('link[data-brgy-design-themes]', 'brgyDesignThemes', 'design-themes.css');
+    add('link[data-brgy-design-layouts]', 'brgyDesignLayouts', 'design-layouts.css');
+    if (adminPage) add('link[data-brgy-admin-theme-colors]', 'brgyAdminThemeColors', 'admin-theme-colors.css');
+  }
+
+  function syncStudioPresetUi() {
+    if (!/\/admin\/design-studio\.html$/.test(location.pathname)) return;
+    const publicGrid = document.querySelector('[data-studio-panel="public"] .studio3-presets');
+    const adminGrid = document.querySelector('[data-studio-panel="admin"] .studio3-presets');
+    if (publicGrid && !publicGrid.querySelector('[data-design-preset="premium"]')) {
+      const button = document.createElement('button');
+      button.className = 'studio3-preset'; button.type = 'button'; button.dataset.scope = 'public'; button.dataset.designPreset = 'premium';
+      button.innerHTML = '<div class="studio3-thumb float"></div><strong>Civic Premium</strong><small>Dark green + gold · floating glass · split hero</small>';
+      publicGrid.prepend(button);
+    }
+    if (adminGrid && !adminGrid.querySelector('[data-design-preset="control"]')) {
+      const button = document.createElement('button');
+      button.className = 'studio3-preset'; button.type = 'button'; button.dataset.scope = 'admin'; button.dataset.designPreset = 'control';
+      button.innerHTML = '<div class="studio3-thumb left"></div><strong>Control Center</strong><small>Premium green workspace · elevated panels</small>';
+      adminGrid.prepend(button);
+    }
+    const publicCount = document.querySelector('[data-studio-panel="public"] .studio3-count');
+    const adminCount = document.querySelector('[data-studio-panel="admin"] .studio3-count');
+    if (publicCount) publicCount.textContent = `${Object.keys(publicPresets).length} presets`;
+    if (adminCount) adminCount.textContent = `${Object.keys(adminPresets).length} presets`;
+  }
+
+  function applyPublic(input = {}) {
+    ensureStyles();
+    const theme = normalizePublic(input);
+    const root = document.documentElement;
+    const desktop = window.innerWidth >= 1200;
+    const effectivePosition = effectiveNavPosition(theme.navPosition);
+    const effectiveMode = desktop ? theme.navMode : 'links';
+    const effectiveAlign = desktop ? theme.navAlign : 'right';
+    const structure = window.innerWidth < BREAKPOINT ? 'mobile-locked' : 'desktop-wide';
+    lastPublicTheme = theme;
+    Object.assign(root.dataset, {
+      publicPreset: theme.preset, publicFont: theme.font, publicRadius: theme.radius, publicDensity: theme.density,
+      publicNav: theme.navSkin, publicNavSkin: theme.navSkin, publicNavRequested: theme.navPosition, publicNavPosition: effectivePosition,
+      publicNavRequestedAlign: theme.navAlign, publicNavAlign: effectiveAlign, publicNavRequestedMode: theme.navMode, publicNavMode: effectiveMode,
+      publicStructure: structure, publicResponsiveMode: structure, publicHero: theme.hero, publicCards: theme.cards,
+      publicContentWidth: theme.contentWidth, publicThemeReady: 'true'
+    });
+    root.style.setProperty('--brand-primary', theme.colors.primary);
+    root.style.setProperty('--brand-secondary', theme.colors.secondary);
+    root.style.setProperty('--brand-primary-dark', theme.colors.primary);
+    root.style.setProperty('--brand-accent', theme.colors.accent);
+    root.style.setProperty('--brand-signal', theme.colors.signal);
+    root.style.setProperty('--brand-danger', theme.colors.signal);
+    root.style.setProperty('--soft-bg', theme.colors.surface);
+    return { ...theme, effectiveNavPosition: effectivePosition, effectiveNavMode: effectiveMode, effectiveNavAlign: effectiveAlign };
+  }
+
+  function applyAdmin(input = {}) {
+    ensureStyles();
+    const theme = normalizeAdmin(input);
+    const root = document.documentElement;
+    Object.assign(root.dataset, {
+      adminPreset: theme.preset,
+      adminFont: theme.font,
+      adminRadius: theme.radius,
+      adminDensity: theme.density,
+      adminSidebar: theme.sidebar,
+      adminCards: theme.cards,
+      adminThemeReady: 'true'
+    });
+    root.style.setProperty('--admin-primary', theme.colors.primary);
+    root.style.setProperty('--admin-secondary', theme.colors.secondary);
+    root.style.setProperty('--admin-accent', theme.colors.accent);
+    root.style.setProperty('--admin-signal', theme.colors.signal);
+    root.style.setProperty('--green', theme.colors.secondary);
+    root.style.setProperty('--yellow', theme.colors.accent);
+    root.style.setProperty('--danger', theme.colors.signal);
+    syncUiReady();
+    return theme;
+  }
+
+  function applyForCurrentPage(config = {}) {
+    return /\/(admin|editor)\//.test(location.pathname) ? applyAdmin(config.admin || {}) : applyPublic(config.public || {});
+  }
+
+  async function load(client, scope = 'admin') {
+    const cached = readCache();
+    if (cached) scope === 'public' ? applyPublic(cached.public || {}) : applyAdmin(cached.admin || {});
+    if (!client) {
+      if (cached) return scope === 'public' ? normalizePublic(cached.public || {}) : normalizeAdmin(cached.admin || {});
+      return scope === 'public' ? applyPublic() : applyAdmin();
+    }
+    try {
+      const { data, error } = await client.from('site_settings').select('design_theme').eq('id', 1).single();
+      if (error) throw error;
+      const config = data?.design_theme || {};
+      const normalized = { version: THEME_SCHEMA_VERSION, public: normalizePublic(config.public || {}), admin: normalizeAdmin(config.admin || {}) };
+      writeCache(normalized);
+      return scope === 'public' ? applyPublic(normalized.public) : applyAdmin(normalized.admin);
+    } catch (error) {
+      console.warn('Design theme refresh failed; using last known theme:', error);
+      if (cached) return scope === 'public' ? normalizePublic(cached.public || {}) : normalizeAdmin(cached.admin || {});
+      return scope === 'public' ? applyPublic() : applyAdmin();
+    }
+  }
+
+  window.addEventListener('storage', (event) => {
+    if (event.key !== THEME_CACHE_KEY || !event.newValue) return;
+    try {
+      const parsed = JSON.parse(event.newValue);
+      if (parsed?.version !== THEME_SCHEMA_VERSION || !parsed?.config) return;
+      applyForCurrentPage(parsed.config);
+    } catch {}
+  });
+
+  window.addEventListener('resize', () => {
+    if (!lastPublicTheme) return;
+    clearTimeout(resizeTimer);
+    resizeTimer = setTimeout(() => applyPublic(lastPublicTheme), 80);
+  }, { passive: true });
+
+  window.BRGY_THEME = Object.freeze({
+    THEME_SCHEMA_VERSION, THEME_CACHE_KEY, COLOR_DEFAULTS, ADMIN_COLOR_DEFAULTS,
+    PUBLIC_DEFAULT, ADMIN_DEFAULT, publicPresets, adminPresets,
+    normalizeColors, normalizeAdminColors, normalizePublic, normalizeAdmin,
+    effectiveNavPosition, supportsAdvancedDesktopNav, applyPublic, applyAdmin,
+    applyForCurrentPage, load, ensureStyles, readCache, writeCache, syncStudioPresetUi
+  });
+
+  ensureStyles();
+  syncStudioPresetUi();
+  const cachedAtBoot = readCache();
+  if (cachedAtBoot) applyForCurrentPage(cachedAtBoot);
+  if (/\/(admin|editor)\//.test(location.pathname)) {
+    const boot = () => load(window.BRGY_SUPABASE, 'admin');
+    document.readyState === 'loading' ? document.addEventListener('DOMContentLoaded', boot, { once:true }) : boot();
+  }
 })();
