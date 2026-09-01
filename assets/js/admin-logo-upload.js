@@ -17,6 +17,7 @@
   const OBJECT_PATH = 'logo/current';
   const MAX_SIZE = 2 * 1024 * 1024;
   const ALLOWED_TYPES = new Set(['image/png', 'image/jpeg', 'image/webp']);
+  const SITE_SETTINGS_CACHE_KEY = 'brgyweb:admin-site-settings:v1';
 
   let selectedFile = null;
   let previewObjectUrl = null;
@@ -28,9 +29,19 @@
   const clearObjectPreview = () => { if (!previewObjectUrl) return; URL.revokeObjectURL(previewObjectUrl); previewObjectUrl = null; };
   const showPreview = (src) => { if (!preview) return; if (!src) { preview.removeAttribute('src'); preview.classList.add('d-none'); previewEmpty?.classList.remove('d-none'); removeButton?.classList.add('d-none'); return; } preview.src = src; preview.classList.remove('d-none'); previewEmpty?.classList.add('d-none'); removeButton?.classList.remove('d-none'); };
 
-  async function loadCurrentLogo() {
-    try { const { data, error } = await client.from('site_settings').select('logo_url').eq('id', 1).single(); if (error) throw error; if (data?.logo_url) { urlInput.value = data.logo_url; showPreview(data.logo_url); } else showPreview(''); }
-    catch (error) { console.warn('Unable to load logo preview:', error); }
+  function readCachedLogo() {
+    try {
+      const cached = JSON.parse(localStorage.getItem(SITE_SETTINGS_CACHE_KEY) || 'null');
+      return typeof cached?.logo_url === 'string' ? cached.logo_url : '';
+    } catch {
+      return '';
+    }
+  }
+
+  function syncInitialPreview() {
+    const current = urlInput.value.trim() || readCachedLogo();
+    if (current && !urlInput.value.trim()) urlInput.value = current;
+    showPreview(current);
   }
 
   fileInput.addEventListener('change', () => {
@@ -66,5 +77,5 @@
   }, true);
 
   window.addEventListener('beforeunload', clearObjectPreview);
-  loadCurrentLogo();
+  syncInitialPreview();
 })();
