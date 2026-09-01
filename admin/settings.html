@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Site Settings</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/admin.css?v=20260901-logo1">
+  <link rel="stylesheet" href="../assets/css/admin.css?v=20260901-studio4">
 </head>
 <body class="dashboard-page admin-control-center">
 <div class="dashboard-shell">
@@ -32,14 +32,16 @@
   <main class="dashboard-main">
     <header class="dashboard-topbar">
       <div>
-        <span class="eyebrow">Branding & Identity</span>
+        <span class="eyebrow">Identity & Information</span>
         <h1 class="h3 mb-1">Site Settings</h1>
-        <p class="text-secondary mb-0">Manage public branding, contact details, homepage text, and theme colors.</p>
+        <p class="text-secondary mb-0">Manage barangay identity, contact details, logo, map, and homepage text.</p>
       </div>
+      <a class="btn btn-outline-success" href="design-studio.html">Open Design Studio</a>
     </header>
 
     <section class="dashboard-section mb-0">
       <div class="section-card">
+        <div class="alert alert-light border mb-3 py-2 px-3 small">Colors, navigation layouts, presets, cards, spacing and other visual styles are now managed in <a href="design-studio.html" class="fw-semibold">Design Studio</a>.</div>
         <form id="site-settings-form" class="row g-3">
           <div class="col-md-6">
             <label class="form-label" for="setting-barangay-name">Barangay Name</label>
@@ -73,9 +75,11 @@
           <div class="col-12"><label class="form-label" for="setting-map">Google Maps Embed URL</label><input class="form-control" id="setting-map" type="url"></div>
           <div class="col-12"><label class="form-label" for="setting-hero-title">Homepage Hero Title</label><input class="form-control" id="setting-hero-title" required></div>
           <div class="col-12"><label class="form-label" for="setting-hero-text">Homepage Hero Text</label><textarea class="form-control" id="setting-hero-text" rows="3"></textarea></div>
-          <div class="col-md-4"><label class="form-label" for="setting-primary-color">Primary Color</label><input class="form-control form-control-color w-100" id="setting-primary-color" type="color"></div>
-          <div class="col-md-4"><label class="form-label" for="setting-secondary-color">Secondary Color</label><input class="form-control form-control-color w-100" id="setting-secondary-color" type="color"></div>
-          <div class="col-md-4"><label class="form-label" for="setting-accent-color">Accent Color</label><input class="form-control form-control-color w-100" id="setting-accent-color" type="color"></div>
+
+          <input id="setting-primary-color" type="hidden" value="#136b3a">
+          <input id="setting-secondary-color" type="hidden" value="#0d4d2b">
+          <input id="setting-accent-color" type="hidden" value="#f2c94c">
+
           <div class="col-12 d-flex flex-wrap align-items-center gap-3">
             <button class="btn btn-dark" type="submit">Save Site Settings</button>
             <span id="site-settings-status" class="small text-secondary"></span>
@@ -86,8 +90,8 @@
   </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../assets/js/supabase-config.js?v=20260901-logo1"></script>
-<script src="../assets/js/admin-logo-upload.js?v=20260901-logo1"></script>
-<script src="../assets/js/admin.js?v=20260901-logo1"></script>
+<script src="../assets/js/supabase-config.js?v=20260901-studio4"></script>
+<script src="../assets/js/admin-logo-upload.js?v=20260901-studio4"></script>
+<script src="../assets/js/admin.js?v=20260901-studio4"></script>
 </body>
 </html>
