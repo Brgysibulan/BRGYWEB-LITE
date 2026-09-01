@@ -16,9 +16,9 @@
         <h1>Apply for Content Admin access.</h1>
         <p>Content Admins can update public website content. System settings, verification records, Design Studio, and account approvals remain System Admin-only.</p>
         <div class="application-steps">
-          <div class="application-step"><span>1</span><div><strong>Send request</strong><small>Tell the System Admin who you are and why you need access.</small></div></div>
-          <div class="application-step"><span>2</span><div><strong>Wait for review</strong><small>Your request stays pending until a System Admin approves or rejects it.</small></div></div>
-          <div class="application-step"><span>3</span><div><strong>Activate account</strong><small>If approved, use the email invitation to create your password securely.</small></div></div>
+          <div class="application-step"><span>1</span><div><strong>Create your login</strong><small>Enter your email and choose your password securely during signup.</small></div></div>
+          <div class="application-step"><span>2</span><div><strong>Wait for review</strong><small>Your account stays without Content Admin access until a System Admin approves your request.</small></div></div>
+          <div class="application-step"><span>3</span><div><strong>Sign in after approval</strong><small>Once approved, use the same email and password you created here.</small></div></div>
         </div>
       </div>
       <div class="small mt-4"><a href="login.html">← Already approved? Go to Content Admin Login</a></div>
@@ -27,17 +27,19 @@
     <section class="application-main">
       <div class="application-form-card">
         <span class="eyebrow">Application</span>
-        <h1 class="h2 mt-2 mb-2">Content Admin Request</h1>
-        <p class="text-secondary mb-4">No password is requested here. Approval happens first.</p>
+        <h1 class="h2 mt-2 mb-2">Content Admin Signup</h1>
+        <p class="text-secondary mb-4">Create your login now. Your password is handled by Supabase Auth and is never stored in the application record.</p>
         <form id="content-admin-application-form" novalidate>
           <div class="row g-3">
             <div class="col-12"><label class="form-label" for="application-name">Full Name</label><input class="form-control" id="application-name" maxlength="120" autocomplete="name" required></div>
             <div class="col-md-7"><label class="form-label" for="application-email">Email Address</label><input class="form-control" id="application-email" type="email" maxlength="320" autocomplete="email" required></div>
             <div class="col-md-5"><label class="form-label" for="application-role">Barangay Role / Position</label><input class="form-control" id="application-role" maxlength="120" placeholder="e.g. Information Officer"></div>
+            <div class="col-md-6"><label class="form-label" for="application-password">Password</label><input class="form-control" id="application-password" type="password" minlength="8" autocomplete="new-password" required><div class="form-text">At least 8 characters.</div></div>
+            <div class="col-md-6"><label class="form-label" for="application-password-confirm">Confirm Password</label><input class="form-control" id="application-password-confirm" type="password" minlength="8" autocomplete="new-password" required></div>
             <div class="col-12"><label class="form-label" for="application-reason">Why do you need Content Admin access?</label><textarea class="form-control" id="application-reason" maxlength="750" placeholder="Briefly describe the content you will manage."></textarea></div>
           </div>
-          <div class="application-note mt-3">Your request only asks for content-management access. A System Admin must approve it before an account becomes active.</div>
-          <div class="application-actions mt-4"><button class="btn btn-dark" type="submit">Send Access Request</button><a class="btn btn-outline-secondary" href="login.html">Cancel</a></div>
+          <div class="application-note mt-3">Creating a login does not grant Content Admin access. A System Admin must approve your request before the workspace becomes available.</div>
+          <div class="application-actions mt-4"><button class="btn btn-dark" type="submit">Create Account & Send Request</button><a class="btn btn-outline-secondary" href="login.html">Cancel</a></div>
           <div id="content-admin-application-status" class="small text-secondary mt-3" role="status" aria-live="polite"></div>
         </form>
       </div>
@@ -45,6 +47,6 @@
   </main>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../assets/js/supabase-config.js?v=20260901-studio7"></script>
-  <script src="../assets/js/content-admin-apply.js?v=20260901-access2"></script>
+  <script src="../assets/js/content-admin-apply.js?v=20260901-signup1"></script>
 </body>
 </html>
