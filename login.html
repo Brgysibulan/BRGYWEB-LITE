@@ -87,7 +87,8 @@
         }catch(error){setStatus(error?.message||'Unable to sign in.',true);submit.disabled=false;}
       });
 
-      setSelected('editor');
+      const requestedRole=new URLSearchParams(location.search).get('role');
+      setSelected(requestedRole==='admin'?'admin':'editor');
       routeExisting();
     })();
   </script>
