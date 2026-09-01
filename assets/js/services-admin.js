@@ -7,6 +7,7 @@
   const status = document.getElementById('service-status');
   const cancel = document.getElementById('service-cancel');
   const formTitle = document.getElementById('service-form-title');
+  const CACHE_KEY = 'brgyweb:admin-services:v1';
   let services = [];
 
   function setStatus(message, isError = false) {
@@ -19,6 +20,17 @@
 
   function escapeHtml(value) {
     return String(value ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+  }
+
+  function readCache() {
+    try {
+      const value = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+      return Array.isArray(value) ? value : null;
+    } catch { return null; }
+  }
+
+  function writeCache(value) {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify(value)); } catch {}
   }
 
   async function requireStaff() {
@@ -70,10 +82,18 @@
     </tr>`).join('');
   }
 
-  async function load() {
+  async function load(showLoading = false) {
+    if (showLoading && !services.length && list) list.innerHTML = '<tr><td colspan="6" class="text-secondary">Loading services...</td></tr>';
     const { data, error } = await client.from('services').select('id,name,description,requirements,fee_text,processing_time,sort_order,is_active,updated_at').order('sort_order', { ascending: true }).order('name', { ascending: true });
     if (error) throw error;
     services = data || [];
+    writeCache(services);
+    render();
+  }
+
+  const cachedServices = readCache();
+  if (cachedServices) {
+    services = cachedServices;
     render();
   }
 
@@ -126,8 +146,11 @@
       try {
         const { error } = await client.from('services').delete().eq('id', id);
         if (error) throw error;
+        services = services.filter((row) => String(row.id) !== String(id));
+        writeCache(services);
+        render();
         setStatus('Service deleted.');
-        await load();
+        load().catch((refreshError) => console.warn('Services refresh failed:', refreshError));
       } catch (error) {
         console.error(error);
         setStatus(error?.message || 'Unable to delete service.', true);
@@ -141,6 +164,7 @@
       window.location.href = 'login.html';
       return;
     }
-    try { await load(); } catch (error) { console.error(error); setStatus(error?.message || 'Unable to load services.', true); }
+    try { await load(!cachedServices); }
+    catch (error) { console.error(error); setStatus(error?.message || 'Unable to load services.', true); }
   });
 })();
