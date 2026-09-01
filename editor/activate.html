@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Activate Content Admin Account</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/admin.css?v=20260901-studio7">
+  <link rel="stylesheet" href="../assets/css/admin.css?v=20260901-gov7">
+  <link rel="stylesheet" href="../assets/css/access.css?v=20260901-gov7">
 </head>
 <body class="auth-page">
   <main class="auth-shell container py-5">
@@ -16,14 +17,8 @@
         <p class="text-secondary mb-0">Set your password to finish activating your approved account.</p>
       </div>
       <form id="content-admin-activation-form" novalidate>
-        <div class="mb-3">
-          <label class="form-label" for="activation-password">New Password</label>
-          <input class="form-control form-control-lg" id="activation-password" type="password" autocomplete="new-password" minlength="8" required disabled>
-        </div>
-        <div class="mb-3">
-          <label class="form-label" for="activation-confirm">Confirm Password</label>
-          <input class="form-control form-control-lg" id="activation-confirm" type="password" autocomplete="new-password" minlength="8" required disabled>
-        </div>
+        <div class="mb-3"><label class="form-label" for="activation-password">New Password</label><input class="form-control form-control-lg" id="activation-password" type="password" autocomplete="new-password" minlength="8" required disabled></div>
+        <div class="mb-3"><label class="form-label" for="activation-confirm">Confirm Password</label><input class="form-control form-control-lg" id="activation-confirm" type="password" autocomplete="new-password" minlength="8" required disabled></div>
         <button class="btn btn-dark btn-lg w-100" id="activation-submit" type="submit" disabled>Activate Account</button>
         <div id="activation-status" class="small mt-3 text-secondary" role="status" aria-live="polite">Checking invitation…</div>
       </form>
@@ -31,7 +26,7 @@
     </section>
   </main>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="../assets/js/supabase-config.js?v=20260901-studio7"></script>
+  <script src="../assets/js/supabase-config.js?v=20260901-gov7"></script>
   <script src="../assets/js/content-admin-activate.js?v=20260901-applications1"></script>
 </body>
 </html>
