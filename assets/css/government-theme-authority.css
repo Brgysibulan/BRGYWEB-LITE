@@ -1,0 +1,132 @@
+/* Final authority layer for the five government themes.
+   This file intentionally overrides legacy admin/public color declarations so one
+   published theme stays visually uniform across every surface. */
+
+html[data-gov-theme][data-gov-theme-ready="true"]{
+  --admin-primary:var(--gov-admin-primary,var(--gov-primary));
+  --admin-secondary:var(--gov-admin-secondary,var(--gov-secondary));
+  --admin-accent:var(--gov-admin-accent,var(--gov-accent));
+  --admin-signal:var(--gov-signal);
+  --green:var(--gov-admin-secondary,var(--gov-secondary));
+  --yellow:var(--gov-admin-accent,var(--gov-accent));
+  --danger:var(--gov-signal);
+}
+
+/* Admin shell: theme color must win over dashboard-theme/admin-theme legacy rules. */
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .unified-admin-shell>.unified-sidebar,
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .dashboard-shell>.sidebar{
+  background:linear-gradient(180deg,var(--gov-admin-primary,var(--gov-primary)),var(--gov-admin-secondary,var(--gov-secondary)))!important;
+  color:#fff!important;
+}
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .unified-sidebar .sidebar-head,
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .dashboard-shell>.sidebar .sidebar-head,
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .sidebar>div:first-child{
+  background:color-mix(in srgb,var(--gov-admin-primary,var(--gov-primary)) 88%,#000)!important;
+  border-bottom-color:rgba(255,255,255,.13)!important;
+}
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .sidebar-logo{
+  background:var(--gov-admin-accent,var(--gov-accent))!important;
+  color:color-mix(in srgb,var(--gov-admin-primary,var(--gov-primary)) 82%,#000)!important;
+}
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .sidebar-nav a.active,
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .sidebar-nav a:hover{
+  background:rgba(255,255,255,.14)!important;
+  color:#fff!important;
+  box-shadow:inset 3px 0 0 var(--gov-admin-accent,var(--gov-accent))!important;
+}
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .sidebar-nav a.active:before{
+  background:var(--gov-admin-accent,var(--gov-accent))!important;
+}
+
+/* Dashboard and every admin CRUD page use the same theme accents. */
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .eyebrow,
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .metric-card strong,
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .admin-avatar,
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .activity-icon,
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .text-success{
+  color:var(--gov-admin-secondary,var(--gov-secondary))!important;
+}
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .admin-avatar,
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .activity-icon{
+  background:color-mix(in srgb,var(--gov-admin-secondary,var(--gov-secondary)) 11%,#fff)!important;
+}
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .metric-published-card .metric-dot,
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .legend-dot.published{
+  background:var(--gov-admin-secondary,var(--gov-secondary))!important;
+}
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .metric-draft-card .metric-dot{
+  background:var(--gov-admin-accent,var(--gov-accent))!important;
+}
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .module-fill{
+  background:linear-gradient(90deg,var(--gov-admin-primary,var(--gov-primary)),var(--gov-admin-secondary,var(--gov-secondary)))!important;
+}
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .donut-chart{
+  background:conic-gradient(var(--gov-admin-secondary,var(--gov-secondary)) 0 var(--published-angle),#e5e9e6 var(--published-angle) 360deg)!important;
+}
+
+/* Buttons: do not allow Bootstrap or old admin theme variables to leave green controls behind. */
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page :is(.btn-success,.btn-primary,.btn-dark),
+html[data-gov-theme][data-gov-theme-ready="true"] body.access-page :is(.btn-success,.btn-primary,.btn-dark),
+html[data-gov-theme][data-gov-theme-ready="true"] body.application-page :is(.btn-success,.btn-primary,.btn-dark),
+html[data-gov-theme][data-gov-theme-ready="true"] body.auth-page :is(.btn-success,.btn-primary,.btn-dark){
+  --bs-btn-bg:var(--gov-admin-secondary,var(--gov-secondary))!important;
+  --bs-btn-border-color:var(--gov-admin-secondary,var(--gov-secondary))!important;
+  --bs-btn-hover-bg:var(--gov-admin-primary,var(--gov-primary))!important;
+  --bs-btn-hover-border-color:var(--gov-admin-primary,var(--gov-primary))!important;
+  --bs-btn-active-bg:var(--gov-admin-primary,var(--gov-primary))!important;
+  --bs-btn-active-border-color:var(--gov-admin-primary,var(--gov-primary))!important;
+  background-color:var(--gov-admin-secondary,var(--gov-secondary))!important;
+  border-color:var(--gov-admin-secondary,var(--gov-secondary))!important;
+  color:#fff!important;
+}
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page :is(.btn-success,.btn-primary,.btn-dark):hover,
+html[data-gov-theme][data-gov-theme-ready="true"] body.access-page :is(.btn-success,.btn-primary,.btn-dark):hover,
+html[data-gov-theme][data-gov-theme-ready="true"] body.application-page :is(.btn-success,.btn-primary,.btn-dark):hover,
+html[data-gov-theme][data-gov-theme-ready="true"] body.auth-page :is(.btn-success,.btn-primary,.btn-dark):hover{
+  background-color:var(--gov-admin-primary,var(--gov-primary))!important;
+  border-color:var(--gov-admin-primary,var(--gov-primary))!important;
+}
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page :is(.btn-outline-success,.btn-outline-primary,.btn-outline-dark){
+  color:var(--gov-admin-secondary,var(--gov-secondary))!important;
+  border-color:color-mix(in srgb,var(--gov-admin-secondary,var(--gov-secondary)) 55%,#b7c3bb)!important;
+  background:transparent!important;
+}
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page :is(.btn-outline-success,.btn-outline-primary,.btn-outline-dark):hover{
+  color:#fff!important;
+  background:var(--gov-admin-secondary,var(--gov-secondary))!important;
+  border-color:var(--gov-admin-secondary,var(--gov-secondary))!important;
+}
+
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page :is(.form-control,.form-select):focus,
+html[data-gov-theme][data-gov-theme-ready="true"] body.access-page :is(.form-control,.form-select):focus,
+html[data-gov-theme][data-gov-theme-ready="true"] body.application-page :is(.form-control,.form-select):focus,
+html[data-gov-theme][data-gov-theme-ready="true"] body.auth-page :is(.form-control,.form-select):focus{
+  border-color:var(--gov-admin-secondary,var(--gov-secondary))!important;
+  box-shadow:0 0 0 .2rem color-mix(in srgb,var(--gov-admin-secondary,var(--gov-secondary)) 18%,transparent)!important;
+}
+
+/* Access/signup surfaces inherit the exact same identity. */
+html[data-gov-theme][data-gov-theme-ready="true"] body.access-page .access-brand-mark,
+html[data-gov-theme][data-gov-theme-ready="true"] body.application-page .access-brand-mark,
+html[data-gov-theme][data-gov-theme-ready="true"] body.auth-page .access-brand-mark{
+  background:var(--gov-admin-primary,var(--gov-primary))!important;
+  color:#fff!important;
+}
+html[data-gov-theme][data-gov-theme-ready="true"] body.application-page .application-intro{
+  background:linear-gradient(145deg,var(--gov-admin-primary,var(--gov-primary)),var(--gov-admin-secondary,var(--gov-secondary)))!important;
+}
+
+/* Public surface uses the same published primary/secondary/accent values. */
+html[data-gov-theme][data-gov-theme-ready="true"] body:not(.dashboard-page):not(.access-page):not(.application-page):not(.auth-page){
+  --brand-primary:var(--gov-primary)!important;
+  --brand-primary-dark:var(--gov-primary)!important;
+  --brand-secondary:var(--gov-secondary)!important;
+  --brand-accent:var(--gov-accent)!important;
+  --brand-signal:var(--gov-signal)!important;
+}
+
+@media(max-width:900px){
+  html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .unified-admin-shell>.unified-sidebar{
+    background:linear-gradient(180deg,var(--gov-admin-primary,var(--gov-primary)),var(--gov-admin-secondary,var(--gov-secondary)))!important;
+  }
+}
