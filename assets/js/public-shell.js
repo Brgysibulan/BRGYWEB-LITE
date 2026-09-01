@@ -3,7 +3,7 @@
 
   const SITE_CACHE_VERSION = 3;
   const SITE_CACHE_KEY = 'brgyweb:site-settings:v3';
-  const UI_VERSION = '20260901-viewport2';
+  const UI_VERSION = '20260901-viewport3';
   const BREAKPOINT = 900;
   const header = document.querySelector('.site-header');
   const footer = document.querySelector('.site-footer');
@@ -23,12 +23,61 @@
   const cachedSite=readCachedSite(),initialName=cachedSite?.siteName||'',initialAddress=cachedSite?.address||'',initialContact=[cachedSite?.phone,cachedSite?.email].filter(Boolean).join(' • '),initialMark=String(cachedSite?.shortName||cachedSite?.siteName||'B').trim().charAt(0).toUpperCase()||'B';
   const navItems=[['index.html','Home'],['barangay-profile.html','Profile'],['officials.html','Officials'],['announcements.html','Announcements'],['services.html','Services'],['forms.html','Forms'],['barangay-directory.html','Directory'],['barangay-disclosure.html','Disclosure'],['gallery.html','Gallery'],['verify.html','Verify ID'],['contact.html','Contact']];
   const adminMenu=`<li class="nav-item ms-xl-2"><a class="btn btn-sm btn-outline-light" href="editor/login.html">Admin Portal</a></li>`;
+
   if(header){
     header.innerHTML=`<nav class="navbar navbar-expand-xl navbar-dark"><div class="container"><a class="navbar-brand d-flex align-items-center gap-2" href="index.html" aria-label="Home"><span class="brand-mark" id="brand-mark" aria-hidden="true">${escapeHtml(initialMark)}</span><img class="brand-logo d-none" id="brand-logo" alt=""><span id="site-name">${escapeHtml(initialName)}</span></a><button class="navbar-toggler" type="button" aria-controls="mainNav" aria-expanded="false" aria-label="Open navigation"><span class="navbar-toggler-icon"></span></button><div class="navbar-collapse" id="mainNav" aria-hidden="true"><div class="public-mobile-menu-head"><div><strong>Navigation</strong><small>Official barangay website</small></div><button class="public-menu-close" type="button" aria-label="Close navigation">×</button></div><ul class="navbar-nav ms-auto align-items-xl-center gap-xl-1">${navItems.map(([href,label])=>`<li class="nav-item"><a class="nav-link${page===href?' active':''}" href="${href}"${page===href?' aria-current="page"':''}>${label}</a></li>`).join('')}${adminMenu}</ul></div></div></nav>`;
-    const backdrop=document.createElement('div');backdrop.className='public-nav-backdrop';backdrop.setAttribute('aria-hidden','true');document.body.appendChild(backdrop);
-    const collapseElement=document.getElementById('mainNav'),toggler=header.querySelector('.navbar-toggler');
-    function setMenuState(open){const compact=isCompactNavigation(),shouldOpen=compact&&open;document.body.classList.toggle('public-menu-open',shouldOpen);collapseElement?.classList.toggle('show',shouldOpen);collapseElement?.setAttribute('aria-hidden',shouldOpen?'false':compact?'true':'false');backdrop.classList.toggle('show',shouldOpen);backdrop.setAttribute('aria-hidden',shouldOpen?'false':'true');toggler?.setAttribute('aria-expanded',shouldOpen?'true':'false');toggler?.setAttribute('aria-label',shouldOpen?'Close navigation':'Open navigation');}
-    const closeMenu=()=>setMenuState(false);toggler?.addEventListener('click',(event)=>{event.preventDefault();document.body.classList.contains('public-menu-open')?closeMenu():setMenuState(true);});header.querySelector('.public-menu-close')?.addEventListener('click',(event)=>{event.preventDefault();event.stopPropagation();closeMenu();});backdrop.addEventListener('click',closeMenu);collapseElement?.querySelectorAll('a[href]').forEach((link)=>link.addEventListener('click',()=>{if(isCompactNavigation())closeMenu();}));document.addEventListener('keydown',(event)=>{if(event.key==='Escape')closeMenu();});window.addEventListener('pageshow',closeMenu);window.addEventListener('resize',()=>{document.documentElement.dataset.publicStructure=isCompactNavigation()?'mobile-locked':'desktop-wide';closeMenu();},{passive:true});setMenuState(false);
+
+    /* Remove any stale backdrop left by an older shell. The mobile menu no longer uses one. */
+    document.querySelectorAll('.public-nav-backdrop').forEach((node)=>node.remove());
+
+    const collapseElement=document.getElementById('mainNav');
+    const toggler=header.querySelector('.navbar-toggler');
+    const closeButton=header.querySelector('.public-menu-close');
+
+    function setMenuState(open){
+      const compact=isCompactNavigation();
+      const shouldOpen=compact&&open;
+      document.body.classList.toggle('public-menu-open',shouldOpen);
+      collapseElement?.classList.toggle('show',shouldOpen);
+      collapseElement?.classList.remove('collapsing');
+      collapseElement?.setAttribute('aria-hidden',shouldOpen?'false':compact?'true':'false');
+      toggler?.setAttribute('aria-expanded',shouldOpen?'true':'false');
+      toggler?.setAttribute('aria-label',shouldOpen?'Close navigation':'Open navigation');
+    }
+
+    const closeMenu=()=>setMenuState(false);
+
+    toggler?.addEventListener('click',(event)=>{
+      event.preventDefault();
+      event.stopPropagation();
+      setMenuState(!document.body.classList.contains('public-menu-open'));
+    });
+
+    closeButton?.addEventListener('click',(event)=>{
+      event.preventDefault();
+      event.stopPropagation();
+      closeMenu();
+    });
+
+    /* Native anchors remain untouched. Close only after the link receives its click. */
+    collapseElement?.querySelectorAll('a[href]').forEach((link)=>{
+      link.addEventListener('click',()=>{ if(isCompactNavigation()) closeMenu(); });
+    });
+
+    /* Outside tap closes the drawer without placing any element above the page. */
+    document.addEventListener('pointerdown',(event)=>{
+      if(!document.body.classList.contains('public-menu-open')) return;
+      const target=event.target;
+      if(!(target instanceof Node)) return;
+      if(collapseElement?.contains(target) || toggler?.contains(target)) return;
+      closeMenu();
+    },{passive:true});
+
+    document.addEventListener('keydown',(event)=>{if(event.key==='Escape')closeMenu();});
+    window.addEventListener('pageshow',closeMenu);
+    window.addEventListener('resize',()=>{document.documentElement.dataset.publicStructure=isCompactNavigation()?'mobile-locked':'desktop-wide';closeMenu();},{passive:true});
+    setMenuState(false);
   }
+
   if(footer){footer.classList.add('py-5');footer.innerHTML=`<div class="container"><div class="row g-4 align-items-start"><div class="col-lg-7"><span class="eyebrow mb-3">Official Digital Portal</span><h2 class="h4 mb-2" id="footer-name">${escapeHtml(initialName)}</h2><p class="mb-0 text-white-50">Official barangay information, public services, transparency records, downloadable forms, and verification in one secure digital portal.</p></div><div class="col-lg-5 text-lg-end"><p class="mb-1" id="footer-address">${escapeHtml(initialAddress)}</p><p class="mb-3" id="footer-contact">${escapeHtml(initialContact)}</p><div class="d-flex flex-wrap gap-2 justify-content-lg-end"><a class="btn btn-sm btn-outline-light" href="forms.html">Download Forms</a><a class="btn btn-sm btn-outline-light" href="contact.html">Contact Barangay Office</a></div></div></div><hr class="border-light opacity-25 my-4"><div class="d-flex flex-wrap justify-content-between gap-2"><p class="small mb-0 text-white-50">&copy; <span id="current-year"></span> <span id="copyright-name">${escapeHtml(initialName)}</span>. All rights reserved.</p><p class="small mb-0 text-white-50">Official community information portal</p></div></div>`;}
 })();
