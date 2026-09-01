@@ -2,18 +2,30 @@
   'use strict';
 
   const DEFAULT_LAYOUT = 'card-block';
+  const PLACEMENT_VERSION = '20260901-placement1';
   const LAYOUTS = new Set([
     'two-column','split-screen','asymmetrical','f-shape','z-shape','card-block',
     'featured-media','masonry','magazine','fixed-navigation','hidden-navigation','interactive'
   ]);
   const root = document.documentElement;
+  const thisScript = document.currentScript?.src || new URL('web-layout-runtime.js', location.href).href;
 
   const normalize = (value) => LAYOUTS.has(String(value || '')) ? String(value) : DEFAULT_LAYOUT;
+
+  function ensurePlacementManager() {
+    if (document.querySelector('script[data-brgy-content-placement]')) return;
+    const script = document.createElement('script');
+    script.src = new URL(`public-content-placement.js?v=${PLACEMENT_VERSION}`, thisScript).href;
+    script.async = false;
+    script.dataset.brgyContentPlacement = 'true';
+    document.head.appendChild(script);
+  }
 
   function apply(layout) {
     const id = normalize(layout);
     root.dataset.webLayout = id;
     root.dataset.webLayoutReady = 'true';
+    window.dispatchEvent(new CustomEvent('brgy:web-layout-applied', { detail:{ layout:id } }));
     return id;
   }
 
@@ -66,4 +78,5 @@
   }, { passive:true });
 
   window.BRGY_WEB_LAYOUT_RUNTIME = Object.freeze({ layouts:[...LAYOUTS], normalize, apply });
+  ensurePlacementManager();
 })();
