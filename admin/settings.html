@@ -34,10 +34,38 @@
       <div>
         <span class="eyebrow">Identity & Information</span>
         <h1 class="h3 mb-1">Site Settings</h1>
-        <p class="text-secondary mb-0">Manage barangay identity, contact details, logo, map, and homepage text.</p>
+        <p class="text-secondary mb-0">Manage barangay identity, contact details, logo, map, homepage text, and public availability.</p>
       </div>
       <a class="btn btn-outline-success" href="design-studio.html">Open Design Studio</a>
     </header>
+
+    <section class="dashboard-section">
+      <div class="section-card border" id="maintenance-control">
+        <div class="section-card-head align-items-start">
+          <div>
+            <span class="eyebrow">Public Availability</span>
+            <h2 class="h5 mb-1">Maintenance Mode</h2>
+            <p class="text-secondary mb-0">Temporarily replace all public pages with a professional maintenance notice while staff pages remain accessible.</p>
+          </div>
+          <span id="maintenance-state" class="badge rounded-pill text-bg-secondary">Checking</span>
+        </div>
+        <div class="row g-3 mt-1">
+          <div class="col-md-5">
+            <label class="form-label" for="maintenance-title">Notice Title</label>
+            <input class="form-control" id="maintenance-title" maxlength="100" value="We’ll be right back">
+          </div>
+          <div class="col-md-7">
+            <label class="form-label" for="maintenance-message">Notice Message</label>
+            <textarea class="form-control" id="maintenance-message" rows="2" maxlength="500">The barangay website is temporarily undergoing maintenance and improvements. Please check back shortly.</textarea>
+          </div>
+          <div class="col-12 d-flex flex-wrap align-items-center gap-3">
+            <button class="btn btn-warning" id="maintenance-toggle" type="button">Enable Maintenance Mode</button>
+            <span class="small text-secondary" id="maintenance-status" role="status" aria-live="polite">Loading maintenance status...</span>
+          </div>
+        </div>
+        <div class="alert alert-light border small mb-0 mt-3 py-2 px-3"><strong>Staff access stays available.</strong> System Admin and Content Admin login/dashboard pages are not blocked by Maintenance Mode.</div>
+      </div>
+    </section>
 
     <section class="dashboard-section mb-0">
       <div class="section-card">
@@ -86,8 +114,9 @@
   </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../assets/js/supabase-config.js?v=20260901-studio7"></script>
-<script src="../assets/js/admin-logo-upload.js?v=20260901-studio7"></script>
-<script src="../assets/js/admin.js?v=20260901-studio7"></script>
+<script src="../assets/js/supabase-config.js?v=20260901-maintenance1"></script>
+<script src="../assets/js/admin-logo-upload.js?v=20260901-maintenance1"></script>
+<script src="../assets/js/admin.js?v=20260901-maintenance1"></script>
+<script src="../assets/js/admin-maintenance.js?v=20260901-maintenance1"></script>
 </body>
 </html>
