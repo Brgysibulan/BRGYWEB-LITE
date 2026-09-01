@@ -17,6 +17,7 @@
   const isSettingsPage = /\/admin\/settings\.html$/.test(path);
   const isEditorsPage = /\/admin\/editors\.html$/.test(path);
   const isProtectedAdminPage = isDashboard || isSettingsPage || isEditorsPage;
+  const SITE_SETTINGS_CACHE_KEY = 'brgyweb:admin-site-settings:v1';
 
   const setStatus = (message, error = false) => {
     if (!status) return;
@@ -39,6 +40,53 @@
   const setValue = (id, val, fallback = '') => { const element = document.getElementById(id); if (element) element.value = val || fallback; };
   const text = (id, val) => { const element = document.getElementById(id); if (element) element.textContent = String(val); };
 
+  function readSiteSettingsCache() {
+    try {
+      const parsed = JSON.parse(localStorage.getItem(SITE_SETTINGS_CACHE_KEY) || 'null');
+      return parsed && typeof parsed === 'object' ? parsed : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function writeSiteSettingsCache(data) {
+    try { localStorage.setItem(SITE_SETTINGS_CACHE_KEY, JSON.stringify(data || {})); } catch {}
+  }
+
+  function renderLogoPreview(url) {
+    const preview = document.getElementById('setting-logo-preview');
+    const empty = document.getElementById('setting-logo-empty');
+    const remove = document.getElementById('setting-logo-remove');
+    if (!preview) return;
+    if (url) {
+      preview.src = url;
+      preview.classList.remove('d-none');
+      empty?.classList.add('d-none');
+      remove?.classList.remove('d-none');
+    } else {
+      preview.removeAttribute('src');
+      preview.classList.add('d-none');
+      empty?.classList.remove('d-none');
+      remove?.classList.add('d-none');
+    }
+  }
+
+  function applySiteSettings(data = {}) {
+    if (!siteSettingsForm) return;
+    setValue('setting-barangay-name', data.barangay_name, 'Barangay Name');
+    setValue('setting-logo', data.logo_url);
+    setValue('setting-municipality', data.municipality_city);
+    setValue('setting-province', data.province);
+    setValue('setting-contact', data.contact_number);
+    setValue('setting-email', data.email);
+    setValue('setting-address', data.address);
+    setValue('setting-facebook', data.facebook_url);
+    setValue('setting-map', data.map_embed_url);
+    setValue('setting-hero-title', data.hero_title, 'Welcome to Our Barangay');
+    setValue('setting-hero-text', data.hero_text);
+    renderLogoPreview(data.logo_url || '');
+  }
+
   async function getRole(id) {
     const { data, error } = await client.from('profiles').select('role,is_active').eq('user_id', id).maybeSingle();
     if (error) throw error;
@@ -56,20 +104,13 @@
 
   async function loadSiteSettings() {
     if (!siteSettingsForm) return;
-    setSiteSettingsStatus('Loading site settings...');
+    const cached = readSiteSettingsCache();
+    if (cached) applySiteSettings(cached);
+    setSiteSettingsStatus(cached ? 'Checking latest settings…' : 'Loading site settings...');
     const { data, error } = await client.from('site_settings').select('id,barangay_name,municipality_city,province,address,contact_number,email,logo_url,facebook_url,map_embed_url,hero_title,hero_text').eq('id', 1).single();
     if (error) throw error;
-    setValue('setting-barangay-name', data.barangay_name, 'Barangay Name');
-    setValue('setting-logo', data.logo_url);
-    setValue('setting-municipality', data.municipality_city);
-    setValue('setting-province', data.province);
-    setValue('setting-contact', data.contact_number);
-    setValue('setting-email', data.email);
-    setValue('setting-address', data.address);
-    setValue('setting-facebook', data.facebook_url);
-    setValue('setting-map', data.map_embed_url);
-    setValue('setting-hero-title', data.hero_title, 'Welcome to Our Barangay');
-    setValue('setting-hero-text', data.hero_text);
+    applySiteSettings(data);
+    writeSiteSettingsCache(data);
     setSiteSettingsStatus('Settings loaded.');
   }
 
@@ -89,8 +130,10 @@
       updated_at: new Date().toISOString()
     };
     if (!payload.barangay_name || !payload.hero_title) throw new Error('Barangay Name and Hero Title are required.');
-    const { error } = await client.from('site_settings').update(payload).eq('id', 1);
+    const { data, error } = await client.from('site_settings').update(payload).eq('id', 1).select('id,barangay_name,municipality_city,province,address,contact_number,email,logo_url,facebook_url,map_embed_url,hero_title,hero_text').single();
     if (error) throw error;
+    applySiteSettings(data || payload);
+    writeSiteSettingsCache(data || payload);
   }
 
   async function callEditorManager(body) {
@@ -240,6 +283,14 @@
     } finally {
       if (refreshButton) refreshButton.disabled = false;
       if (activityRefresh) activityRefresh.disabled = false;
+    }
+  }
+
+  if (siteSettingsForm) {
+    const cached = readSiteSettingsCache();
+    if (cached) {
+      applySiteSettings(cached);
+      setSiteSettingsStatus('Cached settings shown while checking latest data.');
     }
   }
 
