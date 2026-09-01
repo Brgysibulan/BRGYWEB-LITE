@@ -1,0 +1,78 @@
+/* Targeted phone correction for Government Design Studio.
+   Keeps the current theme/runtime untouched and fixes only overflow + vertical density. */
+
+@media (max-width:699.98px){
+  html,body.dashboard-page{max-width:100%;overflow-x:hidden}
+  body.dashboard-page .dashboard-shell,
+  body.dashboard-page .dashboard-main,
+  .gov-studio-main,
+  .gov-workspace,
+  .gov-editor,
+  .gov-preview-stack,
+  .gov-section,
+  .gov-preview-shell,
+  .gov-savebar,
+  .gov-preview-toolbar,
+  .gov-preview-card,
+  .gov-preview-surface{box-sizing:border-box;min-width:0;max-width:100%;width:100%}
+
+  .gov-studio-main{padding:0 .5rem .8rem!important}
+  .gov-studio-hero{margin:0 -.5rem .55rem;padding:.72rem .65rem;gap:.5rem}
+  .gov-studio-hero h1{margin:.2rem 0 .25rem;font-size:1.34rem;line-height:1.05}
+  .gov-studio-hero p{font-size:.74rem;line-height:1.4}
+  .gov-studio-actions{gap:.35rem}
+  .gov-studio-actions .btn{min-height:42px;padding:.4rem .5rem;font-size:.69rem}
+
+  .gov-workspace,.gov-editor,.gov-preview-stack{gap:.55rem}
+  .gov-section{padding:.62rem}
+  .gov-section-head{gap:.4rem;margin-bottom:.52rem}
+  .gov-section-head h2,.gov-guardrail-head h2{font-size:.92rem}
+  .gov-section-head p{display:none}
+  .gov-count{padding:.23rem .4rem;font-size:.55rem}
+
+  .gov-pack-grid{gap:.4rem}
+  .gov-pack{min-height:60px;padding:.42rem;grid-template-columns:52px minmax(0,1fr) auto;gap:.48rem}
+  .gov-pack-visual{width:52px;height:40px;padding:.28rem}
+  .gov-pack-copy strong{font-size:.76rem}
+  .gov-pack-copy small{font-size:.56rem}
+  .gov-pack-colors{grid-template-columns:repeat(2,9px);gap:2px}
+  .gov-pack-colors i{width:9px;height:9px}
+
+  .gov-guardrail-section{padding:.55rem .62rem}
+  .gov-guardrail-head{align-items:center;gap:.4rem}
+  .gov-palette-health{max-width:42%;overflow:hidden;text-overflow:ellipsis;padding:.22rem .38rem;font-size:.53rem}
+  .gov-guardrails{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.28rem;overflow:visible;padding:.05rem 0 0}
+  .gov-guardrails span{min-width:0;padding:.28rem .36rem;white-space:normal;line-height:1.18;font-size:.53rem}
+
+  .gov-preview-toolbar{padding:.55rem;gap:.42rem}
+  .gov-preview-toolbar strong{font-size:.8rem}
+  .gov-preview-tabs{width:100%;min-width:0;grid-template-columns:repeat(4,minmax(0,1fr));gap:.14rem;padding:.16rem}
+  .gov-preview-tab{min-width:0;min-height:38px;padding:.25rem .04rem;font-size:.56rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .gov-preview-head{padding:.46rem .55rem;gap:.4rem}
+  .gov-preview-head strong{font-size:.66rem}
+  .gov-preview-head small{font-size:.52rem}
+  .gov-preview-head a{font-size:.56rem;white-space:nowrap}
+  .gov-preview-surface{min-height:112px;padding:.48rem;overflow:hidden}
+  .gov-public-mock,.gov-admin-mock,.gov-auth-mock,.gov-signup-mock{min-width:0;max-width:100%}
+  .gov-preview-surface[data-gov-preview] .gov-public-mock nav{height:17px!important}
+  .gov-preview-surface[data-gov-preview] .gov-public-mock .hero{height:45px!important}
+  .gov-preview-surface[data-gov-preview] .gov-public-mock .cards i{height:21px!important}
+  .gov-admin-mock,.gov-auth-mock,.gov-signup-mock{min-height:104px}
+  .gov-auth-mock .card{height:76px}
+
+  .gov-savebar{padding:.58rem;gap:.48rem}
+  .gov-save-status strong{font-size:.72rem}
+  .gov-save-status small{font-size:.58rem}
+  .gov-save-actions{grid-template-columns:1fr 1fr!important;gap:.35rem}
+  .gov-save-actions .btn{min-width:0;min-height:44px;padding:.38rem .3rem;font-size:.64rem;white-space:normal;line-height:1.15}
+}
+
+@media (max-width:360px){
+  .gov-studio-main{padding-inline:.4rem!important}
+  .gov-studio-hero{margin-inline:-.4rem}
+  .gov-pack{grid-template-columns:48px minmax(0,1fr)}
+  .gov-pack-visual{width:48px}
+  .gov-pack-colors{display:none}
+  .gov-preview-tab{font-size:.52rem}
+  .gov-guardrails{grid-template-columns:1fr 1fr}
+}
