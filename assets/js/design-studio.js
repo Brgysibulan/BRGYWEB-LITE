@@ -9,6 +9,7 @@
   const saveButton = document.getElementById('design-save');
   const resetButton = document.getElementById('design-reset');
   const saveBar = document.querySelector('.studio3-savebar');
+  const studioMain = document.querySelector('.studio3-main');
   const field = (id) => document.getElementById(id);
   const value = (id) => field(id)?.value || '';
   const setValue = (id,val) => { const el=field(id); if(el) el.value=val; };
@@ -18,12 +19,24 @@
   let dirty = false;
 
   function setStatus(message,error=false){if(!status)return;status.textContent=message;status.classList.toggle('text-danger',error);status.classList.toggle('text-success',!error&&Boolean(message));}
+  function syncSaveBarLayout(){
+    if(saveBar){
+      if(dirty)saveBar.style.removeProperty('display');
+      else saveBar.style.display='none';
+      saveBar.classList.toggle('is-visible',dirty);
+      saveBar.setAttribute('aria-hidden',dirty?'false':'true');
+    }
+    if(studioMain){
+      if(window.matchMedia('(max-width:720px)').matches&&!dirty)studioMain.style.paddingBottom='1rem';
+      else studioMain.style.removeProperty('padding-bottom');
+    }
+    document.documentElement.classList.toggle('studio-design-dirty',dirty);
+  }
   function syncDirtyState(isDirty,message=''){
     dirty=Boolean(isDirty);
     if(changeState)changeState.textContent=dirty?'Unsaved design changes':'No unsaved changes';
     if(saveButton)saveButton.disabled=!dirty;
-    if(saveBar){saveBar.classList.toggle('is-visible',dirty);saveBar.setAttribute('aria-hidden',dirty?'false':'true');}
-    document.documentElement.classList.toggle('studio-design-dirty',dirty);
+    syncSaveBarLayout();
     if(message)setStatus(message);
   }
 
@@ -94,7 +107,7 @@
   form?.addEventListener('submit',(event)=>{event.preventDefault();saveTheme();});
   document.addEventListener('click',(event)=>{const button=event.target.closest('[data-design-preset]');if(button)applyPreset(button.dataset.scope,button.dataset.designPreset);});
   resetButton?.addEventListener('click',()=>{if(activeScope==='public')writePublic(theme.PUBLIC_DEFAULT);else writeAdmin(theme.ADMIN_DEFAULT);refreshPreview(activeScope);syncDirtyState(true,`${activeScope==='public'?'Public website':'Admin interface'} defaults loaded in preview. Save to apply them.`);});
-  window.addEventListener('resize',()=>{if(activeScope==='public')syncResponsiveNote(readPublic());},{passive:true});
+  window.addEventListener('resize',()=>{if(activeScope==='public')syncResponsiveNote(readPublic());syncSaveBarLayout();},{passive:true});
   async function init(){syncDirtyState(false);if(!theme){setStatus('Theme engine failed to load.',true);return;}showWorkspace('public');const allowed=await requireAdmin();if(!allowed)return;try{await loadTheme();}catch(error){console.error(error);setStatus(error.message||'Unable to load Design Studio.',true);}}
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
