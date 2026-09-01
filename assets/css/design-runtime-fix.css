@@ -1,0 +1,92 @@
+/* Runtime bridge for Design Studio navigation choices.
+   Uses the saved/requested navigation attributes so responsive safety does not erase the selected design. */
+
+/* 900px+ is treated as desktop/tablet workspace for Design Studio navigation. */
+@media (min-width:900px){
+  html[data-public-nav-requested="top"][data-public-nav-requested-align="left"] .site-header .navbar-nav,
+  html[data-public-nav-requested="floating"][data-public-nav-requested-align="left"] .site-header .navbar-nav{margin-left:0!important;margin-right:auto!important}
+  html[data-public-nav-requested="top"][data-public-nav-requested-align="center"] .site-header .navbar-nav,
+  html[data-public-nav-requested="floating"][data-public-nav-requested-align="center"] .site-header .navbar-nav{margin-left:auto!important;margin-right:auto!important}
+  html[data-public-nav-requested="top"][data-public-nav-requested-align="right"] .site-header .navbar-nav,
+  html[data-public-nav-requested="floating"][data-public-nav-requested-align="right"] .site-header .navbar-nav{margin-left:auto!important;margin-right:0!important}
+
+  html[data-public-nav-requested="floating"] .site-header{
+    position:sticky!important;top:.75rem!important;left:auto!important;right:auto!important;
+    width:auto!important;max-width:none!important;height:auto!important;margin:.75rem!important;
+    border-radius:18px!important;overflow:visible!important;z-index:1040!important
+  }
+  html[data-public-nav-requested="floating"] .site-header .navbar{min-height:64px!important}
+
+  html[data-public-nav-requested="left"] body{padding-left:248px!important}
+  html[data-public-nav-requested="left"] body>main,
+  html[data-public-nav-requested="left"] body>.site-footer{width:auto!important;max-width:none!important;margin-left:0!important;margin-right:0!important}
+  html[data-public-nav-requested="left"] .site-header{
+    position:fixed!important;inset:0 auto 0 0!important;width:248px!important;max-width:248px!important;
+    height:100vh!important;margin:0!important;border-radius:0!important;overflow-y:auto!important;overflow-x:hidden!important;z-index:1040!important
+  }
+  html[data-public-nav-requested="left"] .site-header .navbar{height:100%!important;min-height:100%!important;align-items:stretch!important;padding:0!important}
+  html[data-public-nav-requested="left"] .site-header .navbar>.container{
+    width:100%!important;height:100%!important;display:flex!important;flex-direction:column!important;flex-wrap:nowrap!important;
+    align-items:stretch!important;justify-content:flex-start!important;padding:1.1rem!important
+  }
+  html[data-public-nav-requested="left"] .site-header .navbar-brand{width:100%!important;max-width:100%!important;margin:0 0 1rem!important;padding:.25rem 0!important;white-space:normal!important;overflow:visible!important}
+  html[data-public-nav-requested="left"] .site-header #site-name{white-space:normal!important;overflow:visible!important;text-overflow:clip!important}
+  html[data-public-nav-requested="left"] .site-header #mainNav.navbar-collapse{
+    position:static!important;inset:auto!important;display:block!important;width:100%!important;max-width:none!important;height:auto!important;min-height:0!important;
+    margin:0!important;padding:0!important;background:transparent!important;box-shadow:none!important;overflow:visible!important;visibility:visible!important;transform:none!important
+  }
+  html[data-public-nav-requested="left"] .site-header #mainNav .public-mobile-menu-head{display:none!important}
+  html[data-public-nav-requested="left"] .site-header #mainNav .navbar-nav{
+    display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;
+    flex-wrap:nowrap!important;width:100%!important;margin:0!important;padding:0!important;gap:.12rem!important
+  }
+  html[data-public-nav-requested="left"] .site-header #mainNav .nav-item{width:100%!important}
+  html[data-public-nav-requested="left"] .site-header #mainNav .nav-link{display:flex!important;width:100%!important;padding:.62rem .7rem!important;font-size:.88rem!important}
+
+  /* Desktop menu-button mode: public-shell interaction is handled by design-runtime-fix.js. */
+  html[data-public-nav-requested-mode="menu"]:not([data-public-nav-requested="left"]) .site-header .navbar-toggler{
+    display:grid!important;place-items:center!important;flex:0 0 46px!important;width:46px!important;height:46px!important;margin-left:auto!important
+  }
+  html[data-public-nav-requested-mode="menu"]:not([data-public-nav-requested="left"]) .site-header #mainNav.navbar-collapse{
+    display:none!important;position:absolute!important;inset:auto .75rem auto auto!important;top:calc(100% + .55rem)!important;
+    width:min(360px,calc(100vw - 2rem))!important;height:auto!important;min-height:0!important;margin:0!important;padding:.65rem!important;
+    border:1px solid rgba(255,255,255,.13)!important;border-radius:14px!important;
+    background:color-mix(in srgb,var(--brand-primary) 96%,#061a0e)!important;box-shadow:0 20px 50px rgba(0,0,0,.22)!important;
+    overflow:visible!important;visibility:hidden!important;opacity:0!important;transform:translateY(-6px)!important;pointer-events:none!important
+  }
+  html[data-public-nav-requested-mode="menu"]:not([data-public-nav-requested="left"]) .site-header #mainNav.navbar-collapse.show{
+    display:block!important;visibility:visible!important;opacity:1!important;transform:none!important;pointer-events:auto!important
+  }
+  html[data-public-nav-requested-mode="menu"]:not([data-public-nav-requested="left"]) .site-header #mainNav .public-mobile-menu-head{display:none!important}
+  html[data-public-nav-requested-mode="menu"]:not([data-public-nav-requested="left"]) .site-header #mainNav .navbar-nav{
+    display:flex!important;flex-direction:column!important;align-items:stretch!important;justify-content:flex-start!important;flex-wrap:nowrap!important;
+    width:100%!important;margin:0!important;padding:0!important;gap:.15rem!important
+  }
+  html[data-public-nav-requested-mode="menu"]:not([data-public-nav-requested="left"]) .site-header #mainNav .nav-item{width:100%!important}
+  html[data-public-nav-requested-mode="menu"]:not([data-public-nav-requested="left"]) .site-header #mainNav .nav-link{display:flex!important;width:100%!important;padding:.62rem .7rem!important;font-size:.88rem!important}
+
+  html[data-public-nav-requested="left"][data-public-nav-requested-mode="menu"] .site-header .navbar-toggler{
+    display:grid!important;place-items:center!important;width:46px!important;height:46px!important;margin:0 0 .75rem!important
+  }
+  html[data-public-nav-requested="left"][data-public-nav-requested-mode="menu"] .site-header #mainNav.navbar-collapse{display:none!important;visibility:hidden!important;pointer-events:none!important}
+  html[data-public-nav-requested="left"][data-public-nav-requested-mode="menu"] .site-header #mainNav.navbar-collapse.show{display:block!important;visibility:visible!important;pointer-events:auto!important}
+}
+
+/* Mobile keeps a safe drawer, but the selected position still has a visible mobile adaptation. */
+@media (max-width:899.98px){
+  html[data-public-nav-requested="floating"] .site-header{
+    top:.5rem!important;left:auto!important;right:auto!important;width:calc(100% - 1rem)!important;max-width:calc(100% - 1rem)!important;
+    margin:.5rem!important;border-radius:16px!important;overflow:visible!important;box-shadow:0 12px 34px rgba(0,0,0,.16)!important
+  }
+  html[data-public-nav-requested="floating"] .site-header .navbar{border-radius:16px!important}
+
+  html[data-public-nav-requested="left"] .site-header .navbar>.container{flex-direction:row-reverse!important}
+  html[data-public-nav-requested="left"] .site-header .navbar-brand{margin:0 0 0 .75rem!important;justify-content:flex-end!important}
+  html[data-public-nav-requested="left"] .site-header .navbar-toggler{margin:0 auto 0 0!important}
+  html[data-public-nav-requested="left"] .site-header #mainNav.navbar-collapse{
+    inset:0 auto 0 0!important;left:0!important;right:auto!important;
+    box-shadow:20px 0 55px rgba(0,0,0,.28)!important;transform:translate3d(-104%,0,0)!important
+  }
+  html[data-public-nav-requested="left"] .site-header #mainNav.navbar-collapse.show,
+  html[data-public-nav-requested="left"] .site-header #mainNav.navbar-collapse.collapsing{transform:translate3d(0,0,0)!important}
+}
