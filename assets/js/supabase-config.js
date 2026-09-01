@@ -3,11 +3,13 @@
 
   const SUPABASE_URL = 'https://pkvorwvkqjnbgktkgjhr.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_RbaENAflMzLgXpemymGApA_TkVAhMoU';
-  const STAFF_ASSET_VERSION = '20260901-studiopro1';
+  const STAFF_ASSET_VERSION = '20260901-gov5';
+  const GOV_THEME_VERSION = '20260901-gov5';
   const path = window.location.pathname;
   const isStaffPage = /\/(admin|editor)\//.test(path);
   const isAccessPage = /\/(admin|editor)\/(?:login|apply|activate)\.html$/.test(path);
   const isDesignStudio = /\/admin\/design-studio\.html$/.test(path);
+  const thisScript = document.currentScript?.src || new URL('assets/js/supabase-config.js', location.href).href;
 
   window.BRGY_SUPABASE_CONFIG = { url: SUPABASE_URL, publishableKey: SUPABASE_PUBLISHABLE_KEY };
 
@@ -23,6 +25,22 @@
   function markAssetFailure(kind){const root=document.documentElement;if(kind==='theme')root.dataset.adminThemeReady='true';if(kind==='shell')root.dataset.adminShellReady='true';syncReady();}
   function addStaffScript(src,dataKey){if(document.querySelector(`script[${dataKey}]`))return;const script=document.createElement('script');script.src=src;script.setAttribute(dataKey,'true');document.head.appendChild(script);}
   function addStaffStyle(href,dataKey){if(document.querySelector(`link[${dataKey}]`))return;const link=document.createElement('link');link.rel='stylesheet';link.href=href;link.setAttribute(dataKey,'true');document.head.appendChild(link);}
+
+  function loadGovernmentThemeAssets(){
+    if(!document.querySelector('link[data-brgy-government-themes]')){
+      const link=document.createElement('link');
+      link.rel='stylesheet';
+      link.href=new URL(`../css/government-themes.css?v=${GOV_THEME_VERSION}`,thisScript).href;
+      link.dataset.brgyGovernmentThemes='true';
+      document.head.appendChild(link);
+    }
+    if(!document.querySelector('script[data-brgy-government-theme-runtime]')){
+      const script=document.createElement('script');
+      script.src=new URL(`government-theme-runtime.js?v=${GOV_THEME_VERSION}`,thisScript).href;
+      script.dataset.brgyGovernmentThemeRuntime='true';
+      document.head.appendChild(script);
+    }
+  }
 
   function loadStaffAssets(){
     if(!isStaffPage)return;
@@ -40,5 +58,6 @@
 
   if(!window.supabase||typeof window.supabase.createClient!=='function'){console.error('Supabase client library is not loaded.');return;}
   window.BRGY_SUPABASE=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
+  loadGovernmentThemeAssets();
   loadStaffAssets();
 })();
