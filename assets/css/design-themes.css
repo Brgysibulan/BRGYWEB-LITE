@@ -67,6 +67,28 @@ html[data-public-hero="minimal"] .hero-section .btn-light{background:var(--brand
 html[data-public-hero="minimal"] .hero-section .btn-outline-light{border-color:var(--brand-secondary);color:var(--brand-secondary)}
 html[data-public-hero="minimal"] .hero-section .btn-outline-light:hover{background:var(--brand-secondary);color:#fff}
 
+/* Inner-page hero variants mirror the chosen Studio hero without using homepage-scale height. */
+html[data-public-hero] .page-hero{position:relative;overflow:hidden;transition:background .2s ease,color .2s ease,border-color .2s ease}
+html[data-public-hero="bold"] .page-hero,
+html[data-public-hero="clean"] .page-hero{background:linear-gradient(135deg,var(--brand-primary),var(--brand-secondary))!important;color:#fff}
+html[data-public-hero="soft"] .page-hero{background:linear-gradient(135deg,color-mix(in srgb,var(--brand-secondary) 16%,#fff),var(--soft-bg))!important;color:var(--text-main)}
+html[data-public-hero="minimal"] .page-hero{background:linear-gradient(180deg,var(--soft-bg),#fff)!important;color:var(--text-main);border-bottom:1px solid color-mix(in srgb,var(--brand-secondary) 14%,transparent)}
+html[data-public-hero="split"] .page-hero{background:linear-gradient(90deg,var(--brand-primary) 0 68%,color-mix(in srgb,var(--brand-secondary) 80%,white) 68% 100%)!important;color:#fff}
+html[data-public-hero="banner"] .page-hero{background:linear-gradient(110deg,var(--brand-primary),var(--brand-secondary))!important;color:#fff;border-bottom:6px solid var(--brand-accent)}
+html[data-public-hero="bold"] .page-hero .lead,
+html[data-public-hero="clean"] .page-hero .lead,
+html[data-public-hero="split"] .page-hero .lead,
+html[data-public-hero="banner"] .page-hero .lead{color:color-mix(in srgb,#fff 82%,transparent)!important}
+html[data-public-hero="bold"] .page-hero .eyebrow,
+html[data-public-hero="clean"] .page-hero .eyebrow,
+html[data-public-hero="split"] .page-hero .eyebrow,
+html[data-public-hero="banner"] .page-hero .eyebrow{color:var(--brand-accent)!important}
+html[data-public-hero="soft"] .page-hero .eyebrow,
+html[data-public-hero="minimal"] .page-hero .eyebrow{color:var(--brand-secondary)!important}
+html[data-public-hero="banner"] .page-hero{padding-top:3.2rem;padding-bottom:3.2rem}
+html[data-public-hero="minimal"] .page-hero{padding-top:2.6rem;padding-bottom:2.6rem}
+html[data-public-density="compact"] .page-hero{padding-top:2.35rem;padding-bottom:2.35rem}
+
 html[data-public-cards="flat"] .quick-card,
 html[data-public-cards="flat"] .content-panel,
 html[data-public-cards="flat"] .service-card,
