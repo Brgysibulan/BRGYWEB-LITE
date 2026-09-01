@@ -3,7 +3,7 @@
 
   const SITE_CACHE_VERSION = 3;
   const SITE_CACHE_KEY = 'brgyweb:site-settings:v3';
-  const UI_VERSION = '20260901-studio10';
+  const UI_VERSION = '20260901-studio11';
   const header = document.querySelector('.site-header');
   const footer = document.querySelector('.site-footer');
   const page = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
