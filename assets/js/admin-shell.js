@@ -203,9 +203,18 @@
     currentRole = role || currentRole;
     const layout = ensureLayout();
     if (!layout) return;
-    layout.sidebar.innerHTML = sidebarMarkup(currentRole);
+    const expectedRoleLabel = currentRole === 'admin' ? 'System Admin' : 'Content Admin';
+    const existingRoleLabel = layout.sidebar.querySelector('.sidebar-role')?.textContent?.trim() || '';
+    const hasCompleteSidebar = Boolean(
+      layout.sidebar.querySelector('.sidebar-nav') &&
+      layout.sidebar.querySelector('[data-admin-sidebar-collapse]') &&
+      layout.sidebar.querySelector('[data-unified-signout]')
+    );
+    if (!hasCompleteSidebar || existingRoleLabel !== expectedRoleLabel) {
+      layout.sidebar.innerHTML = sidebarMarkup(currentRole);
+    }
     const mobileRole = layout.main.querySelector('[data-mobile-role]');
-    if (mobileRole) mobileRole.textContent = currentRole === 'admin' ? 'System Admin' : 'Content Admin';
+    if (mobileRole) mobileRole.textContent = expectedRoleLabel;
     const root = document.documentElement;
     root.dataset.staffRole = currentRole;
     root.dataset.adminShellReady = 'true';
