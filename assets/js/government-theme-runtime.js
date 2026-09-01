@@ -1,9 +1,9 @@
 (() => {
   'use strict';
-  if (window.BRGY_GOV_THEME_RUNTIME?.version >= 4) return;
+  if (window.BRGY_GOV_THEME_RUNTIME?.version >= 5) return;
 
-  const VERSION = 4;
-  const GOV_CACHE_KEY = 'brgyweb:gov-theme:v4';
+  const VERSION = 5;
+  const GOV_CACHE_KEY = 'brgyweb:gov-theme:v5';
   const DESIGN_CACHE_KEY = 'brgyweb:design-theme:v9';
   const THEMES = {
     'national-authority': { name:'National Authority', tag:'Formal', basePack:'civic-standard', colors:{primary:'#10233f',secondary:'#1f4f7a',accent:'#d3ad4a',signal:'#9f363d'} },
@@ -27,6 +27,7 @@
   const isStaffSurface = /\/(admin|editor)\//.test(window.location.pathname);
   let refreshPromise = null;
   let lastRefresh = 0;
+  let lastApplied = null;
 
   function safeColors(raw, fallback) {
     const value = raw || {};
@@ -135,7 +136,7 @@
       localStorage.setItem(GOV_CACHE_KEY, JSON.stringify({ version:VERSION, id:themeId, config, savedAt:Date.now() }));
       localStorage.setItem(DESIGN_CACHE_KEY, JSON.stringify({ version:9, savedAt:Date.now(), config }));
       [
-        'brgyweb:gov-theme:v1','brgyweb:gov-theme:v2','brgyweb:gov-theme:v3',
+        'brgyweb:gov-theme:v1','brgyweb:gov-theme:v2','brgyweb:gov-theme:v3','brgyweb:gov-theme:v4',
         'brgyweb:design-theme:v8','brgyweb:design-theme:v7','brgyweb:design-theme:v6','brgyweb:design-theme:v1'
       ].forEach((key)=>localStorage.removeItem(key));
     } catch {}
@@ -151,6 +152,7 @@
     setCanonicalVariables(publicColors, adminColors);
     setLegacyVariables(publicColors, adminColors);
     setCompatibilityDatasets(config, themeId);
+    lastApplied = { id:themeId, config };
     writeCaches(themeId, config);
     ensureAuthorityLast();
     requestAnimationFrame(ensureAuthorityLast);
@@ -161,11 +163,9 @@
 
   function cached() {
     try {
-      const current = JSON.parse(localStorage.getItem(GOV_CACHE_KEY) || 'null');
-      if (current?.id && THEMES[current.id] && current?.config) return current;
-      for (const key of ['brgyweb:gov-theme:v3','brgyweb:gov-theme:v2']) {
-        const legacy = JSON.parse(localStorage.getItem(key) || 'null');
-        if (legacy?.id && THEMES[legacy.id] && legacy?.config) return legacy;
+      for (const key of [GOV_CACHE_KEY,'brgyweb:gov-theme:v4','brgyweb:gov-theme:v3','brgyweb:gov-theme:v2']) {
+        const value = JSON.parse(localStorage.getItem(key) || 'null');
+        if (value?.id && THEMES[value.id] && value?.config) return value;
       }
     } catch {}
     return null;
@@ -173,15 +173,12 @@
 
   async function load(force=false) {
     if (refreshPromise) return refreshPromise;
-    if (!force) {
-      const old = cached();
-      if (old) apply(old.id, old.config);
-    }
 
     const client = window.BRGY_SUPABASE;
     if (!client) {
-      if (!cached()) apply('modern-lgu');
-      return null;
+      const fallback = cached();
+      if (fallback) return apply(fallback.id, fallback.config);
+      return apply('modern-lgu');
     }
 
     refreshPromise = (async () => {
@@ -192,9 +189,10 @@
         lastRefresh=Date.now();
         return apply(config.experience, config);
       } catch (error) {
-        console.warn('Government theme refresh failed:', error);
-        if (!cached()) return apply('modern-lgu');
-        return null;
+        console.warn('Government theme refresh failed; using offline fallback:', error);
+        const fallback = cached();
+        if (fallback) return apply(fallback.id, fallback.config);
+        return apply('modern-lgu');
       } finally {
         refreshPromise=null;
       }
@@ -209,8 +207,7 @@
     if(document.visibilityState==='visible'&&Date.now()-lastRefresh>1500) load(true);
   });
   window.addEventListener('resize',()=>{
-    const current=cached();
-    if(current) setCompatibilityDatasets(current.config,current.id);
+    if(lastApplied) setCompatibilityDatasets(lastApplied.config,lastApplied.id);
   },{passive:true});
 
   window.BRGY_GOV_THEMES = THEMES;

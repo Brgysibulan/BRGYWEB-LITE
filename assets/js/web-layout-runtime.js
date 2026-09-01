@@ -17,14 +17,6 @@
     return id;
   }
 
-  function fromGovernmentCache() {
-    try {
-      const config = window.BRGY_GOV_THEME_RUNTIME?.cached?.()?.config;
-      if (config) return apply(config.webLayout);
-    } catch {}
-    return apply(DEFAULT_LAYOUT);
-  }
-
   function setHiddenMenu(open) {
     if (root.dataset.webLayout !== 'hidden-navigation' || window.innerWidth < 901) return false;
     const collapse = document.getElementById('mainNav');
@@ -74,5 +66,4 @@
   }, { passive:true });
 
   window.BRGY_WEB_LAYOUT_RUNTIME = Object.freeze({ layouts:[...LAYOUTS], normalize, apply });
-  fromGovernmentCache();
 })();
