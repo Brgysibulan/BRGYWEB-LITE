@@ -1,5 +1,5 @@
 /* Targeted phone correction for Government Design Studio.
-   Keeps the current theme/runtime untouched and fixes only overflow + vertical density. */
+   Final mobile authority: only current Design Studio surfaces, overflow and vertical density. */
 
 @media (max-width:699.98px){
   html,body.dashboard-page{max-width:100%;overflow-x:hidden}
@@ -14,9 +14,10 @@
   .gov-savebar,
   .gov-preview-toolbar,
   .gov-preview-card,
-  .gov-preview-surface{box-sizing:border-box;min-width:0;max-width:100%;width:100%}
+  .gov-preview-surface{box-sizing:border-box;min-width:0;max-width:100%}
 
-  .gov-studio-main{padding:0 .5rem .8rem!important}
+  .gov-studio-main{width:100%;padding:0 .5rem .8rem!important}
+  .gov-workspace,.gov-editor,.gov-preview-stack,.gov-section,.gov-preview-shell,.gov-savebar,.gov-preview-card,.gov-preview-surface{width:100%}
   .gov-studio-hero{margin:0 -.5rem .55rem;padding:.72rem .65rem;gap:.5rem}
   .gov-studio-hero h1{margin:.2rem 0 .25rem;font-size:1.34rem;line-height:1.05}
   .gov-studio-hero p{font-size:.74rem;line-height:1.4}
@@ -29,14 +30,6 @@
   .gov-section-head h2,.gov-guardrail-head h2{font-size:.92rem}
   .gov-section-head p{display:none}
   .gov-count{padding:.23rem .4rem;font-size:.55rem}
-
-  .gov-pack-grid{gap:.4rem}
-  .gov-pack{min-height:60px;padding:.42rem;grid-template-columns:52px minmax(0,1fr) auto;gap:.48rem}
-  .gov-pack-visual{width:52px;height:40px;padding:.28rem}
-  .gov-pack-copy strong{font-size:.76rem}
-  .gov-pack-copy small{font-size:.56rem}
-  .gov-pack-colors{grid-template-columns:repeat(2,9px);gap:2px}
-  .gov-pack-colors i{width:9px;height:9px}
 
   .gov-guardrail-section{padding:.55rem .62rem}
   .gov-guardrail-head{align-items:center;gap:.4rem}
@@ -61,18 +54,17 @@
   .gov-auth-mock .card{height:76px}
 
   .gov-savebar{padding:.58rem;gap:.48rem}
+  .gov-save-status{min-width:0}
+  .gov-save-status strong,.gov-save-status small{overflow-wrap:anywhere}
   .gov-save-status strong{font-size:.72rem}
   .gov-save-status small{font-size:.58rem}
-  .gov-save-actions{grid-template-columns:1fr 1fr!important;gap:.35rem}
+  .gov-save-actions{width:100%;grid-template-columns:1fr 1fr!important;gap:.35rem}
   .gov-save-actions .btn{min-width:0;min-height:44px;padding:.38rem .3rem;font-size:.64rem;white-space:normal;line-height:1.15}
 }
 
 @media (max-width:360px){
   .gov-studio-main{padding-inline:.4rem!important}
   .gov-studio-hero{margin-inline:-.4rem}
-  .gov-pack{grid-template-columns:48px minmax(0,1fr)}
-  .gov-pack-visual{width:48px}
-  .gov-pack-colors{display:none}
   .gov-preview-tab{font-size:.52rem}
   .gov-guardrails{grid-template-columns:1fr 1fr}
 }
