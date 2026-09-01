@@ -57,7 +57,7 @@
   async function loadSiteSettings() {
     if (!siteSettingsForm) return;
     setSiteSettingsStatus('Loading site settings...');
-    const { data, error } = await client.from('site_settings').select('id,barangay_name,municipality_city,province,address,contact_number,email,logo_url,facebook_url,map_embed_url,hero_title,hero_text,primary_color,secondary_color,accent_color').eq('id', 1).single();
+    const { data, error } = await client.from('site_settings').select('id,barangay_name,municipality_city,province,address,contact_number,email,logo_url,facebook_url,map_embed_url,hero_title,hero_text').eq('id', 1).single();
     if (error) throw error;
     setValue('setting-barangay-name', data.barangay_name, 'Barangay Name');
     setValue('setting-logo', data.logo_url);
@@ -70,9 +70,6 @@
     setValue('setting-map', data.map_embed_url);
     setValue('setting-hero-title', data.hero_title, 'Welcome to Our Barangay');
     setValue('setting-hero-text', data.hero_text);
-    setValue('setting-primary-color', data.primary_color, '#136b3a');
-    setValue('setting-secondary-color', data.secondary_color, '#0d4d2b');
-    setValue('setting-accent-color', data.accent_color, '#f2c94c');
     setSiteSettingsStatus('Settings loaded.');
   }
 
@@ -89,9 +86,6 @@
       map_embed_url: optionalHttpsUrl('setting-map', 'Google Maps Embed URL'),
       hero_title: value('setting-hero-title'),
       hero_text: value('setting-hero-text') || null,
-      primary_color: document.getElementById('setting-primary-color')?.value || '#136b3a',
-      secondary_color: document.getElementById('setting-secondary-color')?.value || '#0d4d2b',
-      accent_color: document.getElementById('setting-accent-color')?.value || '#f2c94c',
       updated_at: new Date().toISOString()
     };
     if (!payload.barangay_name || !payload.hero_title) throw new Error('Barangay Name and Hero Title are required.');
