@@ -1,9 +1,9 @@
 (() => {
   'use strict';
 
-  const SITE_CACHE_VERSION = 3;
-  const SITE_CACHE_KEY = 'brgyweb:site-settings:v3';
-  const LEGACY_SITE_CACHE_KEYS = ['brgyweb:site-settings:v2'];
+  const SITE_CACHE_VERSION = 4;
+  const SITE_CACHE_KEY = 'brgyweb:site-settings:v4';
+  const LEGACY_SITE_CACHE_KEYS = ['brgyweb:site-settings:v3','brgyweb:site-settings:v2'];
   const INITIAL_TITLE = document.title;
   const DEFAULT_SITE = Object.freeze({
     siteName: 'Barangay Website', shortName: 'Barangay', municipality: 'Municipality', province: 'Province',
@@ -18,6 +18,7 @@
   function readCachedSettings() { try { const raw=localStorage.getItem(SITE_CACHE_KEY); if(!raw)return null; const parsed=JSON.parse(raw); if(parsed?.version!==SITE_CACHE_VERSION)return null; const data=parsed?.data; return data&&typeof data==='object'?data:null; } catch { return null; } }
   function writeCachedSettings(site) { try { localStorage.setItem(SITE_CACHE_KEY,JSON.stringify({version:SITE_CACHE_VERSION,savedAt:Date.now(),data:site})); LEGACY_SITE_CACHE_KEYS.forEach((key)=>localStorage.removeItem(key)); } catch {} }
   function mergeSite(base={},next={}) { return {...base,...next,theme:{...(base.theme||{}),...(next.theme||{})}}; }
+  function hasPublishedDesignTheme(value) { return Boolean(value && typeof value==='object' && (value.experience || value.pack || value.public || value.admin)); }
 
   function ensureDesignTheme() {
     if (window.BRGY_THEME) return Promise.resolve(window.BRGY_THEME);
@@ -48,6 +49,16 @@
     root.style.setProperty('--brand-primary',merged.primary);root.style.setProperty('--brand-secondary',merged.secondary);root.style.setProperty('--brand-primary-dark',merged.primary);root.style.setProperty('--brand-accent',merged.accent);root.style.setProperty('--brand-signal',merged.signal);root.style.setProperty('--brand-danger',merged.signal);root.style.setProperty('--soft-bg',merged.surface);root.style.setProperty('--text-main',merged.text);
   }
 
+  function applyPublishedDesignTheme(designTheme={}) {
+    if(!hasPublishedDesignTheme(designTheme)) return false;
+    const runtime=window.BRGY_GOV_THEME_RUNTIME;
+    if(runtime?.apply){ runtime.apply(designTheme.experience,designTheme); return true; }
+    if(window.BRGY_THEME?.applyPublic){ window.BRGY_THEME.applyPublic(designTheme.public||{}); return true; }
+    const colors=designTheme.public?.colors;
+    if(colors){ applyTheme({...DEFAULT_SITE.theme,...colors}); return true; }
+    return false;
+  }
+
   function applyDocumentTitle(siteName) {
     const raw=INITIAL_TITLE.trim();
     const isHome=/^(Barangay Website|Home)$/i.test(raw)||/(?:^|\/)index\.html$/i.test(window.location.pathname)||window.location.pathname.endsWith('/');
@@ -56,11 +67,15 @@
     document.title=`${pageTitle||'Official Website'} | ${siteName}`;
   }
 
-  function applySiteSettings(settings={}) {
+  function applySiteSettings(settings={},options={}) {
     const site={...DEFAULT_SITE,...settings,theme:{...DEFAULT_SITE.theme,...(settings.theme||{})}};
+    const applyDesign=options.applyDesign!==false;
     setText('site-name',site.siteName,'');setText('hero-title',site.heroTitle,DEFAULT_SITE.heroTitle);setText('hero-text',site.heroText,DEFAULT_SITE.heroText);setText('footer-name',site.siteName,'');setText('footer-address',site.address,'');setText('footer-contact',[site.phone,site.email].filter(Boolean).join(' • '),'');setText('copyright-name',site.siteName,'');
     const eyebrow=document.querySelector('.hero-section .eyebrow');if(eyebrow)eyebrow.textContent=site.tagline||DEFAULT_SITE.tagline;
-    applyTheme(site.theme);applyLogo(site);applyDocumentTitle(site.siteName||DEFAULT_SITE.siteName);window.BRGY_THEME?.applyPublic(site.designTheme?.public||{});document.documentElement.dataset.siteSettingsReady='true';return site;
+    if(applyDesign){
+      if(!applyPublishedDesignTheme(site.designTheme)) applyTheme(site.theme);
+    }
+    applyLogo(site);applyDocumentTitle(site.siteName||DEFAULT_SITE.siteName);document.documentElement.dataset.siteSettingsReady='true';return site;
   }
 
   function mapSupabaseSettings(row) {
@@ -80,13 +95,13 @@
   function initYear(){setText('current-year',String(new Date().getFullYear()));}
   const fallback=window.BRGYWEB_CONFIG||{};
   const earlyCache=readCachedSettings();
-  if(earlyCache){applySiteSettings(mergeSite(fallback,earlyCache));initYear();}
+  if(earlyCache){applySiteSettings(mergeSite(fallback,earlyCache),{applyDesign:false});initYear();}
 
   async function boot(){
-    const cached=readCachedSettings();initYear();await ensureDesignTheme();if(cached)applySiteSettings(mergeSite(fallback,cached));
-    try{const remote=await loadRemoteSettings();if(remote){const merged=mergeSite(fallback,remote);applySiteSettings(merged);writeCachedSettings(merged);}else if(!cached){applySiteSettings(fallback);}}catch(error){console.warn('Unable to refresh site settings; using last known settings:',error);if(!cached)applySiteSettings(fallback);}
+    const cached=readCachedSettings();initYear();await ensureDesignTheme();if(cached)applySiteSettings(mergeSite(fallback,cached),{applyDesign:false});
+    try{const remote=await loadRemoteSettings();if(remote){const merged=mergeSite(fallback,remote);applySiteSettings(merged,{applyDesign:true});writeCachedSettings(merged);}else if(!cached){applySiteSettings(fallback,{applyDesign:true});}}catch(error){console.warn('Unable to refresh site settings; using last known settings:',error);if(!cached)applySiteSettings(fallback,{applyDesign:true});}
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();
-  window.BRGYWEB=Object.freeze({applySiteSettings,loadRemoteSettings,readCachedSettings});
+  window.BRGYWEB=Object.freeze({applySiteSettings,applyPublishedDesignTheme,loadRemoteSettings,readCachedSettings});
 })();
