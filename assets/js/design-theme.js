@@ -24,6 +24,7 @@
 
   const signalRed = COLOR_DEFAULTS.signal;
   const publicPresets = Object.freeze({
+    premium:{preset:'premium',font:'system',radius:'rounded',density:'comfortable',navSkin:'glass',navPosition:'floating',navAlign:'right',navMode:'links',hero:'split',cards:'elevated',contentWidth:'wide',colors:{primary:'#0b2f21',secondary:'#1b6b45',accent:'#d8b63e',signal:signalRed}},
     civic:{...PUBLIC_DEFAULT,preset:'civic',colors:{primary:'#0b2f21',secondary:'#1b6b45',accent:'#d8b63e',signal:signalRed}},
     modern:{preset:'modern',font:'rounded',radius:'pill',density:'comfortable',navSkin:'glass',navPosition:'top',navAlign:'center',navMode:'links',hero:'soft',cards:'elevated',contentWidth:'boxed',colors:{primary:'#134e4a',secondary:'#0f766e',accent:'#d6a93a',signal:signalRed}},
     portal:{preset:'portal',font:'system',radius:'soft',density:'compact',navSkin:'solid',navPosition:'left',navAlign:'left',navMode:'links',hero:'clean',cards:'flat',contentWidth:'wide',colors:{primary:'#172554',secondary:'#1d4ed8',accent:'#d6a93a',signal:signalRed}},
@@ -35,6 +36,7 @@
   });
 
   const adminPresets = Object.freeze({
+    control:{preset:'control',font:'system',radius:'rounded',density:'comfortable',sidebar:'brand',cards:'elevated'},
     civic:{preset:'civic',font:'system',radius:'rounded',density:'comfortable',sidebar:'brand',cards:'elevated'},
     executive:{preset:'executive',font:'system',radius:'soft',density:'compact',sidebar:'dark',cards:'elevated'},
     modern:{preset:'modern',font:'rounded',radius:'pill',density:'comfortable',sidebar:'brand',cards:'flat'},
