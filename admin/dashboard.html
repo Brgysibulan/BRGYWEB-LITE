@@ -60,7 +60,7 @@
           <div><span class="eyebrow">Infrastructure</span><h2 class="h5 mb-1">System Health</h2><p class="text-secondary small mb-0">Live GitHub deployment health and Supabase capacity remaining.</p></div>
           <div class="text-end"><button class="btn btn-sm btn-outline-dark" id="system-health-refresh" type="button">Refresh Health</button><div class="small text-secondary mt-2" id="system-health-checked">Not checked yet</div></div>
         </div>
-        <div class="small text-secondary mt-3" id="system-health-status" role="status" aria-live="polite">Checking GitHub and Supabase…</div>
+        <div class="d-flex flex-wrap justify-content-between gap-2 mt-3"><div class="small text-secondary" id="system-health-status" role="status" aria-live="polite">Checking GitHub and Supabase…</div><div class="small text-secondary" id="system-health-auto">Auto-refresh every 5 minutes.</div></div>
 
         <div class="row g-3 mt-1">
           <div class="col-xl-6">
@@ -82,6 +82,10 @@
           <div class="col-xl-6">
             <div class="border rounded-4 p-3 h-100 bg-body-tertiary">
               <div class="d-flex justify-content-between align-items-start gap-3 mb-3"><div><span class="eyebrow">Backend & Storage</span><h3 class="h6 mt-1 mb-0">Supabase <span class="text-secondary fw-normal" id="supabase-health-plan"></span></h3></div><span id="supabase-health-state" class="badge rounded-pill text-bg-secondary">Checking</span></div>
+              <div class="border rounded-3 bg-white p-2 mb-3">
+                <div class="d-flex justify-content-between gap-3"><div><div class="small text-secondary">Free project slots <span class="badge text-bg-light border">snapshot</span></div><strong id="supabase-project-slots">—</strong></div><div class="text-end"><div class="small text-secondary">Remaining</div><strong id="supabase-project-remaining">—</strong></div></div>
+                <div class="small text-secondary mt-1" id="supabase-project-note">Project-slot count is an account snapshot.</div>
+              </div>
               <div class="mb-4">
                 <div class="d-flex justify-content-between gap-3"><div><div class="small text-secondary">Database</div><strong id="supabase-db-usage">—</strong></div><div class="text-end"><div class="small text-secondary">Remaining</div><strong id="supabase-db-remaining">—</strong></div></div>
                 <div class="progress mt-2" role="progressbar" aria-label="Supabase database usage" aria-valuemin="0" aria-valuemax="100" style="height:8px"><div id="supabase-db-progress" class="progress-bar" style="width:0%"></div></div>
@@ -95,7 +99,7 @@
             </div>
           </div>
         </div>
-        <div class="alert alert-light border small mb-0 mt-3">Health uses live project metrics. GitHub public-repository Actions minutes do not have a remaining-minute meter because standard runners are free for public repositories. GitHub Pages bandwidth is a soft limit and its live remaining bandwidth is not exposed by the public API.</div>
+        <div class="alert alert-light border small mb-0 mt-3">Capacity colors: green below 70%, yellow from 70% to 85%, red above 85%. Live project metrics refresh every 5 minutes while this dashboard tab is visible. GitHub public-repository Actions minutes have no remaining-minute meter; GitHub Pages bandwidth is a soft limit and its live remaining bandwidth is not exposed by the public API.</div>
       </div>
     </section>
 
@@ -105,6 +109,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../assets/js/supabase-config.js?v=20260901-health1"></script>
 <script src="../assets/js/admin.js?v=20260901-health1"></script>
-<script src="../assets/js/system-health.js?v=20260901-health1"></script>
+<script src="../assets/js/system-health.js?v=20260901-health2"></script>
 </body>
 </html>
