@@ -142,7 +142,11 @@
           <div class="col-md-6"><label class="form-label" for="setting-email">Public Email</label><input class="form-control" id="setting-email" type="email"></div>
           <div class="col-md-6"><label class="form-label" for="setting-address">Office Address</label><input class="form-control" id="setting-address"></div>
           <div class="col-md-6"><label class="form-label" for="setting-facebook">Facebook Page URL</label><input class="form-control" id="setting-facebook" type="url"></div>
-          <div class="col-12"><label class="form-label" for="setting-map">Google Maps Embed URL</label><input class="form-control" id="setting-map" type="url"></div>
+          <div class="col-12">
+            <label class="form-label" for="setting-map">Google Maps Location</label>
+            <input class="form-control" id="setting-map" type="text" inputmode="url" placeholder="Paste the Google Maps place link or embed code">
+            <div class="form-text">You can paste a normal Google Maps place URL or the iframe embed code. The website converts supported Google Maps links automatically.</div>
+          </div>
           <div class="col-12"><label class="form-label" for="setting-hero-title">Homepage Hero Title</label><input class="form-control" id="setting-hero-title" required></div>
           <div class="col-12"><label class="form-label" for="setting-hero-text">Homepage Hero Text</label><textarea class="form-control" id="setting-hero-text" rows="3"></textarea></div>
 
@@ -156,9 +160,10 @@
   </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../assets/js/supabase-config.js?v=20260901-maintenance2"></script>
-<script src="../assets/js/admin-logo-upload.js?v=20260901-maintenance2"></script>
-<script src="../assets/js/admin.js?v=20260901-maintenance2"></script>
-<script src="../assets/js/admin-maintenance.js?v=20260901-maintenance2"></script>
+<script src="../assets/js/supabase-config.js?v=20260901-map2"></script>
+<script src="../assets/js/admin-logo-upload.js?v=20260901-map2"></script>
+<script src="../assets/js/admin.js?v=20260901-map2"></script>
+<script src="../assets/js/admin-map-settings.js?v=20260901-map2"></script>
+<script src="../assets/js/admin-maintenance.js?v=20260901-map2"></script>
 </body>
 </html>
