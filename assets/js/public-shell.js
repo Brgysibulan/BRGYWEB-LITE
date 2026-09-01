@@ -2,7 +2,7 @@
   'use strict';
 
   const SITE_CACHE_KEY = 'brgyweb:site-settings:v2';
-  const UI_VERSION = '20260901-responsive3';
+  const UI_VERSION = '20260901-studio5';
   const header = document.querySelector('.site-header');
   const footer = document.querySelector('.site-footer');
   const page = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
