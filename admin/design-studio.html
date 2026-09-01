@@ -1,9 +1,14 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="design-studio-booting">
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Government Design Studio | BRGYWEB-LITE</title>
+  <style>
+    html.design-studio-booting body{background:#f5f7f6;overflow:hidden}
+    html.design-studio-booting .dashboard-shell{visibility:hidden}
+    html.design-studio-booting body::before{content:'Loading Design Studio…';position:fixed;inset:0;z-index:2147483647;display:grid;place-items:center;padding:24px;font:700 15px/1.4 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#17201a;background:#f5f7f6}
+  </style>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/admin.css?v=20260901-gov9">
   <link rel="stylesheet" href="../assets/css/government-design-studio.css?v=20260901-gov9">
@@ -130,5 +135,19 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../assets/js/supabase-config.js?v=20260901-gov9"></script>
 <script src="../assets/js/design-studio.js?v=20260901-colors1"></script>
+<script>
+  (()=>{
+    const root=document.documentElement;
+    const reveal=()=>root.classList.remove('design-studio-booting');
+    const started=Date.now();
+    const check=()=>{
+      const layouts=document.getElementById('web-layout-grid');
+      const colors=document.getElementById('custom-color-grid');
+      if((layouts?.children.length&&colors?.children.length)||Date.now()-started>8000){reveal();return;}
+      setTimeout(check,50);
+    };
+    check();
+  })();
+</script>
 </body>
 </html>
