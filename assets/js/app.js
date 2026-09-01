@@ -1,7 +1,9 @@
 (() => {
   'use strict';
 
-  const SITE_CACHE_KEY = 'brgyweb:site-settings:v2';
+  const SITE_CACHE_VERSION = 3;
+  const SITE_CACHE_KEY = 'brgyweb:site-settings:v3';
+  const LEGACY_SITE_CACHE_KEYS = ['brgyweb:site-settings:v2'];
   const INITIAL_TITLE = document.title;
   const DEFAULT_SITE = Object.freeze({
     siteName: 'Barangay Website', shortName: 'Barangay', municipality: 'Municipality', province: 'Province',
@@ -19,13 +21,17 @@
       const raw=localStorage.getItem(SITE_CACHE_KEY);
       if(!raw)return null;
       const parsed=JSON.parse(raw);
-      const data=parsed?.data||parsed;
+      if(parsed?.version!==SITE_CACHE_VERSION)return null;
+      const data=parsed?.data;
       return data&&typeof data==='object'?data:null;
     } catch { return null; }
   }
 
   function writeCachedSettings(site) {
-    try { localStorage.setItem(SITE_CACHE_KEY,JSON.stringify({version:2,savedAt:Date.now(),data:site})); } catch {}
+    try {
+      localStorage.setItem(SITE_CACHE_KEY,JSON.stringify({version:SITE_CACHE_VERSION,savedAt:Date.now(),data:site}));
+      LEGACY_SITE_CACHE_KEYS.forEach((key)=>localStorage.removeItem(key));
+    } catch {}
   }
 
   function mergeSite(base={},next={}) {
@@ -43,7 +49,7 @@
         return;
       }
       const script=document.createElement('script');
-      script.src='assets/js/design-theme.js?v=20260901-studio5';
+      script.src='assets/js/design-theme.js?v=20260901-studio7';
       script.dataset.brgyDesignTheme='true';
       script.onload=()=>resolve(window.BRGY_THEME);
       script.onerror=()=>resolve(null);
@@ -105,8 +111,25 @@
   }
 
   function mapSupabaseSettings(row) {
-    if(!row)return null;const locationParts=[row.municipality_city,row.province].filter(Boolean);
-    return {siteName:row.barangay_name||DEFAULT_SITE.siteName,shortName:row.barangay_name||DEFAULT_SITE.shortName,municipality:row.municipality_city||'',province:row.province||'',tagline:locationParts.length?`Official Website • ${locationParts.join(', ')}`:DEFAULT_SITE.tagline,heroTitle:row.hero_title||DEFAULT_SITE.heroTitle,heroText:row.hero_text||DEFAULT_SITE.heroText,address:row.address||DEFAULT_SITE.address,phone:row.contact_number||'',email:row.email||'',logoUrl:row.logo_url||'',designTheme:row.design_theme||null,theme:{primary:row.primary_color||DEFAULT_SITE.theme.primary,secondary:row.secondary_color||DEFAULT_SITE.theme.secondary,accent:row.accent_color||DEFAULT_SITE.theme.accent}};
+    if(!row)return null;
+    const locationParts=[row.municipality_city,row.province].filter(Boolean);
+    const designColors=row.design_theme?.public?.colors||{};
+    return {
+      siteName:row.barangay_name||DEFAULT_SITE.siteName,
+      shortName:row.barangay_name||DEFAULT_SITE.shortName,
+      municipality:row.municipality_city||'',province:row.province||'',
+      tagline:locationParts.length?`Official Website • ${locationParts.join(', ')}`:DEFAULT_SITE.tagline,
+      heroTitle:row.hero_title||DEFAULT_SITE.heroTitle,heroText:row.hero_text||DEFAULT_SITE.heroText,
+      address:row.address||DEFAULT_SITE.address,phone:row.contact_number||'',email:row.email||'',logoUrl:row.logo_url||'',
+      designTheme:row.design_theme||null,
+      theme:{
+        primary:row.primary_color||DEFAULT_SITE.theme.primary,
+        secondary:row.secondary_color||DEFAULT_SITE.theme.secondary,
+        accent:row.accent_color||DEFAULT_SITE.theme.accent,
+        signal:designColors.signal||DEFAULT_SITE.theme.signal,
+        surface:DEFAULT_SITE.theme.surface
+      }
+    };
   }
 
   async function loadRemoteSettings() {
