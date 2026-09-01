@@ -3,9 +3,10 @@
 
   const SUPABASE_URL = 'https://pkvorwvkqjnbgktkgjhr.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_RbaENAflMzLgXpemymGApA_TkVAhMoU';
-  const STAFF_ASSET_VERSION = '20260901-gov10';
+  const STAFF_ASSET_VERSION = '20260901-gov11';
   const GOV_THEME_VERSION = '20260901-gov10';
   const HEADER_TEXT_VERSION = '20260901-header1';
+  const ADMIN_SHELL_VERSION = '20260901nav3';
   const path = window.location.pathname;
   const isStaffPage = /\/(admin|editor)\//.test(path);
   const isAccessPage = /\/(admin|editor)\/(?:login|apply|activate)\.html$/.test(path);
@@ -26,7 +27,7 @@
     if(!isStaffPage)return;
     try{
       [
-        'brgyweb:design-theme:v9','brgyweb:design-theme:v8','brgyweb:design-theme:v7',
+        'brgyweb:design-theme:v8','brgyweb:design-theme:v7',
         'brgyweb:design-theme:v6','brgyweb:design-theme:v1'
       ].forEach((key)=>localStorage.removeItem(key));
     }catch{}
@@ -61,7 +62,11 @@
   function loadStaffAssets(){
     if(!isStaffPage)return;
     addStaffStyle(`../assets/css/premium-admin.css?v=${STAFF_ASSET_VERSION}`,'data-brgy-premium-admin');
-    if(!isAccessPage)addStaffStyle(`../assets/css/admin-steady-shell.css?v=${STAFF_ASSET_VERSION}`,'data-brgy-admin-steady-shell');
+    if(!isAccessPage){
+      addStaffStyle(`../assets/css/admin-steady-shell.css?v=${STAFF_ASSET_VERSION}`,'data-brgy-admin-steady-shell');
+      addStaffStyle(`../assets/css/admin-shell.css?v=${ADMIN_SHELL_VERSION}`,'data-brgy-admin-shell');
+      addStaffScript(`../assets/js/admin-shell-prime.js?v=${STAFF_ASSET_VERSION}`,'data-brgy-admin-shell-prime');
+    }
     if(!document.querySelector('script[data-brgy-design-theme]')){
       const script=addStaffScript(`../assets/js/design-theme.js?v=${STAFF_ASSET_VERSION}`,'data-brgy-design-theme');
       script?.addEventListener('error',()=>markAssetFailure('theme'),{once:true});
@@ -116,7 +121,7 @@
 
   window.BRGY_SUPABASE=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 
-  /* Staff pages must not paint stale Design Studio colors before the published theme arrives. */
+  /* Keep the current published Design Studio cache for an instant stable first paint; remove only obsolete schemas. */
   clearLegacyStaffThemeBootCache();
   loadStaffAssets();
   loadGovernmentThemeAssets();
