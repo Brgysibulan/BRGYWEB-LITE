@@ -1,55 +1,31 @@
-/* Keep admin navigation visually steady while only the module content boots. */
+/* Keep the admin shell and current page visible while theme/data refresh in place. */
 @view-transition{navigation:auto}
 .sidebar{view-transition-name:admin-sidebar}
 
+/* Never block the dashboard behind a readiness flag. The HTML already contains a usable shell. */
 html:not([data-admin-ui-ready="true"]) body.dashboard-page{
   min-height:100vh;
   overflow-x:hidden!important;
   overflow-y:auto!important;
 }
-html:not([data-admin-ui-ready="true"]) body.dashboard-page>*{
+html:not([data-admin-ui-ready="true"]) body.dashboard-page>*,
+html:not([data-admin-ui-ready="true"]) body.dashboard-page .dashboard-main,
+html:not([data-admin-ui-ready="true"]) body.dashboard-page .dashboard-main>*,
+html:not([data-admin-ui-ready="true"]) body.dashboard-page>main,
+html:not([data-admin-ui-ready="true"]) body.dashboard-page>main>*{
   visibility:visible!important;
 }
 html:not([data-admin-ui-ready="true"]) body.dashboard-page::before,
-html:not([data-admin-ui-ready="true"]) body.dashboard-page::after{
+html:not([data-admin-ui-ready="true"]) body.dashboard-page::after,
+html:not([data-admin-ui-ready="true"]) body.dashboard-page .dashboard-main::before,
+html:not([data-admin-ui-ready="true"]) body.dashboard-page .dashboard-main::after,
+html:not([data-admin-ui-ready="true"]) body.dashboard-page>main::before,
+html:not([data-admin-ui-ready="true"]) body.dashboard-page>main::after{
   content:none!important;
   display:none!important;
 }
-html:not([data-admin-ui-ready="true"]) body.dashboard-page .dashboard-main,
-html:not([data-admin-ui-ready="true"]) body.dashboard-page>main{
-  min-height:100vh;
-  position:relative;
-  visibility:visible!important;
-}
-html:not([data-admin-ui-ready="true"]) body.dashboard-page .dashboard-main>*,
-html:not([data-admin-ui-ready="true"]) body.dashboard-page>main>*{
-  visibility:hidden!important;
-}
-html:not([data-admin-ui-ready="true"]) body.dashboard-page .dashboard-main>.admin-mobile-bar{
-  visibility:visible!important;
-}
-html:not([data-admin-ui-ready="true"]) body.dashboard-page .dashboard-main::before,
-html:not([data-admin-ui-ready="true"]) body.dashboard-page>main::before{
-  content:"Loading content…";
-  visibility:visible!important;
-  position:absolute;
-  inset:0;
-  z-index:2;
-  display:grid;
-  place-items:center;
-  min-height:180px;
-  background:var(--theme-canvas,var(--bg,#f4f7f4));
-  color:var(--theme-muted,var(--muted,#69736c));
-  font-size:.78rem;
-  font-weight:700;
-  letter-spacing:.01em;
-}
-html[data-admin-ui-ready="true"] body.dashboard-page .dashboard-main>*,
-html[data-admin-ui-ready="true"] body.dashboard-page>main>*{
-  visibility:visible!important;
-}
 
-/* The left navigation should not fade or slide between full document navigations. */
+/* The left navigation should not fade or slide between document navigations. */
 ::view-transition-old(admin-sidebar),
 ::view-transition-new(admin-sidebar){
   animation:none!important;
