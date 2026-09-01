@@ -3,8 +3,8 @@
 
   const client = window.BRGY_SUPABASE;
   const form = document.getElementById('design-studio-form');
-  const paletteGrid = document.getElementById('design-pack-grid');
   const layoutGrid = document.getElementById('web-layout-grid');
+  const colorControls = document.getElementById('custom-color-grid');
   const saveButton = document.getElementById('design-save');
   const resetButton = document.getElementById('design-reset');
   const saveBar = document.getElementById('design-savebar');
@@ -21,14 +21,6 @@
   const loginLabel = document.getElementById('login-preview-label');
   const signupLabel = document.getElementById('signup-preview-label');
 
-  const PALETTE_COPY = {
-    'national-authority': { short:'Navy + restrained gold' },
-    'executive-civic': { short:'Executive green + brass' },
-    'public-service': { short:'Civic blue + service teal' },
-    'institutional': { short:'Slate + institutional gold' },
-    'modern-lgu': { short:'Emerald + flagship gold' }
-  };
-
   const WEB_LAYOUTS = Object.freeze({
     'two-column': { number:'01', name:'Two-column', tag:'Columns', description:'Primary content with a supporting side column.' },
     'split-screen': { number:'02', name:'Split Screen', tag:'Split', description:'Two strong panels share the first view.' },
@@ -44,58 +36,73 @@
     'interactive': { number:'12', name:'Interactive', tag:'Explore', description:'Featured content uses controls and progressive disclosure.' }
   });
 
+  const COLOR_ROLES = Object.freeze([
+    { key:'primary', label:'Main Color', help:'Header, main identity and strongest surfaces.' },
+    { key:'secondary', label:'Second Color', help:'Buttons, active states and secondary brand surfaces.' },
+    { key:'accent', label:'Third Color', help:'Highlights, dividers and emphasis.' },
+    { key:'signal', label:'Fourth Color', help:'Signal and important status emphasis.' }
+  ]);
+
   const DEFAULT_LAYOUT = 'card-block';
+  const DEFAULT_EXPERIENCE = 'modern-lgu';
+  const DEFAULT_COLORS = Object.freeze({primary:'#0b2f21',secondary:'#1b6b45',accent:'#d8b63e',signal:'#a63d40'});
+
   let theme = null;
   let catalog = null;
-  let selectedPalette = 'modern-lgu';
   let selectedLayout = DEFAULT_LAYOUT;
-  let savedPalette = null;
   let savedLayout = DEFAULT_LAYOUT;
+  let selectedColors = {...DEFAULT_COLORS};
+  let savedColors = {...DEFAULT_COLORS};
+  let baseExperience = DEFAULT_EXPERIENCE;
+  let basePack = null;
   let dirty = false;
   let loadingSaved = false;
   let activePreview = 'public';
 
   const clone = (value) => JSON.parse(JSON.stringify(value));
   const validLayout = (id) => WEB_LAYOUTS[id] ? id : DEFAULT_LAYOUT;
+  const normalizeHex = (value, fallback='') => /^#[0-9a-f]{6}$/i.test(String(value||'')) ? String(value).toLowerCase() : fallback;
+
+  function sameColors(a={},b={}) {
+    return COLOR_ROLES.every(({key}) => String(a?.[key]||'').toLowerCase() === String(b?.[key]||'').toLowerCase());
+  }
 
   function setStatus(message, kind='normal') {
-    if (!status) return;
+    if(!status) return;
     status.textContent = message || '';
     status.dataset.state = kind;
-    saveBar?.classList.toggle('has-error', kind === 'error');
-    saveBar?.classList.toggle('has-success', kind === 'success');
+    saveBar?.classList.toggle('has-error',kind==='error');
+    saveBar?.classList.toggle('has-success',kind==='success');
   }
 
   function hexToRgb(hex) {
-    const value = String(hex || '').replace('#', '');
-    if (!/^[0-9a-f]{6}$/i.test(value)) return null;
-    return { r:parseInt(value.slice(0,2),16), g:parseInt(value.slice(2,4),16), b:parseInt(value.slice(4,6),16) };
+    const value=String(hex||'').replace('#','');
+    if(!/^[0-9a-f]{6}$/i.test(value)) return null;
+    return {r:parseInt(value.slice(0,2),16),g:parseInt(value.slice(2,4),16),b:parseInt(value.slice(4,6),16)};
   }
 
   function luminance(hex) {
-    const rgb = hexToRgb(hex);
-    if (!rgb) return 0;
-    const channels = [rgb.r,rgb.g,rgb.b].map((value) => {
-      const channel = value / 255;
-      return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+    const rgb=hexToRgb(hex);
+    if(!rgb) return 0;
+    const channels=[rgb.r,rgb.g,rgb.b].map((value)=>{
+      const channel=value/255;
+      return channel<=0.03928?channel/12.92:((channel+0.055)/1.055)**2.4;
     });
-    return (0.2126 * channels[0]) + (0.7152 * channels[1]) + (0.0722 * channels[2]);
+    return (0.2126*channels[0])+(0.7152*channels[1])+(0.0722*channels[2]);
   }
 
   function contrast(a,b) {
-    const l1=luminance(a), l2=luminance(b);
+    const l1=luminance(a),l2=luminance(b);
     return (Math.max(l1,l2)+0.05)/(Math.min(l1,l2)+0.05);
   }
 
-  function validatePalette(colors={}) {
-    const required=['primary','secondary','accent','signal'];
-    if(required.some((key)=>!/^#[0-9a-f]{6}$/i.test(String(colors[key]||'')))) return {ok:false,message:'Palette contains an invalid color value.'};
-    const values=required.map((key)=>colors[key].toLowerCase());
-    if(new Set(values).size!==values.length) return {ok:false,message:'Palette roles must use distinct colors.'};
-    if(contrast(colors.primary,'#ffffff')<4.5) return {ok:false,message:'Primary color does not have enough contrast for official headers.'};
-    if(contrast(colors.secondary,'#ffffff')<3.6) return {ok:false,message:'Secondary color is too light for action controls.'};
-    if(contrast(colors.accent,colors.primary)<2.2) return {ok:false,message:'Accent is too close to the primary color.'};
-    return {ok:true,message:'Palette roles pass the Design Studio guardrails.'};
+  function evaluateColors(colors={}) {
+    const invalid=COLOR_ROLES.some(({key})=>!/^#[0-9a-f]{6}$/i.test(String(colors[key]||'')));
+    if(invalid) return {ok:false,warning:false,message:'Enter a valid 6-digit hex color for all four colors.'};
+    const mainContrast=contrast(colors.primary,'#ffffff');
+    const secondContrast=contrast(colors.secondary,'#ffffff');
+    if(mainContrast<4.5||secondContrast<3.2) return {ok:true,warning:true,message:'Colors are usable, but Main or Second may have low contrast with white text.'};
+    return {ok:true,warning:false,message:'Four custom colors are ready to publish.'};
   }
 
   async function waitForRuntime() {
@@ -125,14 +132,8 @@
     if(!layoutGrid) return;
     layoutGrid.innerHTML=Object.entries(WEB_LAYOUTS).map(([id,meta])=>`
       <button class="web-layout-card" type="button" data-web-layout="${id}" aria-pressed="false">
-        <span class="web-layout-mini" data-layout-mini="${id}" aria-hidden="true">
-          <i></i><i></i><i></i><i></i><i></i><i></i>
-        </span>
-        <span class="web-layout-copy">
-          <span><b>${meta.number}</b><em>${meta.tag}</em></span>
-          <strong>${meta.name}</strong>
-          <small>${meta.description}</small>
-        </span>
+        <span class="web-layout-mini" data-layout-mini="${id}" aria-hidden="true"><i></i><i></i><i></i><i></i><i></i><i></i></span>
+        <span class="web-layout-copy"><span><b>${meta.number}</b><em>${meta.tag}</em></span><strong>${meta.name}</strong><small>${meta.description}</small></span>
       </button>`).join('');
     layoutGrid.addEventListener('click',(event)=>{
       const button=event.target.closest('[data-web-layout]');
@@ -140,48 +141,85 @@
     });
   }
 
-  function renderPalettes() {
-    if(!paletteGrid) return;
-    paletteGrid.innerHTML=Object.entries(catalog).map(([id,meta])=>{
-      const c=meta.colors;
-      return `<button class="palette-choice" type="button" data-gov-pack="${id}" aria-pressed="false">
-        <span class="palette-swatches" aria-hidden="true">
-          <i style="background:${c.primary}"></i><i style="background:${c.secondary}"></i><i style="background:${c.accent}"></i><i style="background:${c.signal}"></i>
-        </span>
-        <span><strong>${meta.name}</strong><small>${PALETTE_COPY[id]?.short||'Government palette'}</small></span>
-      </button>`;
-    }).join('');
-    paletteGrid.addEventListener('click',(event)=>{
-      const button=event.target.closest('[data-gov-pack]');
-      if(button) selectPalette(button.dataset.govPack);
+  function renderColorControls() {
+    if(!colorControls) return;
+    colorControls.innerHTML=COLOR_ROLES.map(({key,label,help},index)=>`
+      <label class="custom-color-card" data-color-role="${key}">
+        <span class="custom-color-order">0${index+1}</span>
+        <span class="custom-color-picker-wrap"><input class="custom-color-picker" type="color" data-color-picker="${key}" value="${selectedColors[key]}" aria-label="${label}"></span>
+        <span class="custom-color-copy"><strong>${label}</strong><small>${help}</small></span>
+        <input class="custom-color-hex" type="text" data-color-hex="${key}" value="${selectedColors[key]}" inputmode="text" maxlength="7" spellcheck="false" aria-label="${label} hex value">
+      </label>`).join('');
+
+    colorControls.addEventListener('input',(event)=>{
+      const picker=event.target.closest('[data-color-picker]');
+      if(!picker) return;
+      updateColor(picker.dataset.colorPicker,picker.value,'picker');
+    });
+    colorControls.addEventListener('change',(event)=>{
+      const input=event.target.closest('[data-color-hex]');
+      if(!input) return;
+      const key=input.dataset.colorHex;
+      const value=normalizeHex(input.value);
+      if(!value){
+        input.setAttribute('aria-invalid','true');
+        setStatus(`${COLOR_ROLES.find((role)=>role.key===key)?.label||'Color'} needs a valid value like #123456.`,'error');
+        syncDirty();
+        return;
+      }
+      input.removeAttribute('aria-invalid');
+      updateColor(key,value,'hex');
     });
   }
 
-  function compose(paletteId,layoutId) {
-    const meta=catalog[paletteId]||catalog['modern-lgu'];
-    const composed=theme.composePack(meta.basePack,'custom',meta.colors);
+  function syncColorInputs() {
+    COLOR_ROLES.forEach(({key})=>{
+      const picker=document.querySelector(`[data-color-picker="${key}"]`);
+      const hex=document.querySelector(`[data-color-hex="${key}"]`);
+      if(picker) picker.value=selectedColors[key];
+      if(hex){hex.value=selectedColors[key];hex.removeAttribute('aria-invalid');}
+    });
+  }
+
+  function updateColor(key,value,source='picker') {
+    if(!COLOR_ROLES.some((role)=>role.key===key)) return;
+    const normalized=normalizeHex(value);
+    if(!normalized) return;
+    selectedColors={...selectedColors,[key]:normalized};
+    const picker=document.querySelector(`[data-color-picker="${key}"]`);
+    const hex=document.querySelector(`[data-color-hex="${key}"]`);
+    if(source!=='picker'&&picker) picker.value=normalized;
+    if(source!=='hex'&&hex) hex.value=normalized;
+    refreshPreview();
+    syncDirty(`${COLOR_ROLES.find((role)=>role.key===key)?.label||'Color'} updated.`);
+  }
+
+  function compose(layoutId) {
+    const experience=catalog[baseExperience]?baseExperience:DEFAULT_EXPERIENCE;
+    const meta=catalog[experience]||catalog[DEFAULT_EXPERIENCE];
+    const pack=basePack||meta.basePack;
+    const composed=theme.composePack(pack,'custom',selectedColors);
     const normalized=theme.normalizeConfig({
       version:theme.THEME_SCHEMA_VERSION,
-      pack:meta.basePack,
+      pack,
       palette:'custom',
       public:composed.public,
       admin:composed.admin
     });
-    normalized.experience=paletteId;
+    normalized.experience=experience;
     normalized.webLayout=validLayout(layoutId);
-    normalized.public.colors=theme.normalizeColors(meta.colors);
-    normalized.admin.colors=theme.normalizeAdminColors(meta.colors);
+    normalized.public.colors=theme.normalizeColors(selectedColors);
+    normalized.admin.colors=theme.normalizeAdminColors(selectedColors);
     return normalized;
   }
 
-  function previewSurface(node,paletteId) {
+  function previewSurface(node) {
     if(!node) return;
-    const meta=catalog[paletteId];
-    node.dataset.govPreview=paletteId;
-    node.style.setProperty('--p1',meta.colors.primary);
-    node.style.setProperty('--p2',meta.colors.secondary);
-    node.style.setProperty('--pa',meta.colors.accent);
-    node.style.setProperty('--ps',meta.colors.signal);
+    node.dataset.govPreview=baseExperience;
+    node.style.setProperty('--p1',selectedColors.primary);
+    node.style.setProperty('--p2',selectedColors.secondary);
+    node.style.setProperty('--pa',selectedColors.accent);
+    node.style.setProperty('--ps',selectedColors.signal);
   }
 
   function setPreviewTab(name) {
@@ -199,54 +237,38 @@
   }
 
   function refreshPreview() {
-    document.querySelectorAll('[data-gov-pack]').forEach((button)=>{
-      const active=button.dataset.govPack===selectedPalette;
-      button.classList.toggle('active',active);
-      button.setAttribute('aria-pressed',active?'true':'false');
-    });
     document.querySelectorAll('[data-web-layout]').forEach((button)=>{
       const active=button.dataset.webLayout===selectedLayout;
       button.classList.toggle('active',active);
       button.setAttribute('aria-pressed',active?'true':'false');
     });
-
-    [publicPreview,adminPreview,loginPreview,signupPreview].forEach((node)=>previewSurface(node,selectedPalette));
+    [publicPreview,adminPreview,loginPreview,signupPreview].forEach(previewSurface);
     if(publicPreview) publicPreview.dataset.webLayoutPreview=selectedLayout;
 
-    const paletteMeta=catalog[selectedPalette];
-    const layoutMeta=WEB_LAYOUTS[selectedLayout];
-    const paletteName=paletteMeta?.name||'Modern LGU';
-    const layoutName=layoutMeta?.name||'Card / Block';
-    if(previewThemeName) previewThemeName.textContent=`${layoutName} · ${paletteName}`;
-    if(publicLabel) publicLabel.textContent=`${layoutName} · ${paletteName}`;
-    if(adminLabel) adminLabel.textContent=`${paletteName} · System + Content Admin`;
-    if(loginLabel) loginLabel.textContent=`${paletteName} · Access portal`;
-    if(signupLabel) signupLabel.textContent=`${paletteName} · Content Admin signup`;
+    const layoutName=WEB_LAYOUTS[selectedLayout]?.name||'Card / Block';
+    if(previewThemeName) previewThemeName.textContent=`${layoutName} · Custom colors`;
+    if(publicLabel) publicLabel.textContent=`${layoutName} · Custom colors`;
+    if(adminLabel) adminLabel.textContent='Custom colors · System + Content Admin';
+    if(loginLabel) loginLabel.textContent='Custom colors · Access portal';
+    if(signupLabel) signupLabel.textContent='Custom colors · Content Admin signup';
 
-    const health=validatePalette(paletteMeta?.colors||{});
+    const health=evaluateColors(selectedColors);
     if(paletteHealth){
-      paletteHealth.textContent=health.ok?'Palette verified':'Palette needs review';
-      paletteHealth.dataset.state=health.ok?'ok':'error';
+      paletteHealth.textContent=health.ok?(health.warning?'Check contrast':'Colors ready'):'Fix color value';
+      paletteHealth.dataset.state=health.ok?(health.warning?'warning':'ok'):'error';
       paletteHealth.title=health.message;
     }
     return health;
   }
 
   function syncDirty(message='',kind='normal') {
-    dirty=selectedPalette!==savedPalette||selectedLayout!==savedLayout;
-    const health=validatePalette(catalog?.[selectedPalette]?.colors||{});
+    dirty=selectedLayout!==savedLayout||!sameColors(selectedColors,savedColors);
+    const health=evaluateColors(selectedColors);
     if(changeState) changeState.textContent=dirty?'Design ready to publish':'Published design is active';
     saveBar?.classList.toggle('is-clean',!dirty);
     if(saveButton) saveButton.disabled=!dirty||!health.ok;
-    if(message) setStatus(message,health.ok?kind:'error');
+    if(message) setStatus(message,health.ok?(health.warning?'warning':kind):'error');
     else if(!health.ok) setStatus(health.message,'error');
-  }
-
-  function selectPalette(id) {
-    if(!catalog[id]) return;
-    selectedPalette=id;
-    refreshPreview();
-    syncDirty(`${catalog[id].name} palette selected.`);
   }
 
   function selectLayout(id) {
@@ -256,17 +278,11 @@
     syncDirty(`${WEB_LAYOUTS[id].name} layout selected. Review the preview, then publish.`);
   }
 
-  function sameColors(actual={},expected={}) {
-    return ['primary','secondary','accent','signal'].every((key)=>String(actual?.[key]||'').toLowerCase()===String(expected?.[key]||'').toLowerCase());
-  }
-
-  function verifyPayload(actual,expected,expectedPalette,expectedLayout) {
-    const actualPalette=window.BRGY_GOV_THEME_RUNTIME.normalize(actual?.experience,actual?.pack);
-    if(actualPalette!==expectedPalette) throw new Error(`Palette verification failed: expected ${expectedPalette}, received ${actualPalette}.`);
+  function verifyPayload(actual,expected,expectedLayout,expectedColors) {
     if(validLayout(actual?.webLayout)!==expectedLayout) throw new Error(`Layout verification failed: expected ${expectedLayout}.`);
+    if(!sameColors(actual?.public?.colors,expectedColors)) throw new Error('Design verification failed: public colors did not match.');
+    if(!sameColors(actual?.admin?.colors,expectedColors)) throw new Error('Design verification failed: admin colors did not match.');
     if(actual?.pack!==expected.pack) throw new Error('Design verification failed: base design package did not match.');
-    if(!sameColors(actual?.public?.colors,expected.public.colors)) throw new Error('Design verification failed: public colors did not match.');
-    if(!sameColors(actual?.admin?.colors,expected.admin.colors)) throw new Error('Design verification failed: admin colors did not match.');
   }
 
   async function readSavedRecord() {
@@ -281,21 +297,31 @@
     try{
       if(!message) setStatus('Loading published design…');
       const raw=await readSavedRecord();
-      const livePalette=window.BRGY_GOV_THEME_RUNTIME.normalize(raw.experience,raw.pack);
+      const liveExperience=window.BRGY_GOV_THEME_RUNTIME.normalize(raw.experience,raw.pack);
       const liveLayout=validLayout(raw.webLayout);
-      if(!catalog[livePalette]) throw new Error('Published palette is not available in Design Studio.');
-      savedPalette=livePalette;
+      const fallbackColors=catalog[liveExperience]?.colors||DEFAULT_COLORS;
+      const liveColors={
+        primary:normalizeHex(raw.public?.colors?.primary,fallbackColors.primary),
+        secondary:normalizeHex(raw.public?.colors?.secondary,fallbackColors.secondary),
+        accent:normalizeHex(raw.public?.colors?.accent,fallbackColors.accent),
+        signal:normalizeHex(raw.public?.colors?.signal||raw.public?.colors?.danger,fallbackColors.signal)
+      };
+
+      baseExperience=catalog[liveExperience]?liveExperience:DEFAULT_EXPERIENCE;
+      basePack=raw.pack||catalog[baseExperience]?.basePack||catalog[DEFAULT_EXPERIENCE]?.basePack;
       savedLayout=liveLayout;
+      savedColors={...liveColors};
       if(!dirty){
-        selectedPalette=livePalette;
         selectedLayout=liveLayout;
+        selectedColors={...liveColors};
       }
-      window.BRGY_GOV_THEME_RUNTIME.apply(livePalette,raw);
+      syncColorInputs();
+      window.BRGY_GOV_THEME_RUNTIME.apply(baseExperience,raw);
       theme.writeCache(theme.normalizeConfig(raw));
       theme.applyAdmin(raw.admin||{});
       refreshPreview();
       syncDirty();
-      setStatus(message||`${WEB_LAYOUTS[liveLayout].name} with ${catalog[livePalette].name} is the published design.`,'success');
+      setStatus(message||`${WEB_LAYOUTS[liveLayout].name} with your four published colors is active.`,'success');
     }finally{
       loadingSaved=false;
     }
@@ -303,39 +329,37 @@
 
   async function publish() {
     if(!dirty) return;
-    const expectedPalette=selectedPalette;
     const expectedLayout=selectedLayout;
-    const health=validatePalette(catalog[expectedPalette]?.colors||{});
+    const expectedColors={...selectedColors};
+    const health=evaluateColors(expectedColors);
     if(!health.ok){setStatus(health.message,'error');return;}
 
-    const payload=compose(expectedPalette,expectedLayout);
+    const payload=compose(expectedLayout);
     saveButton.disabled=true;
     resetButton.disabled=true;
-    setStatus(`Publishing ${WEB_LAYOUTS[expectedLayout].name} layout…`);
+    setStatus(`Publishing ${WEB_LAYOUTS[expectedLayout].name} with your custom colors…`,health.warning?'warning':'normal');
     try{
       const {data,error}=await client.from('site_settings').update({
         design_theme:payload,
-        primary_color:payload.public.colors.primary,
-        secondary_color:payload.public.colors.secondary,
-        accent_color:payload.public.colors.accent,
+        primary_color:expectedColors.primary,
+        secondary_color:expectedColors.secondary,
+        accent_color:expectedColors.accent,
         updated_at:new Date().toISOString()
       }).eq('id',1).select('design_theme').single();
       if(error) throw error;
-      verifyPayload(data?.design_theme||{},payload,expectedPalette,expectedLayout);
+      verifyPayload(data?.design_theme||{},payload,expectedLayout,expectedColors);
 
       const reread=await readSavedRecord();
-      verifyPayload(reread,payload,expectedPalette,expectedLayout);
-      savedPalette=expectedPalette;
+      verifyPayload(reread,payload,expectedLayout,expectedColors);
       savedLayout=expectedLayout;
-      selectedPalette=expectedPalette;
-      selectedLayout=expectedLayout;
+      savedColors={...expectedColors};
       dirty=false;
       theme.writeCache(theme.normalizeConfig(reread));
       theme.applyAdmin(reread.admin||{});
-      window.BRGY_GOV_THEME_RUNTIME.apply(expectedPalette,reread);
+      window.BRGY_GOV_THEME_RUNTIME.apply(baseExperience,reread);
       refreshPreview();
       syncDirty();
-      setStatus(`${WEB_LAYOUTS[expectedLayout].name} + ${catalog[expectedPalette].name} published and re-verified.`,'success');
+      setStatus(`${WEB_LAYOUTS[expectedLayout].name} + your four colors published and re-verified.`,'success');
     }catch(error){
       console.error(error);
       setStatus(error.message||'Unable to publish the design.','error');
@@ -351,12 +375,12 @@
   });
 
   resetButton?.addEventListener('click',async()=>{
-    if(!savedPalette) return;
     dirty=false;
-    selectedPalette=savedPalette;
     selectedLayout=savedLayout;
+    selectedColors={...savedColors};
+    syncColorInputs();
     refreshPreview();
-    syncDirty('Restored the published design in preview.');
+    syncDirty('Restored the published layout and colors in preview.');
     try{await loadSaved('Published design rechecked from Supabase.');}
     catch(error){console.error(error);setStatus('Unable to recheck the published design.','error');}
   });
@@ -370,7 +394,7 @@
     if(!await requireAdmin()) return;
     await waitForRuntime();
     renderLayouts();
-    renderPalettes();
+    renderColorControls();
     setPreviewTab(activePreview);
     await loadSaved();
   }
