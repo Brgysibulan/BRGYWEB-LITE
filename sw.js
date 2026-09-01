@@ -1,4 +1,4 @@
-const CACHE_NAME = 'brgyweb-runtime-v3';
+const CACHE_NAME = 'brgyweb-runtime-v4';
 const CACHE_PREFIX = 'brgyweb-runtime-';
 
 self.addEventListener('install', () => {
@@ -30,8 +30,6 @@ async function networkFirst(request) {
   } catch (error) {
     const exact = await cache.match(request);
     if (exact) return exact;
-    const relaxed = await cache.match(request, { ignoreSearch: true });
-    if (relaxed) return relaxed;
     throw error;
   }
 }
