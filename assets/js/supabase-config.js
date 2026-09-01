@@ -3,8 +3,8 @@
 
   const SUPABASE_URL = 'https://pkvorwvkqjnbgktkgjhr.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_RbaENAflMzLgXpemymGApA_TkVAhMoU';
-  const STAFF_ASSET_VERSION = '20260901-gov9';
-  const GOV_THEME_VERSION = '20260901-gov9';
+  const STAFF_ASSET_VERSION = '20260901-gov10';
+  const GOV_THEME_VERSION = '20260901-gov10';
   const path = window.location.pathname;
   const isStaffPage = /\/(admin|editor)\//.test(path);
   const isAccessPage = /\/(admin|editor)\/(?:login|apply|activate)\.html$/.test(path);
@@ -19,6 +19,16 @@
     },{once:true});
   }
   registerCacheManager();
+
+  function clearLegacyStaffThemeBootCache(){
+    if(!isStaffPage)return;
+    try{
+      [
+        'brgyweb:design-theme:v9','brgyweb:design-theme:v8','brgyweb:design-theme:v7',
+        'brgyweb:design-theme:v6','brgyweb:design-theme:v1'
+      ].forEach((key)=>localStorage.removeItem(key));
+    }catch{}
+  }
 
   function syncReady(){const root=document.documentElement;if(root.dataset.adminShellReady==='true'&&root.dataset.adminThemeReady==='true')root.dataset.adminUiReady='true';}
   function markAssetFailure(kind){const root=document.documentElement;if(kind==='theme')root.dataset.adminThemeReady='true';if(kind==='shell')root.dataset.adminShellReady='true';syncReady();}
@@ -98,7 +108,8 @@
 
   window.BRGY_SUPABASE=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 
-  /* Legacy presentation loads first; semantic Design Studio authority is deliberately last. */
+  /* Staff pages must not paint stale Design Studio colors before the published theme arrives. */
+  clearLegacyStaffThemeBootCache();
   loadStaffAssets();
   loadGovernmentThemeAssets();
 })();
