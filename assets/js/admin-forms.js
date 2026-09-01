@@ -8,16 +8,26 @@
   const status = document.getElementById('downloadable-form-status');
   const cancel = document.getElementById('downloadable-form-cancel');
   const refresh = document.getElementById('downloadable-form-refresh');
+  const CACHE_KEY = 'brgyweb:admin-forms:v1';
+  let rows = [];
 
   const esc = (value) => String(value ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
   const val = (id) => document.getElementById(id)?.value.trim() || '';
   const setVal = (id, value='') => { const el = document.getElementById(id); if (el) el.value = value ?? ''; };
   function signalStorageChange(source) { try { localStorage.setItem('brgyweb:storage-change:v1', JSON.stringify({ source, at: Date.now() })); } catch {} }
-  function setStatus(message, error=false) { if (!status) return; status.textContent = message; status.className = `small ${error ? 'text-danger' : 'text-success'}`; }
+  function setStatus(message, error=false) { if (!status) return; status.textContent = message; status.className = `small ${error ? 'text-danger' : message ? 'text-success' : 'text-secondary'}`; }
   function readableSize(bytes) { const value = Number(bytes); if (!Number.isFinite(value) || value <= 0) return ''; if (value < 1024) return `${value} B`; if (value < 1024 * 1024) return `${Math.round(value / 1024)} KB`; return `${(value / (1024 * 1024)).toFixed(1)} MB`; }
   function storagePath(url) { const marker = `/storage/v1/object/public/${BUCKET}/`; return url?.includes(marker) ? decodeURIComponent(url.split(marker)[1].split('?')[0]) : null; }
   function publicUrl(path) { return client.storage.from(BUCKET).getPublicUrl(path).data.publicUrl; }
+  function readCache() { try { const value = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null'); return Array.isArray(value) ? value : null; } catch { return null; } }
+  function writeCache(value) { try { localStorage.setItem(CACHE_KEY, JSON.stringify(value)); } catch {} }
   function reset() { form?.reset(); setVal('downloadable-form-id'); setVal('downloadable-form-existing-url'); setVal('downloadable-form-order','0'); const published = document.getElementById('downloadable-form-published'); if (published) published.checked = true; cancel?.classList.add('d-none'); const title = document.getElementById('form-manager-title'); if (title) title.textContent = 'Add Downloadable Form'; }
+
+  function render() {
+    if (!list) return;
+    if (!rows.length) { list.innerHTML = '<div class="empty-state">No downloadable forms yet.</div>'; return; }
+    list.innerHTML = rows.map((row) => { const meta = [row.category || 'Uncategorized', readableSize(row.file_size), `Order ${Number(row.sort_order) || 0}`].filter(Boolean).join(' • '); return `<div class="border rounded-3 p-3"><div class="d-flex flex-wrap justify-content-between gap-3"><div class="flex-grow-1"><div class="d-flex gap-2 align-items-center flex-wrap"><strong>${esc(row.name)}</strong><span class="badge ${row.is_published ? 'text-bg-success' : 'text-bg-secondary'}">${row.is_published ? 'Published' : 'Hidden'}</span></div><div class="small text-secondary mt-1">${esc(meta)}</div>${row.description ? `<p class="mb-1 mt-2">${esc(row.description)}</p>` : ''}<a class="small" href="${esc(row.file_url)}" target="_blank" rel="noopener noreferrer">Open uploaded file</a></div><div class="d-flex gap-2 align-self-start"><button class="btn btn-sm btn-outline-dark" type="button" data-edit="${row.id}">Edit</button><button class="btn btn-sm btn-outline-danger" type="button" data-delete="${row.id}">Delete</button></div></div></div>`; }).join('');
+  }
 
   async function requireStaff() {
     if (!client) { location.href='login.html'; return false; }
@@ -40,19 +50,24 @@
     return { path, url: publicUrl(path) };
   }
 
-  async function load() {
-    if (!list) return; list.innerHTML = '<div class="text-secondary">Loading forms...</div>';
+  async function load(showLoading = false) {
+    if (!list) return;
+    if (showLoading && !rows.length) list.innerHTML = '<div class="text-secondary">Loading forms...</div>';
     const { data, error } = await client.from('forms').select('*').order('sort_order').order('name'); if (error) throw error;
-    if (!data?.length) { list.innerHTML = '<div class="empty-state">No downloadable forms yet.</div>'; return; }
-    list.innerHTML = data.map((row) => { const meta = [row.category || 'Uncategorized', readableSize(row.file_size), `Order ${Number(row.sort_order) || 0}`].filter(Boolean).join(' • '); return `<div class="border rounded-3 p-3"><div class="d-flex flex-wrap justify-content-between gap-3"><div class="flex-grow-1"><div class="d-flex gap-2 align-items-center flex-wrap"><strong>${esc(row.name)}</strong><span class="badge ${row.is_published ? 'text-bg-success' : 'text-bg-secondary'}">${row.is_published ? 'Published' : 'Hidden'}</span></div><div class="small text-secondary mt-1">${esc(meta)}</div>${row.description ? `<p class="mb-1 mt-2">${esc(row.description)}</p>` : ''}<a class="small" href="${esc(row.file_url)}" target="_blank" rel="noopener noreferrer">Open uploaded file</a></div><div class="d-flex gap-2 align-self-start"><button class="btn btn-sm btn-outline-dark" type="button" data-edit="${row.id}">Edit</button><button class="btn btn-sm btn-outline-danger" type="button" data-delete="${row.id}">Delete</button></div></div></div>`; }).join('');
+    rows = data || [];
+    writeCache(rows);
+    render();
   }
+
+  const cachedRows = readCache();
+  if (cachedRows) { rows = cachedRows; render(); }
 
   form?.addEventListener('submit', async (event) => {
     event.preventDefault(); const button = form.querySelector('button[type="submit"]'); if (button) button.disabled = true; setStatus('Saving form...'); let newPath = null;
     try {
       const id = val('downloadable-form-id'); const oldUrl = val('downloadable-form-existing-url'); const file = document.getElementById('downloadable-form-file')?.files?.[0] || null; if (!id && !file) throw new Error('Choose a file for the new form.');
       let fileUrl = oldUrl || null, fileName = null, fileType = null, fileSize = null;
-      if (id && !file) { const { data: existing, error: existingError } = await client.from('forms').select('file_name,file_type,file_size').eq('id',id).single(); if (existingError) throw existingError; fileName = existing.file_name; fileType = existing.file_type; fileSize = existing.file_size; }
+      if (id && !file) { const existing = rows.find((row) => String(row.id) === String(id)); if (existing) { fileName = existing.file_name; fileType = existing.file_type; fileSize = existing.file_size; } else { const { data, error } = await client.from('forms').select('file_name,file_type,file_size').eq('id',id).single(); if (error) throw error; fileName = data.file_name; fileType = data.file_type; fileSize = data.file_size; } }
       if (file) { const uploaded = await upload(file); newPath = uploaded.path; fileUrl = uploaded.url; fileName = file.name; fileType = file.type; fileSize = file.size; }
       const payload = { name: val('downloadable-form-name'), category: val('downloadable-form-category') || null, description: val('downloadable-form-description') || null, file_url: fileUrl, file_name: fileName, file_type: fileType, file_size: fileSize, is_published: document.getElementById('downloadable-form-published')?.checked === true, sort_order: Math.max(0, Number.parseInt(val('downloadable-form-order') || '0', 10) || 0), updated_at: new Date().toISOString() };
       if (!payload.name) throw new Error('Form name is required.'); if (!payload.file_url) throw new Error('A downloadable file is required.');
@@ -63,10 +78,11 @@
 
   list?.addEventListener('click', async (event) => {
     const edit = event.target.closest('[data-edit]'); const del = event.target.closest('[data-delete]');
-    if (edit) { const { data, error } = await client.from('forms').select('*').eq('id', edit.dataset.edit).single(); if (error) return setStatus(error.message, true); setVal('downloadable-form-id', data.id); setVal('downloadable-form-existing-url', data.file_url || ''); setVal('downloadable-form-name', data.name || ''); setVal('downloadable-form-category', data.category || ''); setVal('downloadable-form-description', data.description || ''); setVal('downloadable-form-order', data.sort_order ?? 0); const published = document.getElementById('downloadable-form-published'); if (published) published.checked = data.is_published === true; cancel?.classList.remove('d-none'); const title = document.getElementById('form-manager-title'); if (title) title.textContent = 'Edit Downloadable Form'; window.scrollTo({ top:0, behavior:'smooth' }); }
-    if (del) { if (!confirm('Delete this downloadable form and its uploaded file?')) return; del.disabled = true; try { const { data, error } = await client.from('forms').select('file_url').eq('id', del.dataset.delete).single(); if (error) throw error; const { error: deleteError } = await client.from('forms').delete().eq('id', del.dataset.delete); if (deleteError) throw deleteError; const cleanupOkay = await removeStored(data.file_url); setStatus(cleanupOkay ? 'Downloadable form deleted.' : 'Form record deleted, but its uploaded file could not be removed.', !cleanupOkay); await load(); } catch (error) { console.error(error); setStatus(error.message || 'Unable to delete form.', true); del.disabled = false; } }
+    if (edit) { const data = rows.find((row) => String(row.id) === String(edit.dataset.edit)); if (!data) return; setVal('downloadable-form-id', data.id); setVal('downloadable-form-existing-url', data.file_url || ''); setVal('downloadable-form-name', data.name || ''); setVal('downloadable-form-category', data.category || ''); setVal('downloadable-form-description', data.description || ''); setVal('downloadable-form-order', data.sort_order ?? 0); const published = document.getElementById('downloadable-form-published'); if (published) published.checked = data.is_published === true; cancel?.classList.remove('d-none'); const title = document.getElementById('form-manager-title'); if (title) title.textContent = 'Edit Downloadable Form'; window.scrollTo({ top:0, behavior:'smooth' }); }
+    if (del) { if (!confirm('Delete this downloadable form and its uploaded file?')) return; del.disabled = true; try { const current = rows.find((row) => String(row.id) === String(del.dataset.delete)); const { error: deleteError } = await client.from('forms').delete().eq('id', del.dataset.delete); if (deleteError) throw deleteError; const cleanupOkay = await removeStored(current?.file_url); rows = rows.filter((row) => String(row.id) !== String(del.dataset.delete)); writeCache(rows); render(); setStatus(cleanupOkay ? 'Downloadable form deleted.' : 'Form record deleted, but its uploaded file could not be removed.', !cleanupOkay); load().catch((refreshError) => console.warn('Forms refresh failed:', refreshError)); } catch (error) { console.error(error); setStatus(error.message || 'Unable to delete form.', true); del.disabled = false; } }
   });
 
-  cancel?.addEventListener('click', reset); refresh?.addEventListener('click', () => load().catch((error) => setStatus(error.message, true)));
-  requireStaff().then((ok) => { if (ok) load().catch((error) => setStatus(error.message || 'Unable to load forms.', true)); });
+  cancel?.addEventListener('click', reset);
+  refresh?.addEventListener('click', () => load(!rows.length).catch((error) => setStatus(error.message, true)));
+  requireStaff().then((ok) => { if (ok) load(!cachedRows).catch((error) => setStatus(error.message || 'Unable to load forms.', true)); });
 })();
