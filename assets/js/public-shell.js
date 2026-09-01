@@ -3,7 +3,7 @@
 
   const SITE_CACHE_VERSION = 3;
   const SITE_CACHE_KEY = 'brgyweb:site-settings:v3';
-  const UI_VERSION = '20260901-stability1';
+  const UI_VERSION = '20260901-stability2';
   const header = document.querySelector('.site-header');
   const footer = document.querySelector('.site-footer');
   const page = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
@@ -48,12 +48,28 @@
   const adminMenu = `<li class="nav-item ms-xl-2"><a class="btn btn-sm btn-outline-light" href="editor/login.html">Admin Portal</a></li>`;
 
   if (header) {
-    header.innerHTML = `<nav class="navbar navbar-expand-xl navbar-dark"><div class="container"><a class="navbar-brand d-flex align-items-center gap-2" href="index.html" aria-label="Home"><span class="brand-mark" id="brand-mark" aria-hidden="true">${escapeHtml(initialMark)}</span><img class="brand-logo d-none" id="brand-logo" alt=""><span id="site-name">${escapeHtml(initialName)}</span></a><button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Open navigation"><span class="navbar-toggler-icon"></span></button><div class="collapse navbar-collapse" id="mainNav"><div class="public-mobile-menu-head"><div><strong>Navigation</strong><small>Official barangay website</small></div><button class="public-menu-close" type="button" aria-label="Close navigation">×</button></div><ul class="navbar-nav ms-auto align-items-xl-center gap-xl-1">${navItems.map(([href,label]) => `<li class="nav-item"><a class="nav-link${page === href ? ' active' : ''}" href="${href}"${page === href ? ' aria-current="page"' : ''}>${label}</a></li>`).join('')}${adminMenu}</ul></div></div></nav>`;
+    header.innerHTML = `<nav class="navbar navbar-expand-xl navbar-dark"><div class="container"><a class="navbar-brand d-flex align-items-center gap-2" href="index.html" aria-label="Home"><span class="brand-mark" id="brand-mark" aria-hidden="true">${escapeHtml(initialMark)}</span><img class="brand-logo d-none" id="brand-logo" alt=""><span id="site-name">${escapeHtml(initialName)}</span></a><button class="navbar-toggler" type="button" aria-controls="mainNav" aria-expanded="false" aria-label="Open navigation"><span class="navbar-toggler-icon"></span></button><div class="navbar-collapse" id="mainNav" aria-hidden="true"><div class="public-mobile-menu-head"><div><strong>Navigation</strong><small>Official barangay website</small></div><button class="public-menu-close" type="button" aria-label="Close navigation">×</button></div><ul class="navbar-nav ms-auto align-items-xl-center gap-xl-1">${navItems.map(([href,label]) => `<li class="nav-item"><a class="nav-link${page === href ? ' active' : ''}" href="${href}"${page === href ? ' aria-current="page"' : ''}>${label}</a></li>`).join('')}${adminMenu}</ul></div></div></nav>`;
     const backdrop=document.createElement('div');backdrop.className='public-nav-backdrop';backdrop.setAttribute('aria-hidden','true');document.body.appendChild(backdrop);
     const collapseElement=document.getElementById('mainNav'),toggler=header.querySelector('.navbar-toggler');
-    function setMenuState(open){document.body.classList.toggle('public-menu-open',open);backdrop.classList.toggle('show',open);backdrop.setAttribute('aria-hidden',open?'false':'true');toggler?.setAttribute('aria-label',open?'Close navigation':'Open navigation');}
-    function closeMenu(){if(!collapseElement)return;if(window.bootstrap?.Collapse){window.bootstrap.Collapse.getOrCreateInstance(collapseElement,{toggle:false}).hide();}else{collapseElement.classList.remove('show');setMenuState(false);}}
-    collapseElement?.addEventListener('show.bs.collapse',()=>setMenuState(true));collapseElement?.addEventListener('shown.bs.collapse',()=>setMenuState(true));collapseElement?.addEventListener('hide.bs.collapse',()=>setMenuState(false));collapseElement?.addEventListener('hidden.bs.collapse',()=>setMenuState(false));header.querySelector('.public-menu-close')?.addEventListener('click',closeMenu);backdrop.addEventListener('click',closeMenu);collapseElement?.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>{if(isCompactNavigation())closeMenu();}));window.addEventListener('resize',()=>{document.documentElement.dataset.publicStructure=isCompactNavigation()?'mobile-locked':'desktop-themed';if(!isCompactNavigation())setMenuState(false);},{passive:true});
+    function setMenuState(open){
+      document.body.classList.toggle('public-menu-open',open);
+      collapseElement?.classList.toggle('show',open);
+      collapseElement?.setAttribute('aria-hidden',open?'false':'true');
+      backdrop.classList.toggle('show',open);
+      backdrop.setAttribute('aria-hidden',open?'false':'true');
+      toggler?.setAttribute('aria-expanded',open?'true':'false');
+      toggler?.setAttribute('aria-label',open?'Close navigation':'Open navigation');
+    }
+    function openMenu(){ if(isCompactNavigation()) setMenuState(true); }
+    function closeMenu(){ setMenuState(false); }
+    toggler?.addEventListener('click',(event)=>{event.preventDefault();document.body.classList.contains('public-menu-open')?closeMenu():openMenu();});
+    header.querySelector('.public-menu-close')?.addEventListener('click',(event)=>{event.preventDefault();closeMenu();});
+    backdrop.addEventListener('click',closeMenu);
+    collapseElement?.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>{if(isCompactNavigation())closeMenu();}));
+    document.addEventListener('keydown',(event)=>{if(event.key==='Escape'&&document.body.classList.contains('public-menu-open'))closeMenu();});
+    window.addEventListener('pageshow',()=>closeMenu());
+    window.addEventListener('resize',()=>{document.documentElement.dataset.publicStructure=isCompactNavigation()?'mobile-locked':'desktop-themed';if(!isCompactNavigation())closeMenu();},{passive:true});
+    setMenuState(false);
   }
 
   if (footer) {
