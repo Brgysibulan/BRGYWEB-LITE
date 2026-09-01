@@ -25,6 +25,7 @@ html[data-public-hero="minimal"] .hero-section .btn-outline-light{border-color:v
 html[data-public-hero="minimal"] .hero-section .btn-outline-light:hover{background:var(--brand-primary);color:#fff}
 html[data-public-cards="flat"] .quick-card,html[data-public-cards="flat"] .content-panel,html[data-public-cards="flat"] .service-card,html[data-public-cards="flat"] .placeholder-card,html[data-public-cards="flat"] .empty-state{box-shadow:none}
 html[data-public-cards="bordered"] .quick-card,html[data-public-cards="bordered"] .content-panel,html[data-public-cards="bordered"] .service-card,html[data-public-cards="bordered"] .placeholder-card,html[data-public-cards="bordered"] .empty-state{box-shadow:none;border-width:2px}
+html[data-public-nav-position] section.section-soft:not(.page-hero){background:var(--soft-bg)!important}
 
 /* ADMIN / EDITOR VIEW */
 html[data-admin-font="rounded"] body{font-family:"Trebuchet MS",Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
