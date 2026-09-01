@@ -1,10 +1,12 @@
 (() => {
   'use strict';
-  if (window.BRGY_GOV_THEME_RUNTIME?.version >= 5) return;
+  if (window.BRGY_GOV_THEME_RUNTIME?.version >= 6) return;
 
-  const VERSION = 5;
-  const GOV_CACHE_KEY = 'brgyweb:gov-theme:v5';
+  const VERSION = 6;
+  const GOV_CACHE_KEY = 'brgyweb:gov-theme:v6';
   const DESIGN_CACHE_KEY = 'brgyweb:design-theme:v9';
+  const LIGHT = '#ffffff';
+  const DARK = '#17201a';
   const THEMES = {
     'national-authority': { name:'National Authority', tag:'Formal', basePack:'civic-standard', colors:{primary:'#10233f',secondary:'#1f4f7a',accent:'#d3ad4a',signal:'#9f363d'} },
     'executive-civic': { name:'Executive Civic', tag:'Executive', basePack:'executive-portal', colors:{primary:'#15342a',secondary:'#246447',accent:'#c9a64a',signal:'#a13d43'} },
@@ -29,13 +31,34 @@
   let lastRefresh = 0;
   let lastApplied = null;
 
+  const isHex = (value) => /^#[0-9a-f]{6}$/i.test(String(value || ''));
+  const safeHex = (value, fallback) => isHex(value) ? String(value).toLowerCase() : fallback;
+
+  function luminance(hex) {
+    const value = safeHex(hex, '#000000').slice(1);
+    const channels = [0,2,4].map((offset) => {
+      const channel = parseInt(value.slice(offset,offset+2),16) / 255;
+      return channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4;
+    });
+    return (0.2126 * channels[0]) + (0.7152 * channels[1]) + (0.0722 * channels[2]);
+  }
+
+  function contrast(a,b) {
+    const l1 = luminance(a), l2 = luminance(b);
+    return (Math.max(l1,l2) + 0.05) / (Math.min(l1,l2) + 0.05);
+  }
+
+  function readableOn(background) {
+    return contrast(background, DARK) >= contrast(background, LIGHT) ? DARK : LIGHT;
+  }
+
   function safeColors(raw, fallback) {
     const value = raw || {};
     return {
-      primary: value.primary || fallback.primary,
-      secondary: value.secondary || fallback.secondary,
-      accent: value.accent || fallback.accent,
-      signal: value.signal || value.danger || fallback.signal
+      primary: safeHex(value.primary, fallback.primary),
+      secondary: safeHex(value.secondary, fallback.secondary),
+      accent: safeHex(value.accent, fallback.accent),
+      signal: safeHex(value.signal || value.danger, fallback.signal)
     };
   }
 
@@ -45,23 +68,38 @@
   }
 
   function setCanonicalVariables(publicColors, adminColors) {
+    const publicOnPrimary = readableOn(publicColors.primary);
+    const publicOnSecondary = readableOn(publicColors.secondary);
+    const adminOnPrimary = readableOn(adminColors.primary);
+    const adminOnSecondary = readableOn(adminColors.secondary);
+
     root.style.setProperty('--gov-primary', publicColors.primary);
     root.style.setProperty('--gov-secondary', publicColors.secondary);
     root.style.setProperty('--gov-accent', publicColors.accent);
     root.style.setProperty('--gov-signal', publicColors.signal);
+    root.style.setProperty('--gov-on-primary', publicOnPrimary);
+    root.style.setProperty('--gov-on-secondary', publicOnSecondary);
     root.style.setProperty('--gov-admin-primary', adminColors.primary);
     root.style.setProperty('--gov-admin-secondary', adminColors.secondary);
     root.style.setProperty('--gov-admin-accent', adminColors.accent);
     root.style.setProperty('--gov-admin-signal', adminColors.signal);
+    root.style.setProperty('--gov-admin-on-primary', adminOnPrimary);
+    root.style.setProperty('--gov-admin-on-secondary', adminOnSecondary);
 
     const surfaceColors = isStaffSurface ? adminColors : publicColors;
+    const surfaceOnPrimary = isStaffSurface ? adminOnPrimary : publicOnPrimary;
+    const surfaceOnSecondary = isStaffSurface ? adminOnSecondary : publicOnSecondary;
     root.style.setProperty('--theme-primary', surfaceColors.primary);
     root.style.setProperty('--theme-secondary', surfaceColors.secondary);
     root.style.setProperty('--theme-accent', surfaceColors.accent);
     root.style.setProperty('--theme-danger', surfaceColors.signal);
+    root.style.setProperty('--theme-on-primary', surfaceOnPrimary);
+    root.style.setProperty('--theme-on-secondary', surfaceOnSecondary);
     root.style.setProperty('--theme-admin-primary', adminColors.primary);
     root.style.setProperty('--theme-admin-secondary', adminColors.secondary);
     root.style.setProperty('--theme-admin-accent', adminColors.accent);
+    root.style.setProperty('--theme-admin-on-primary', adminOnPrimary);
+    root.style.setProperty('--theme-admin-on-secondary', adminOnSecondary);
   }
 
   function setLegacyVariables(publicColors, adminColors) {
@@ -71,11 +109,15 @@
     root.style.setProperty('--brand-accent', publicColors.accent);
     root.style.setProperty('--brand-signal', publicColors.signal);
     root.style.setProperty('--brand-danger', publicColors.signal);
+    root.style.setProperty('--brand-on-primary', readableOn(publicColors.primary));
+    root.style.setProperty('--brand-on-secondary', readableOn(publicColors.secondary));
 
     root.style.setProperty('--admin-primary', adminColors.primary);
     root.style.setProperty('--admin-secondary', adminColors.secondary);
     root.style.setProperty('--admin-accent', adminColors.accent);
     root.style.setProperty('--admin-signal', adminColors.signal);
+    root.style.setProperty('--admin-on-primary', readableOn(adminColors.primary));
+    root.style.setProperty('--admin-on-secondary', readableOn(adminColors.secondary));
     root.style.setProperty('--green', adminColors.secondary);
     root.style.setProperty('--yellow', adminColors.accent);
     root.style.setProperty('--danger', adminColors.signal);
@@ -136,7 +178,7 @@
       localStorage.setItem(GOV_CACHE_KEY, JSON.stringify({ version:VERSION, id:themeId, config, savedAt:Date.now() }));
       localStorage.setItem(DESIGN_CACHE_KEY, JSON.stringify({ version:9, savedAt:Date.now(), config }));
       [
-        'brgyweb:gov-theme:v1','brgyweb:gov-theme:v2','brgyweb:gov-theme:v3','brgyweb:gov-theme:v4',
+        'brgyweb:gov-theme:v1','brgyweb:gov-theme:v2','brgyweb:gov-theme:v3','brgyweb:gov-theme:v4','brgyweb:gov-theme:v5',
         'brgyweb:design-theme:v8','brgyweb:design-theme:v7','brgyweb:design-theme:v6','brgyweb:design-theme:v1'
       ].forEach((key)=>localStorage.removeItem(key));
     } catch {}
@@ -163,7 +205,7 @@
 
   function cached() {
     try {
-      for (const key of [GOV_CACHE_KEY,'brgyweb:gov-theme:v4','brgyweb:gov-theme:v3','brgyweb:gov-theme:v2']) {
+      for (const key of [GOV_CACHE_KEY,'brgyweb:gov-theme:v5','brgyweb:gov-theme:v4','brgyweb:gov-theme:v3','brgyweb:gov-theme:v2']) {
         const value = JSON.parse(localStorage.getItem(key) || 'null');
         if (value?.id && THEMES[value.id] && value?.config) return value;
       }
