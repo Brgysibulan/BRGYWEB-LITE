@@ -35,6 +35,18 @@
     }
 
     @media (max-width: 640px) {
+      html, body {
+        max-width: 100%;
+        overflow-x: hidden;
+      }
+      .dashboard-main,
+      .dashboard-section,
+      .section-card,
+      .content-admin-access-table {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+      }
       .content-admin-access-table.table-responsive {
         overflow: visible;
         border: 0;
@@ -44,22 +56,31 @@
       .content-admin-access-table table,
       .content-admin-access-table tbody {
         display: block;
-        width: 100%;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
+      }
+      .content-admin-access-table table {
+        table-layout: fixed;
       }
       .content-admin-access-table thead {
         display: none;
       }
       .content-admin-access-table tbody tr {
         display: grid;
-        grid-template-columns: 1fr;
+        grid-template-columns: minmax(0, 1fr);
         gap: .55rem;
-        width: 100%;
+        width: 100% !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
         margin-bottom: .8rem;
         padding: .9rem;
         border: 1px solid var(--admin-premium-line, #dde5df);
         border-radius: 14px;
         background: #fff;
         box-shadow: 0 8px 22px rgba(17,44,26,.05);
+        box-sizing: border-box;
+        overflow: hidden;
       }
       .content-admin-access-table tbody tr:last-child {
         margin-bottom: 0;
@@ -67,6 +88,7 @@
       .content-admin-access-table tbody td {
         display: block;
         width: 100%;
+        max-width: 100%;
         min-width: 0 !important;
         padding: 0 !important;
         border: 0 !important;
@@ -88,7 +110,8 @@
         grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important;
         gap: .5rem !important;
         width: 100% !important;
-        max-width: none !important;
+        max-width: 100% !important;
+        min-width: 0 !important;
       }
       .content-admin-access-table tbody td:last-child .btn {
         display: inline-flex !important;
@@ -97,6 +120,7 @@
         align-items: center;
         justify-content: center;
         width: 100% !important;
+        max-width: 100% !important;
         min-width: 0 !important;
         min-height: 46px;
         margin: 0 !important;
@@ -216,6 +240,6 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../assets/js/supabase-config.js?v=20260901-studio10"></script>
 <script src="../assets/js/admin.js?v=20260901-studio10"></script>
-<script src="../assets/js/content-admin-approvals.js?v=20260901-approve2"></script>
+<script src="../assets/js/content-admin-approvals.js?v=20260901-approve3"></script>
 </body>
 </html>
