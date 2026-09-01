@@ -22,18 +22,25 @@
     return .2126*channels[0]+.7152*channels[1]+.0722*channels[2];
   }
 
+  function contrast(a,b){
+    const l1=luminance(a),l2=luminance(b);
+    return (Math.max(l1,l2)+.05)/(Math.min(l1,l2)+.05);
+  }
+
   function automatic(primary){
-    return luminance(primary)>.46?DARK:LIGHT;
+    const normalized=normalize(primary,'#27313b');
+    return contrast(normalized,DARK)>=contrast(normalized,LIGHT)?DARK:LIGHT;
   }
 
   function resolve(config={}){
-    const primary=normalize(config?.public?.colors?.primary)||normalize(getComputedStyle(root).getPropertyValue('--gov-primary'))||'#27313b';
+    const primary=normalize(config?.public?.colors?.primary)||normalize(getComputedStyle(root).getPropertyValue('--brand-primary'))||normalize(getComputedStyle(root).getPropertyValue('--gov-primary'))||'#27313b';
     return normalize(config?.public?.headerTextColor,automatic(primary));
   }
 
   function apply(color,config={}){
     const value=normalize(color,resolve(config));
     root.style.setProperty('--theme-header-text',value);
+    root.style.setProperty('--theme-on-primary',value);
     root.style.setProperty('--gov-header-text',value);
     root.dataset.headerTextReady='true';
     applied=true;
