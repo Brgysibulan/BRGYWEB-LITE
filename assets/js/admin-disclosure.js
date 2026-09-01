@@ -11,6 +11,7 @@
   const esc = (v) => String(v ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
   const val = (id) => document.getElementById(id)?.value.trim() || '';
   const setVal = (id,v='') => { const e=document.getElementById(id); if(e)e.value=v ?? ''; };
+  function signalStorageChange(source){ try{localStorage.setItem('brgyweb:storage-change:v1',JSON.stringify({source,at:Date.now()}));}catch{} }
   function setStatus(msg, error=false){ if(!status)return; status.textContent=msg; status.className=`small ${error?'text-danger':'text-success'}`; }
   function storagePath(url){ const marker=`/storage/v1/object/public/${BUCKET}/`; return url?.includes(marker) ? decodeURIComponent(url.split(marker)[1]) : null; }
   function publicUrl(path){ return client.storage.from(BUCKET).getPublicUrl(path).data.publicUrl; }
@@ -25,13 +26,7 @@
     return true;
   }
 
-  async function removeStored(url){
-    const path=storagePath(url);
-    if(!path) return true;
-    const {error}=await client.storage.from(BUCKET).remove([path]);
-    if(error){ console.warn('Unable to remove disclosure file:',error); return false; }
-    return true;
-  }
+  async function removeStored(url){ const path=storagePath(url); if(!path) return true; const {error}=await client.storage.from(BUCKET).remove([path]); if(error){ console.warn('Unable to remove disclosure file:',error); return false; } signalStorageChange('disclosure-remove'); return true; }
 
   async function load(){
     list.innerHTML='<div class="empty-state">Loading disclosure records...</div>';
@@ -49,40 +44,27 @@
     const path=`${new Date().getFullYear()}/${crypto.randomUUID()}.${ext}`;
     const {error}=await client.storage.from(BUCKET).upload(path,file,{cacheControl:'3600',upsert:false,contentType:file.type});
     if(error) throw error;
+    signalStorageChange('disclosure-upload');
     return {path,url:publicUrl(path)};
   }
 
   form.addEventListener('submit', async (e)=>{
-    e.preventDefault(); const btn=form.querySelector('button[type="submit"]'); if(btn)btn.disabled=true; setStatus('Saving...');
-    let newPath=null;
+    e.preventDefault(); const btn=form.querySelector('button[type="submit"]'); if(btn)btn.disabled=true; setStatus('Saving...'); let newPath=null;
     try{
-      const id=val('disclosure-id'); const oldUrl=val('disclosure-existing-url'); const file=document.getElementById('disclosure-file').files[0];
-      let fileUrl=oldUrl||null;
+      const id=val('disclosure-id'); const oldUrl=val('disclosure-existing-url'); const file=document.getElementById('disclosure-file').files[0]; let fileUrl=oldUrl||null;
       if(file){ const uploaded=await upload(file); newPath=uploaded.path; fileUrl=uploaded.url; }
       const payload={title:val('disclosure-title'),category:val('disclosure-category')||null,description:val('disclosure-description')||null,file_url:fileUrl,document_date:val('disclosure-date')||null,is_published:document.getElementById('disclosure-published').checked,sort_order:Math.max(0,Number.parseInt(val('disclosure-order')||'0',10)||0),updated_at:new Date().toISOString()};
       if(!payload.title) throw new Error('Title is required.');
       const q=id?client.from('disclosures').update(payload).eq('id',id):client.from('disclosures').insert(payload); const {error}=await q; if(error) throw error;
-      let cleanupOkay=true;
-      if(file&&oldUrl) cleanupOkay=await removeStored(oldUrl);
-      reset(); setStatus(cleanupOkay?'Disclosure saved.':'Disclosure saved, but the old uploaded file could not be removed.',!cleanupOkay); await load();
-    }catch(err){ console.error(err); if(newPath){ const cleanup=await client.storage.from(BUCKET).remove([newPath]); if(cleanup.error) console.warn('Unable to roll back new disclosure upload:',cleanup.error); } setStatus(err.message||'Unable to save disclosure.',true); }
+      let cleanupOkay=true; if(file&&oldUrl) cleanupOkay=await removeStored(oldUrl); reset(); setStatus(cleanupOkay?'Disclosure saved.':'Disclosure saved, but the old uploaded file could not be removed.',!cleanupOkay); await load();
+    }catch(err){ console.error(err); if(newPath){ const cleanup=await client.storage.from(BUCKET).remove([newPath]); if(cleanup.error) console.warn('Unable to roll back new disclosure upload:',cleanup.error); else signalStorageChange('disclosure-rollback'); } setStatus(err.message||'Unable to save disclosure.',true); }
     finally{ if(btn)btn.disabled=false; }
   });
 
   list.addEventListener('click', async (e)=>{
     const edit=e.target.closest('[data-edit]'); const del=e.target.closest('[data-delete]');
     if(edit){ const {data,error}=await client.from('disclosures').select('*').eq('id',edit.dataset.edit).single(); if(error)return setStatus(error.message,true); setVal('disclosure-id',data.id);setVal('disclosure-existing-url',data.file_url||'');setVal('disclosure-title',data.title);setVal('disclosure-category',data.category||'');setVal('disclosure-date',data.document_date||'');setVal('disclosure-description',data.description||'');setVal('disclosure-order',data.sort_order);document.getElementById('disclosure-published').checked=data.is_published===true;cancel.classList.remove('d-none');document.getElementById('disclosure-form-title').textContent='Edit Disclosure';window.scrollTo({top:0,behavior:'smooth'}); }
-    if(del){
-      if(!confirm('Delete this disclosure record and its uploaded document?')) return;
-      del.disabled=true;
-      try{
-        const {data,error}=await client.from('disclosures').select('file_url').eq('id',del.dataset.delete).single(); if(error)throw error;
-        const {error:dErr}=await client.from('disclosures').delete().eq('id',del.dataset.delete); if(dErr)throw dErr;
-        const cleanupOkay=await removeStored(data.file_url);
-        setStatus(cleanupOkay?'Disclosure deleted.':'Disclosure record deleted, but its uploaded file could not be removed from Storage.',!cleanupOkay);
-        await load();
-      }catch(err){ console.error(err); setStatus(err.message||'Unable to delete disclosure.',true); del.disabled=false; }
-    }
+    if(del){ if(!confirm('Delete this disclosure record and its uploaded document?')) return; del.disabled=true; try{ const {data,error}=await client.from('disclosures').select('file_url').eq('id',del.dataset.delete).single(); if(error)throw error; const {error:dErr}=await client.from('disclosures').delete().eq('id',del.dataset.delete); if(dErr)throw dErr; const cleanupOkay=await removeStored(data.file_url); setStatus(cleanupOkay?'Disclosure deleted.':'Disclosure record deleted, but its uploaded file could not be removed from Storage.',!cleanupOkay); await load(); }catch(err){ console.error(err); setStatus(err.message||'Unable to delete disclosure.',true); del.disabled=false; } }
   });
   cancel.addEventListener('click',reset);
   if(signout)signout.addEventListener('click',async()=>{await client.auth.signOut();location.href='login.html';});
