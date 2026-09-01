@@ -3,7 +3,7 @@
 
   const SITE_CACHE_VERSION = 3;
   const SITE_CACHE_KEY = 'brgyweb:site-settings:v3';
-  const UI_VERSION = '20260901-more1';
+  const UI_VERSION = '20260901-brandfix1';
   const BREAKPOINT = 900;
   const PUBLIC_SUPABASE_URL = 'https://pkvorwvkqjnbgktkgjhr.supabase.co';
   const PUBLIC_SUPABASE_KEY = 'sb_publishable_RbaENAflMzLgXpemymGApA_TkVAhMoU';
@@ -43,7 +43,7 @@
   function addStyle(key,file){if(document.querySelector(`link[data-brgy-${key}]`))return;const link=document.createElement('link');link.rel='stylesheet';link.href=`assets/css/${file}?v=${UI_VERSION}`;link.setAttribute(`data-brgy-${key}`,'true');document.head.appendChild(link);}
   function addScript(key,file){if(document.querySelector(`script[data-brgy-${key}]`))return;const script=document.createElement('script');script.src=`assets/js/${file}?v=${UI_VERSION}`;script.setAttribute(`data-brgy-${key}`,'true');document.head.appendChild(script);}
   function ensureThemeEngine(){if(window.BRGY_THEME||document.querySelector('script[data-brgy-design-theme]'))return;const script=document.createElement('script');script.src=`assets/js/design-theme.js?v=${UI_VERSION}`;script.dataset.brgyDesignTheme='true';document.head.appendChild(script);}
-  addStyle('premium-public','premium-public.css');addStyle('premium-pages','premium-pages.css');addStyle('mobile-menu-fix','mobile-menu-fix.css');addStyle('nav-more','nav-more.css');addStyle('footer-polish','footer-polish.css');ensureThemeEngine();addScript('responsive-guard','public-responsive-guard.js');
+  addStyle('premium-public','premium-public.css');addStyle('premium-pages','premium-pages.css');addStyle('mobile-menu-fix','mobile-menu-fix.css');addStyle('nav-more','nav-more.css');addStyle('brand-name-fix','brand-name-fix.css');addStyle('footer-polish','footer-polish.css');ensureThemeEngine();addScript('responsive-guard','public-responsive-guard.js');
   document.body.dataset.publicPage=page.replace(/\.html$/,'')||'home';
   const escapeHtml=(value)=>String(value??'').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
   function isCompactNavigation(){return window.innerWidth < BREAKPOINT;}
