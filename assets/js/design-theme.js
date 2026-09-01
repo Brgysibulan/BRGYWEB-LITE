@@ -63,6 +63,10 @@
   const isHex=(value)=>/^#[0-9a-f]{6}$/i.test(String(value||''));
   const color=(value,fallback)=>isHex(value)?String(value).toLowerCase():fallback;
   const pick=(value,allowed,fallback)=>allowed.includes(value)?value:fallback;
+  const rgb=(hex)=>{const value=color(hex,'#000000').slice(1);return [0,2,4].map((offset)=>parseInt(value.slice(offset,offset+2),16));};
+  const luminance=(hex)=>rgb(hex).map((value)=>{const channel=value/255;return channel<=.03928?channel/12.92:((channel+.055)/1.055)**2.4;}).reduce((sum,value,index)=>sum+value*[.2126,.7152,.0722][index],0);
+  const contrast=(a,b)=>{const l1=luminance(a),l2=luminance(b);return (Math.max(l1,l2)+.05)/(Math.min(l1,l2)+.05);};
+  const onColor=(background)=>contrast(background,'#ffffff')>=contrast(background,'#17201a')?'#ffffff':'#17201a';
   let lastPublicTheme=null;
   let resizeTimer=0;
 
@@ -126,15 +130,22 @@
     ensureStyles();const theme=normalizePublic(input),root=document.documentElement,desktop=window.innerWidth>=BREAKPOINT;
     const effectivePosition=effectiveNavPosition(theme.navPosition),effectiveMode=desktop?theme.navMode:'links',effectiveAlign=desktop?theme.navAlign:'right';
     const structure=window.innerWidth<BREAKPOINT?'mobile-locked':'desktop-wide';lastPublicTheme=theme;
+    const onPrimary=onColor(theme.colors.primary),onSecondary=onColor(theme.colors.secondary);
     Object.assign(root.dataset,{publicPreset:theme.preset,publicFont:theme.font,publicRadius:theme.radius,publicDensity:theme.density,publicNav:theme.navSkin,publicNavSkin:theme.navSkin,publicNavRequested:theme.navPosition,publicNavPosition:effectivePosition,publicNavRequestedAlign:theme.navAlign,publicNavAlign:effectiveAlign,publicNavRequestedMode:theme.navMode,publicNavMode:effectiveMode,publicStructure:structure,publicResponsiveMode:structure,publicHero:theme.hero,publicCards:theme.cards,publicContentWidth:theme.contentWidth,publicThemeReady:'true'});
-    root.style.setProperty('--brand-primary',theme.colors.primary);root.style.setProperty('--brand-secondary',theme.colors.secondary);root.style.setProperty('--brand-primary-dark',theme.colors.primary);root.style.setProperty('--brand-accent',theme.colors.accent);root.style.setProperty('--brand-signal',theme.colors.signal);root.style.setProperty('--brand-danger',theme.colors.signal);root.style.setProperty('--soft-bg',theme.colors.surface);
+    root.style.setProperty('--gov-primary',theme.colors.primary);root.style.setProperty('--gov-secondary',theme.colors.secondary);root.style.setProperty('--gov-accent',theme.colors.accent);root.style.setProperty('--gov-signal',theme.colors.signal);
+    root.style.setProperty('--theme-primary',theme.colors.primary);root.style.setProperty('--theme-secondary',theme.colors.secondary);root.style.setProperty('--theme-accent',theme.colors.accent);root.style.setProperty('--theme-danger',theme.colors.signal);root.style.setProperty('--theme-on-primary',onPrimary);root.style.setProperty('--theme-on-secondary',onSecondary);
+    root.style.setProperty('--brand-primary',theme.colors.primary);root.style.setProperty('--brand-secondary',theme.colors.secondary);root.style.setProperty('--brand-primary-dark',theme.colors.primary);root.style.setProperty('--brand-accent',theme.colors.accent);root.style.setProperty('--brand-signal',theme.colors.signal);root.style.setProperty('--brand-danger',theme.colors.signal);root.style.setProperty('--brand-on-primary',onPrimary);root.style.setProperty('--brand-on-secondary',onSecondary);root.style.setProperty('--soft-bg',theme.colors.surface);
+    if(!root.style.getPropertyValue('--theme-header-text'))root.style.setProperty('--theme-header-text',onPrimary);
     return {...theme,effectiveNavPosition:effectivePosition,effectiveNavMode:effectiveMode,effectiveNavAlign:effectiveAlign};
   }
 
   function applyAdmin(input={}){
     ensureStyles();const theme=normalizeAdmin(input),root=document.documentElement;
+    const onPrimary=onColor(theme.colors.primary),onSecondary=onColor(theme.colors.secondary);
     Object.assign(root.dataset,{adminPreset:theme.preset,adminFont:theme.font,adminRadius:theme.radius,adminDensity:theme.density,adminSidebar:theme.sidebar,adminSidebarWidth:theme.sidebarWidth,adminTopbar:theme.topbar,adminContentWidth:theme.contentWidth,adminButtons:theme.buttons,adminTables:theme.tables,adminCards:theme.cards,adminThemeReady:'true'});
-    root.style.setProperty('--admin-primary',theme.colors.primary);root.style.setProperty('--admin-secondary',theme.colors.secondary);root.style.setProperty('--admin-accent',theme.colors.accent);root.style.setProperty('--admin-signal',theme.colors.signal);root.style.setProperty('--green',theme.colors.secondary);root.style.setProperty('--yellow',theme.colors.accent);root.style.setProperty('--danger',theme.colors.signal);syncUiReady();return theme;
+    root.style.setProperty('--gov-admin-primary',theme.colors.primary);root.style.setProperty('--gov-admin-secondary',theme.colors.secondary);root.style.setProperty('--gov-admin-accent',theme.colors.accent);root.style.setProperty('--gov-admin-signal',theme.colors.signal);
+    root.style.setProperty('--theme-admin-primary',theme.colors.primary);root.style.setProperty('--theme-admin-secondary',theme.colors.secondary);root.style.setProperty('--theme-admin-accent',theme.colors.accent);root.style.setProperty('--theme-admin-on-primary',onPrimary);root.style.setProperty('--theme-admin-on-secondary',onSecondary);
+    root.style.setProperty('--admin-primary',theme.colors.primary);root.style.setProperty('--admin-secondary',theme.colors.secondary);root.style.setProperty('--admin-accent',theme.colors.accent);root.style.setProperty('--admin-signal',theme.colors.signal);root.style.setProperty('--admin-on-primary',onPrimary);root.style.setProperty('--admin-on-secondary',onSecondary);root.style.setProperty('--green',theme.colors.secondary);root.style.setProperty('--yellow',theme.colors.accent);root.style.setProperty('--danger',theme.colors.signal);syncUiReady();return theme;
   }
 
   function applyForCurrentPage(config={}){const normalized=normalizeConfig(config);return /\/(admin|editor)\//.test(location.pathname)?applyAdmin(normalized.admin):applyPublic(normalized.public);}
