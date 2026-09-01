@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <title>Website Maintenance</title>
+  <style>
+    :root{--green:#0b2f21;--green2:#1b6b45;--gold:#d8b63e;--paper:#f4f8f5;--ink:#18251d;--muted:#66736b}
+    *{box-sizing:border-box}html,body{margin:0;min-height:100%;font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--ink)}
+    body{min-height:100vh;display:grid;place-items:center;padding:24px;background:radial-gradient(circle at 12% 8%,rgba(216,182,62,.20),transparent 28%),radial-gradient(circle at 88% 85%,rgba(27,107,69,.18),transparent 32%),linear-gradient(145deg,#eef5f0,#fbfdfb 55%,#edf5ef)}
+    .shell{width:min(760px,100%)}.card{position:relative;overflow:hidden;border:1px solid rgba(11,47,33,.11);border-radius:30px;background:rgba(255,255,255,.92);box-shadow:0 30px 90px rgba(10,44,25,.14);backdrop-filter:blur(18px)}
+    .topline{height:7px;background:linear-gradient(90deg,var(--green2),var(--gold),var(--green2))}.content{padding:clamp(28px,7vw,62px)}
+    .brand{display:flex;align-items:center;gap:14px;margin-bottom:38px}.mark{width:50px;height:50px;border-radius:16px;display:grid;place-items:center;background:linear-gradient(145deg,var(--green2),var(--green));color:#fff;font-weight:900;box-shadow:0 12px 28px rgba(11,47,33,.20)}
+    .brand strong{display:block;font-size:1rem}.brand span{display:block;margin-top:2px;color:var(--muted);font-size:.82rem}.status{display:inline-flex;align-items:center;gap:8px;padding:8px 12px;border:1px solid #dce8df;border-radius:999px;background:#f7faf8;color:#31533f;font-size:.72rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase}.dot{width:8px;height:8px;border-radius:50%;background:var(--gold);box-shadow:0 0 0 5px rgba(216,182,62,.15)}
+    h1{margin:18px 0 14px;font-size:clamp(2.2rem,8vw,4.5rem);line-height:.96;letter-spacing:-.055em;color:var(--green)}p{margin:0;max-width:610px;color:var(--muted);font-size:clamp(1rem,2.6vw,1.22rem);line-height:1.7}
+    .divider{height:1px;margin:34px 0;background:linear-gradient(90deg,#dbe5de,transparent)}.meta{display:flex;flex-wrap:wrap;gap:12px 24px;color:#5b6a60;font-size:.84rem}.meta strong{color:var(--ink)}
+    .foot{margin-top:24px;text-align:center;color:#728078;font-size:.74rem}@media(max-width:560px){body{padding:12px}.card{border-radius:22px}.content{padding:26px 22px}.brand{margin-bottom:30px}.meta{display:grid;gap:8px}}
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <main class="card" aria-live="polite">
+      <div class="topline"></div>
+      <div class="content">
+        <div class="brand"><div class="mark" id="brand-mark">B</div><div><strong id="barangay-name">Barangay Website</strong><span>Official community website</span></div></div>
+        <div class="status"><span class="dot"></span>Scheduled maintenance</div>
+        <h1 id="maintenance-title">We’ll be right back</h1>
+        <p id="maintenance-message">The barangay website is temporarily undergoing maintenance and improvements. Please check back shortly.</p>
+        <div class="divider"></div>
+        <div class="meta"><span><strong>Status:</strong> Maintenance in progress</span><span id="contact-line"></span></div>
+      </div>
+    </main>
+    <div class="foot">Thank you for your patience while we improve the official barangay digital service.</div>
+  </div>
+<script>
+(async()=>{
+  const url='https://pkvorwvkqjnbgktkgjhr.supabase.co';
+  const key='sb_publishable_RbaENAflMzLgXpemymGApA_TkVAhMoU';
+  const endpoint=url+'/rest/v1/site_settings?id=eq.1&select=barangay_name,contact_number,email,maintenance_mode,maintenance_title,maintenance_message';
+  try{
+    const r=await fetch(endpoint,{cache:'no-store',headers:{apikey:key,Authorization:'Bearer '+key,Accept:'application/json'}});
+    if(!r.ok)throw new Error('settings');
+    const rows=await r.json(),s=Array.isArray(rows)?rows[0]:null;if(!s)return;
+    if(s.maintenance_mode!==true){location.replace('index.html');return;}
+    const name=String(s.barangay_name||'Barangay Website').trim();
+    document.getElementById('barangay-name').textContent=name;
+    document.getElementById('brand-mark').textContent=(name.charAt(0)||'B').toUpperCase();
+    document.getElementById('maintenance-title').textContent=s.maintenance_title||'We’ll be right back';
+    document.getElementById('maintenance-message').textContent=s.maintenance_message||'The barangay website is temporarily undergoing maintenance and improvements. Please check back shortly.';
+    const contact=[s.contact_number,s.email].filter(Boolean).join(' · ');document.getElementById('contact-line').textContent=contact?'Contact: '+contact:'';
+    document.title='Maintenance | '+name;
+  }catch(e){console.warn('Maintenance status unavailable',e);}
+})();
+</script>
+</body>
+</html>
