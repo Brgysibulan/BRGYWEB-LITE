@@ -6,6 +6,48 @@
   <title>Site Settings</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/admin.css?v=20260901-studio7">
+  <style>
+    /* Maintenance control must stay visible in every admin preset and viewport. */
+    #maintenance-toggle {
+      display: inline-flex !important;
+      visibility: visible !important;
+      opacity: 1 !important;
+      align-items: center;
+      justify-content: center;
+      position: static !important;
+      transform: none !important;
+      min-height: 48px;
+      min-width: 190px;
+      padding: .72rem 1rem;
+      font-weight: 800;
+      z-index: 2;
+    }
+    #maintenance-toggle.btn-success {
+      background: #198754 !important;
+      border-color: #198754 !important;
+      color: #fff !important;
+    }
+    #maintenance-toggle.btn-warning {
+      background: #ffc107 !important;
+      border-color: #ffc107 !important;
+      color: #1f261f !important;
+    }
+    #maintenance-toggle:disabled {
+      display: inline-flex !important;
+      visibility: visible !important;
+      opacity: .65 !important;
+    }
+    @media (max-width: 560px) {
+      #maintenance-toggle {
+        width: 100% !important;
+        min-width: 0 !important;
+      }
+      #maintenance-status {
+        display: block;
+        width: 100%;
+      }
+    }
+  </style>
 </head>
 <body class="dashboard-page admin-control-center">
 <div class="dashboard-shell">
@@ -114,9 +156,9 @@
   </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../assets/js/supabase-config.js?v=20260901-maintenance1"></script>
-<script src="../assets/js/admin-logo-upload.js?v=20260901-maintenance1"></script>
-<script src="../assets/js/admin.js?v=20260901-maintenance1"></script>
-<script src="../assets/js/admin-maintenance.js?v=20260901-maintenance1"></script>
+<script src="../assets/js/supabase-config.js?v=20260901-maintenance2"></script>
+<script src="../assets/js/admin-logo-upload.js?v=20260901-maintenance2"></script>
+<script src="../assets/js/admin.js?v=20260901-maintenance2"></script>
+<script src="../assets/js/admin-maintenance.js?v=20260901-maintenance2"></script>
 </body>
 </html>
