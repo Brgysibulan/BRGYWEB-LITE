@@ -27,9 +27,9 @@
     return true;
   }
 
-  function readColors(){return theme.normalizeColors({primary:value('public-primary-color'),secondary:value('public-secondary-color'),accent:value('public-accent-color'),surface:value('public-surface-color')});}
-  function writeColors(colors){const c=theme.normalizeColors(colors||{});setValue('public-primary-color',c.primary);setValue('public-secondary-color',c.secondary);setValue('public-accent-color',c.accent);setValue('public-surface-color',c.surface);syncColorCodes(c);}
-  function syncColorCodes(colors=readColors()){['primary','secondary','accent','surface'].forEach((key)=>{const el=field(`public-${key}-code`);if(el)el.textContent=colors[key];});}
+  function readColors(){return theme.normalizeColors({primary:value('public-primary-color'),secondary:value('public-secondary-color'),accent:value('public-accent-color'),signal:value('public-signal-color')});}
+  function writeColors(colors){const c=theme.normalizeColors(colors||{});setValue('public-primary-color',c.primary);setValue('public-secondary-color',c.secondary);setValue('public-accent-color',c.accent);setValue('public-signal-color',c.signal);syncColorCodes(c);}
+  function syncColorCodes(colors=readColors()){['primary','secondary','accent','signal'].forEach((key)=>{const el=field(`public-${key}-code`);if(el)el.textContent=colors[key];});}
 
   function readPublic(){
     return theme.normalizePublic({preset:value('public-preset')||'custom',font:value('public-font'),radius:value('public-radius'),density:value('public-density'),navSkin:value('public-nav-skin'),navPosition:value('public-nav-position'),navAlign:value('public-nav-align'),navMode:value('public-nav-mode'),hero:value('public-hero'),cards:value('public-cards'),contentWidth:value('public-content-width'),colors:readColors()});
@@ -48,20 +48,20 @@
     const preview=field('public-design-preview');if(!preview)return;
     const nav=preview.querySelector('.studio3-web-nav'),hero=preview.querySelector('.studio3-web-hero'),body=preview.querySelector('.studio3-web-body'),cards=[...preview.querySelectorAll('.studio3-web-body>div')],c=config.colors;
     preview.dataset.previewPosition=config.navPosition;preview.dataset.previewMode=config.navMode;preview.dataset.previewAlign=config.navAlign;preview.style.fontFamily=fontValue(config.font);
-    preview.style.setProperty('--preview-primary',c.primary);preview.style.setProperty('--preview-secondary',c.secondary);preview.style.setProperty('--preview-accent',c.accent);preview.style.setProperty('--preview-surface',c.surface);
-    if(nav){nav.style.background=config.navSkin==='solid'?c.secondary:config.navSkin==='glass'?`color-mix(in srgb, ${c.secondary} 82%, transparent)`:`linear-gradient(90deg,${c.secondary},${c.primary})`;nav.style.backdropFilter=config.navSkin==='glass'?'blur(14px)':'none';}
+    preview.style.setProperty('--preview-primary',c.primary);preview.style.setProperty('--preview-secondary',c.secondary);preview.style.setProperty('--preview-accent',c.accent);preview.style.setProperty('--preview-signal',c.signal);preview.style.setProperty('--preview-surface',c.surface);
+    if(nav){nav.style.background=config.navSkin==='solid'?c.primary:config.navSkin==='glass'?`color-mix(in srgb, ${c.primary} 84%, transparent)`:`linear-gradient(90deg,${c.primary},${c.secondary})`;nav.style.backdropFilter=config.navSkin==='glass'?'blur(14px)':'none';}
     if(hero){
-      const heroMap={minimal:[`linear-gradient(180deg,${c.surface},#fff)`,'#17201a'],soft:[`linear-gradient(135deg,${c.primary},${c.secondary})`,'#fff'],split:[`linear-gradient(90deg,${c.secondary} 0 58%,${c.primary} 58% 100%)`,'#fff'],banner:[`linear-gradient(110deg,${c.secondary},${c.primary})`,'#fff'],clean:[`linear-gradient(135deg,${c.secondary},${c.primary})`,'#fff'],bold:[`linear-gradient(135deg,${c.secondary},${c.primary})`,'#fff']};
+      const heroMap={minimal:[`linear-gradient(180deg,${c.surface},#fff)`,'#17201a'],soft:[`linear-gradient(135deg,${c.secondary},${c.primary})`,'#fff'],split:[`linear-gradient(90deg,${c.primary} 0 58%,${c.secondary} 58% 100%)`,'#fff'],banner:[`linear-gradient(110deg,${c.primary},${c.secondary})`,'#fff'],clean:[`linear-gradient(135deg,${c.primary},${c.secondary})`,'#fff'],bold:[`linear-gradient(135deg,${c.primary},${c.secondary})`,'#fff']};
       const [background,color]=heroMap[config.hero]||heroMap.bold;hero.style.background=background;hero.style.color=color;hero.style.borderBottom=config.hero==='banner'?`5px solid ${c.accent}`:'0';hero.style.minHeight=config.hero==='banner'?'112px':config.hero==='minimal'?'120px':config.density==='compact'?'132px':'150px';hero.style.padding=config.contentWidth==='boxed'?'1.25rem 2rem':config.density==='compact'?'1rem':'1.4rem';
     }
     if(body){body.style.background=c.surface;body.style.padding=config.contentWidth==='boxed'?'1rem 1.7rem':config.density==='compact'?'.6rem':'.8rem';body.style.gap=config.density==='compact'?'.38rem':'.55rem';}
-    cards.forEach((card)=>{card.style.borderRadius=radiusValue(config.radius);card.style.boxShadow=config.cards==='elevated'?'0 7px 18px rgba(17,33,24,.09)':'none';card.style.borderWidth=config.cards==='bordered'?'2px':'1px';card.style.minHeight=config.density==='compact'?'48px':'62px';card.style.padding=config.density==='compact'?'.42rem':'.6rem';card.style.borderColor=config.cards==='bordered'?c.primary:'#dfe5df';});
+    cards.forEach((card,index)=>{card.style.borderRadius=radiusValue(config.radius);card.style.boxShadow=config.cards==='elevated'?'0 7px 18px rgba(17,33,24,.09)':'none';card.style.borderWidth=config.cards==='bordered'?'2px':'1px';card.style.minHeight=config.density==='compact'?'48px':'62px';card.style.padding=config.density==='compact'?'.42rem':'.6rem';card.style.borderColor=config.cards==='bordered'?c.secondary:'#dfe5df';card.style.borderTopColor=index===0?c.accent:index===2?c.signal:card.style.borderColor;card.style.borderTopWidth=index===0?'3px':index===2?'2px':card.style.borderWidth;});
     syncColorCodes(c);
   }
 
   function renderAdminPreview(config){
     const preview=field('admin-design-preview');if(!preview)return;const side=preview.querySelector('.studio3-admin-side'),main=preview.querySelector('.studio3-admin-main'),panel=preview.querySelector('.studio3-admin-panel'),cards=[...preview.querySelectorAll('.studio3-admin-cards>div')];preview.style.fontFamily=fontValue(config.font);
-    if(side){side.style.background=config.sidebar==='dark'?'linear-gradient(180deg,#20262b,#11161a)':config.sidebar==='light'?'#fff':'linear-gradient(180deg,#14713c,#0e4d2b)';side.style.color=config.sidebar==='light'?'#17201a':'#fff';side.style.borderRight=config.sidebar==='light'?'1px solid #dfe5df':'0';side.style.padding=config.density==='compact'?'.62rem .52rem':'.85rem .65rem';}
+    if(side){side.style.background=config.sidebar==='dark'?'linear-gradient(180deg,#20262b,#11161a)':config.sidebar==='light'?'#fff':'linear-gradient(180deg,#0b2f21,#1b6b45)';side.style.color=config.sidebar==='light'?'#17201a':'#fff';side.style.borderRight=config.sidebar==='light'?'1px solid #dfe5df':'0';side.style.padding=config.density==='compact'?'.62rem .52rem':'.85rem .65rem';}
     if(main)main.style.padding=config.density==='compact'?'.65rem':'.9rem';
     cards.forEach((card)=>{card.style.borderRadius=radiusValue(config.radius);card.style.boxShadow=config.cards==='elevated'?'0 7px 18px rgba(17,33,24,.09)':'none';card.style.borderWidth=config.cards==='bordered'?'2px':'1px';card.style.minHeight=config.density==='compact'?'56px':'72px';});
     if(panel){panel.style.borderRadius=radiusValue(config.radius);panel.style.boxShadow=config.cards==='elevated'?'0 7px 18px rgba(17,33,24,.07)':'none';panel.style.borderWidth=config.cards==='bordered'?'2px':'1px';}
@@ -81,17 +81,17 @@
     setStatus('Loading saved design…');if(saveButton)saveButton.disabled=true;
     const {data,error}=await client.from('site_settings').select('design_theme,primary_color,secondary_color,accent_color').eq('id',1).single();if(error)throw error;
     const config=data?.design_theme||{};
-    const publicConfig={...(config.public||theme.PUBLIC_DEFAULT),colors:{...(config.public?.colors||{}),primary:config.public?.colors?.primary||data.primary_color||theme.COLOR_DEFAULTS.primary,secondary:config.public?.colors?.secondary||data.secondary_color||theme.COLOR_DEFAULTS.secondary,accent:config.public?.colors?.accent||data.accent_color||theme.COLOR_DEFAULTS.accent,surface:config.public?.colors?.surface||theme.COLOR_DEFAULTS.surface}};
-    const cached={...config,public:theme.normalizePublic(publicConfig),admin:theme.normalizeAdmin(config.admin||theme.ADMIN_DEFAULT),version:4};theme.writeCache?.(cached);writePublic(cached.public);writeAdmin(cached.admin);refreshPreview('all');syncDirtyState(false,'Saved design loaded. Choose a preset or change a color/option to preview it instantly.');
+    const publicConfig={...(config.public||theme.PUBLIC_DEFAULT),colors:{...(config.public?.colors||{}),primary:config.public?.colors?.primary||data.primary_color||theme.COLOR_DEFAULTS.primary,secondary:config.public?.colors?.secondary||data.secondary_color||theme.COLOR_DEFAULTS.secondary,accent:config.public?.colors?.accent||data.accent_color||theme.COLOR_DEFAULTS.accent,signal:config.public?.colors?.signal||theme.COLOR_DEFAULTS.signal}};
+    const cached={...config,public:theme.normalizePublic(publicConfig),admin:theme.normalizeAdmin(config.admin||theme.ADMIN_DEFAULT),version:5};theme.writeCache?.(cached);writePublic(cached.public);writeAdmin(cached.admin);refreshPreview('all');syncDirtyState(false,'Saved design loaded. Choose a preset or change a color/option to preview it instantly.');
   }
 
   async function saveTheme(){
     if(!dirty)return;
-    const publicTheme=readPublic(),payload={version:4,public:publicTheme,admin:readAdmin()};saveButton.disabled=true;resetButton.disabled=true;setStatus('Saving design…');
+    const publicTheme=readPublic(),payload={version:5,public:publicTheme,admin:readAdmin()};saveButton.disabled=true;resetButton.disabled=true;setStatus('Saving design…');
     try{
       const {data,error}=await client.from('site_settings').update({design_theme:payload,primary_color:publicTheme.colors.primary,secondary_color:publicTheme.colors.secondary,accent_color:publicTheme.colors.accent,updated_at:new Date().toISOString()}).eq('id',1).select('design_theme,primary_color,secondary_color,accent_color').single();
       if(error)throw error;
-      const saved=data?.design_theme||payload;theme.writeCache?.(saved);writePublic(saved.public||payload.public);writeAdmin(saved.admin||payload.admin);refreshPreview('all');syncDirtyState(false,'Saved and applied. Colors and layout are now active on the public website.');
+      const saved=data?.design_theme||payload;theme.writeCache?.(saved);writePublic(saved.public||payload.public);writeAdmin(saved.admin||payload.admin);refreshPreview('all');syncDirtyState(false,'Saved and applied. Brand colors and layout are now active on the public website.');
     }catch(error){console.error(error);syncDirtyState(true,error.message||'Unable to save design.');status?.classList.add('text-danger');}finally{resetButton.disabled=false;if(dirty)saveButton.disabled=false;}
   }
 
