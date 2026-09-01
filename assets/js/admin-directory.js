@@ -1,6 +1,7 @@
 (() => {
   'use strict';
   const client = window.BRGY_SUPABASE;
+  const CACHE_KEY = 'brgyweb:admin-directory:v1';
   const form = document.getElementById('directory-form');
   const list = document.getElementById('directory-list');
   const status = document.getElementById('directory-status');
@@ -11,6 +12,18 @@
   const esc = (v) => String(v ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
   const val = (id) => document.getElementById(id)?.value.trim() || '';
   const setStatus = (msg, err=false) => { if (!status) return; status.textContent=msg; status.className=`small ${err?'text-danger':msg?'text-success':'text-secondary'}`; };
+
+  function readCache(){
+    try {
+      const value = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+      return Array.isArray(value?.rows) ? value.rows : null;
+    } catch { return null; }
+  }
+
+  function writeCache(nextRows){
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ rows: Array.isArray(nextRows) ? nextRows : [], savedAt: Date.now() })); }
+    catch {}
+  }
 
   async function requireStaff() {
     if (!client) return false;
@@ -38,7 +51,15 @@
   async function loadRows() {
     const { data, error } = await client.from('directory_entries').select('id,category,name,role_title,contact,location,photo_url,sort_order,is_active,updated_at').order('category').order('sort_order').order('name');
     if (error) throw error;
-    rows = data || [];
+    const nextRows = data || [];
+    rows = nextRows;
+    writeCache(rows);
+    render();
+  }
+
+  const cachedRows = readCache();
+  if (cachedRows) {
+    rows = cachedRows;
     render();
   }
 
@@ -59,11 +80,11 @@
   list?.addEventListener('click', async (e) => {
     const edit=e.target.closest('[data-edit]'); const del=e.target.closest('[data-delete]');
     if(edit){ const r=rows.find(x=>String(x.id)===edit.dataset.edit); if(!r) return; document.getElementById('directory-id').value=r.id; document.getElementById('directory-category').value=r.category||''; document.getElementById('directory-name').value=r.name||''; document.getElementById('directory-role').value=r.role_title||''; document.getElementById('directory-contact').value=r.contact||''; document.getElementById('directory-location').value=r.location||''; document.getElementById('directory-photo').value=r.photo_url||''; document.getElementById('directory-order').value=r.sort_order??0; document.getElementById('directory-active').checked=r.is_active===true; document.getElementById('directory-form-title').textContent='Edit Directory Entry'; cancel?.classList.remove('d-none'); form.scrollIntoView({behavior:'smooth'}); }
-    if(del){ if(!confirm('Delete this directory entry?')) return; del.disabled=true; setStatus('Deleting entry...'); const { error }=await client.from('directory_entries').delete().eq('id', del.dataset.delete); if(error){ setStatus(error.message,true); del.disabled=false; return; } setStatus('Entry deleted.'); await loadRows(); }
+    if(del){ if(!confirm('Delete this directory entry?')) return; del.disabled=true; setStatus('Deleting entry...'); const id=del.dataset.delete; const { error }=await client.from('directory_entries').delete().eq('id', id); if(error){ setStatus(error.message,true); del.disabled=false; return; } rows=rows.filter((item)=>String(item.id)!==String(id)); writeCache(rows); render(); setStatus('Entry deleted.'); loadRows().catch(()=>{}); }
   });
 
   cancel?.addEventListener('click', resetForm);
   signout?.addEventListener('click', async()=>{ if(client) await client.auth.signOut(); location.href='login.html'; });
 
-  (async()=>{ const allowed=await requireStaff(); if(!allowed){ location.href='login.html'; return; } try{ await loadRows(); }catch(err){ console.error(err); setStatus(err?.message||'Unable to load directory.',true); } })();
+  (async()=>{ const allowed=await requireStaff(); if(!allowed){ location.href='login.html'; return; } try{ await loadRows(); }catch(err){ console.error(err); if(!cachedRows) setStatus(err?.message||'Unable to load directory.',true); } })();
 })();
