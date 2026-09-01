@@ -3,7 +3,7 @@
 
   const SITE_CACHE_VERSION = 3;
   const SITE_CACHE_KEY = 'brgyweb:site-settings:v3';
-  const UI_VERSION = '20260901-viewport1';
+  const UI_VERSION = '20260901-viewport2';
   const BREAKPOINT = 900;
   const header = document.querySelector('.site-header');
   const footer = document.querySelector('.site-footer');
