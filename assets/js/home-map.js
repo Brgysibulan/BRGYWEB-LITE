@@ -14,6 +14,14 @@
     return (iframeMatch ? iframeMatch[1] : raw).replaceAll('&amp;', '&').trim();
   }
 
+  function decodeMapPathSegment(segment) {
+    try {
+      return decodeURIComponent(String(segment || '').replaceAll('+', '%20')).trim();
+    } catch {
+      return '';
+    }
+  }
+
   function googleEmbedUrl(value) {
     const raw = extractUrl(value);
     if (!raw) return '';
@@ -27,14 +35,20 @@
 
     const placeMatch = url.pathname.match(/\/maps\/(?:place|search)\/([^/]+)/i);
     if (placeMatch?.[1]) {
-      let query = placeMatch[1];
-      try { query = decodeURIComponent(query); } catch {}
-      query = query.replaceAll('+', ' ').trim();
+      const query = decodeMapPathSegment(placeMatch[1]);
       if (query) return `https://www.google.com/maps?q=${encodeURIComponent(query)}&output=embed`;
     }
 
-    const query = url.searchParams.get('q') || url.searchParams.get('query');
+    const query = url.searchParams.get('q') || url.searchParams.get('query') || url.searchParams.get('destination');
     if (query) return `https://www.google.com/maps?q=${encodeURIComponent(query)}&output=embed`;
+
+    const atMatch = url.pathname.match(/@(-?\d+(?:\.\d+)?),(-?\d+(?:\.\d+)?)/);
+    if (atMatch) return `https://www.google.com/maps?q=${encodeURIComponent(`${atMatch[1]},${atMatch[2]}`)}&output=embed`;
+
+    const ll = url.searchParams.get('ll');
+    if (ll && /^-?\d+(?:\.\d+)?,-?\d+(?:\.\d+)?$/.test(ll)) {
+      return `https://www.google.com/maps?q=${encodeURIComponent(ll)}&output=embed`;
+    }
     return '';
   }
 
