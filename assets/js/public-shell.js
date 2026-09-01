@@ -3,7 +3,7 @@
 
   const SITE_CACHE_VERSION = 3;
   const SITE_CACHE_KEY = 'brgyweb:site-settings:v3';
-  const UI_VERSION = '20260901-designfix1';
+  const UI_VERSION = '20260901-studiopro1';
   const BREAKPOINT = 900;
   const PUBLIC_SUPABASE_URL = 'https://pkvorwvkqjnbgktkgjhr.supabase.co';
   const PUBLIC_SUPABASE_KEY = 'sb_publishable_RbaENAflMzLgXpemymGApA_TkVAhMoU';
