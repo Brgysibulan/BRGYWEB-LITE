@@ -49,6 +49,7 @@
   function loadStaffAssets(){
     if(!isStaffPage)return;
     addStaffStyle(`../assets/css/premium-admin.css?v=${STAFF_ASSET_VERSION}`,'data-brgy-premium-admin');
+    if(!isAccessPage)addStaffStyle(`../assets/css/admin-steady-shell.css?v=${STAFF_ASSET_VERSION}`,'data-brgy-admin-steady-shell');
     if(!document.querySelector('script[data-brgy-design-theme]')){
       const script=addStaffScript(`../assets/js/design-theme.js?v=${STAFF_ASSET_VERSION}`,'data-brgy-design-theme');
       script?.addEventListener('error',()=>markAssetFailure('theme'),{once:true});

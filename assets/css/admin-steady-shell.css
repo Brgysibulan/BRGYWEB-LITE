@@ -1,0 +1,57 @@
+/* Keep admin navigation visually steady while only the module content boots. */
+@view-transition{navigation:auto}
+.sidebar{view-transition-name:admin-sidebar}
+
+html:not([data-admin-ui-ready="true"]) body.dashboard-page{
+  min-height:100vh;
+  overflow-x:hidden!important;
+  overflow-y:auto!important;
+}
+html:not([data-admin-ui-ready="true"]) body.dashboard-page>*{
+  visibility:visible!important;
+}
+html:not([data-admin-ui-ready="true"]) body.dashboard-page::before,
+html:not([data-admin-ui-ready="true"]) body.dashboard-page::after{
+  content:none!important;
+  display:none!important;
+}
+html:not([data-admin-ui-ready="true"]) body.dashboard-page .dashboard-main,
+html:not([data-admin-ui-ready="true"]) body.dashboard-page>main{
+  min-height:100vh;
+  position:relative;
+  visibility:visible!important;
+}
+html:not([data-admin-ui-ready="true"]) body.dashboard-page .dashboard-main>*,
+html:not([data-admin-ui-ready="true"]) body.dashboard-page>main>*{
+  visibility:hidden!important;
+}
+html:not([data-admin-ui-ready="true"]) body.dashboard-page .dashboard-main>.admin-mobile-bar{
+  visibility:visible!important;
+}
+html:not([data-admin-ui-ready="true"]) body.dashboard-page .dashboard-main::before,
+html:not([data-admin-ui-ready="true"]) body.dashboard-page>main::before{
+  content:"Loading content…";
+  visibility:visible!important;
+  position:absolute;
+  inset:0;
+  z-index:2;
+  display:grid;
+  place-items:center;
+  min-height:180px;
+  background:var(--theme-canvas,var(--bg,#f4f7f4));
+  color:var(--theme-muted,var(--muted,#69736c));
+  font-size:.78rem;
+  font-weight:700;
+  letter-spacing:.01em;
+}
+html[data-admin-ui-ready="true"] body.dashboard-page .dashboard-main>*,
+html[data-admin-ui-ready="true"] body.dashboard-page>main>*{
+  visibility:visible!important;
+}
+
+/* The left navigation should not fade or slide between full document navigations. */
+::view-transition-old(admin-sidebar),
+::view-transition-new(admin-sidebar){
+  animation:none!important;
+  mix-blend-mode:normal;
+}
