@@ -9,7 +9,7 @@ html[data-public-nav-skin="glass"] .site-header{background:color-mix(in srgb,var
 html[data-public-nav-skin="gradient"] .site-header{background:linear-gradient(100deg,var(--brand-primary),var(--brand-secondary))}
 
 /* Link alignment for normal top/floating navigation */
-@media(min-width:1200px){
+@media(min-width:1200px) and (hover:hover) and (pointer:fine){
   html[data-public-nav-position="top"][data-public-nav-align="left"] .site-header .navbar-nav,
   html[data-public-nav-position="floating"][data-public-nav-align="left"] .site-header .navbar-nav{margin-left:0!important;margin-right:auto!important}
   html[data-public-nav-position="top"][data-public-nav-align="center"] .site-header .navbar-nav,
@@ -22,16 +22,18 @@ html[data-public-nav-skin="gradient"] .site-header{background:linear-gradient(10
 html[data-public-nav-position="floating"] .site-header{position:sticky!important;top:.75rem!important;z-index:1030;margin:.75rem;border-radius:18px;overflow:visible}
 html[data-public-nav-position="floating"] .site-header .navbar{min-height:64px}
 
-/* Boxed page width */
+/* Boxed page width: cover every premium public container, not only generic sections. */
 html[data-public-content-width="boxed"] .hero-section>.container,
 html[data-public-content-width="boxed"] .quick-links>.container,
 html[data-public-content-width="boxed"] .section-space>.container,
 html[data-public-content-width="boxed"] .page-hero>.container,
 html[data-public-content-width="boxed"] .site-footer>.container,
-html[data-public-content-width="boxed"] .site-header .container{max-width:1120px}
+html[data-public-content-width="boxed"] .site-header .container,
+html[data-public-content-width="boxed"] .civic-trust-strip>.container,
+html[data-public-content-width="boxed"] .premium-home-band>.container{max-width:1120px!important}
 
 /* Desktop menu-button mode */
-@media(min-width:1200px){
+@media(min-width:1200px) and (hover:hover) and (pointer:fine){
   html[data-public-nav-mode="menu"]:not([data-public-nav-position="left"]) .site-header .navbar{position:relative}
   html[data-public-nav-mode="menu"]:not([data-public-nav-position="left"]) .site-header .navbar-toggler{display:block!important;border-color:rgba(255,255,255,.32);margin-left:auto}
   html[data-public-nav-mode="menu"][data-public-nav-align="left"]:not([data-public-nav-position="left"]) .site-header .navbar-toggler{order:-1;margin-left:0!important;margin-right:.75rem!important}
@@ -47,8 +49,8 @@ html[data-public-content-width="boxed"] .site-header .container{max-width:1120px
   html[data-public-nav-mode="menu"][data-public-nav-align="center"] .site-header .navbar-collapse{left:50%;right:auto;transform:translateX(-50%)}
 }
 
-/* Left navigation rail only on a genuinely wide mouse/trackpad desktop. */
-@media(min-width:1366px) and (hover:hover) and (pointer:fine){
+/* Left navigation rail on normal mouse/trackpad desktops and laptops. */
+@media(min-width:1200px) and (hover:hover) and (pointer:fine){
   html[data-public-nav-position="left"] body{padding-left:248px}
   html[data-public-nav-position="left"] .site-header{position:fixed!important;inset:0 auto 0 0!important;width:248px;height:100vh;z-index:1030;border-radius:0;overflow-y:auto}
   html[data-public-nav-position="left"] .site-header .navbar{height:100%;min-height:100%;align-items:stretch;padding:0}
@@ -71,7 +73,7 @@ html[data-public-hero="split"] .hero-copy{max-width:620px}
 html[data-public-hero="banner"] .hero-section{min-height:48vh;background:linear-gradient(115deg,var(--brand-primary),var(--brand-secondary));border-bottom:8px solid color-mix(in srgb,var(--brand-accent) 78%,white)}
 
 /* Safety fallback for phones, tablets, desktop-mode-on-phone, and intermediate widths. */
-@media(max-width:1365.98px),(hover:none),(pointer:coarse){
+@media(max-width:1199.98px),(hover:none),(pointer:coarse){
   html[data-public-nav-position] body{padding-left:0!important;width:auto!important;min-width:0!important}
   html[data-public-nav-position] body>main,
   html[data-public-nav-position] body>.site-footer{width:100%!important;max-width:100%!important;margin-left:0!important;margin-right:0!important}
