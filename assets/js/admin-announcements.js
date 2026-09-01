@@ -7,6 +7,7 @@
   const status = document.getElementById('announcement-status');
   const cancel = document.getElementById('announcement-cancel');
   const refresh = document.getElementById('announcement-refresh');
+  const CACHE_KEY = 'brgyweb:admin-announcements:v1';
   let rows = [];
 
   function setStatus(message, isError = false) {
@@ -23,6 +24,18 @@
 
   function slugify(value) {
     return String(value || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 160) || `announcement-${Date.now()}`;
+  }
+
+  function readCache() {
+    try {
+      const value = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+      return Array.isArray(value?.rows) ? value.rows : null;
+    } catch { return null; }
+  }
+
+  function writeCache(value) {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ rows:value || [], savedAt:Date.now() })); }
+    catch {}
   }
 
   async function requireStaff() {
@@ -51,6 +64,7 @@
   }
 
   function render() {
+    if (!list) return;
     if (!rows.length) {
       list.innerHTML = '<div class="text-secondary">No announcements yet.</div>';
       return;
@@ -75,13 +89,27 @@
       </article>`).join('');
   }
 
-  async function load() {
-    list.innerHTML = '<div class="text-secondary">Loading announcements...</div>';
+  function hydrateCache() {
+    const cached = readCache();
+    if (!cached) return false;
+    rows = cached;
+    render();
+    return true;
+  }
+
+  async function load({ showLoading = false } = {}) {
+    const hadCache = hydrateCache();
+    if (showLoading && !hadCache && list) list.innerHTML = '<div class="text-secondary">Loading announcements...</div>';
     const { data, error } = await client.from('announcements').select('id,title,slug,excerpt,content,cover_url,published_at,is_published,is_featured,created_at,updated_at').order('published_at', { ascending: false, nullsFirst: false }).order('created_at', { ascending: false });
     if (error) throw error;
-    rows = data || [];
-    render();
+    const nextRows = data || [];
+    const changed = JSON.stringify(nextRows) !== JSON.stringify(rows);
+    rows = nextRows;
+    writeCache(rows);
+    if (changed || !hadCache) render();
   }
+
+  hydrateCache();
 
   form?.addEventListener('submit', async (event) => {
     event.preventDefault();
@@ -147,13 +175,16 @@
         deleteButton.disabled = false;
         return;
       }
+      rows = rows.filter((item) => String(item.id) !== String(id));
+      writeCache(rows);
+      render();
       setStatus('Announcement deleted.');
       await load();
     }
   });
 
   cancel?.addEventListener('click', resetForm);
-  refresh?.addEventListener('click', () => load().catch((error) => setStatus(error.message || 'Unable to refresh.', true)));
+  refresh?.addEventListener('click', () => load({ showLoading:true }).catch((error) => setStatus(error.message || 'Unable to refresh.', true)));
 
   (async () => {
     try {
@@ -162,7 +193,7 @@
     } catch (error) {
       console.error(error);
       setStatus(error.message || 'Unable to load manager.', true);
-      if (list) list.innerHTML = '<div class="text-danger">Staff access required.</div>';
+      if (list && !rows.length) list.innerHTML = '<div class="text-danger">Staff access required.</div>';
     }
   })();
 })();
