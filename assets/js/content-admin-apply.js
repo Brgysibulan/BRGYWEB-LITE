@@ -13,6 +13,10 @@
     status.classList.toggle('text-secondary', !error && !message);
   };
 
+  async function safelySignOut() {
+    try { await client?.auth?.signOut(); } catch {}
+  }
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!client) return setStatus('Connection is unavailable. Please try again later.', true);
@@ -20,35 +24,68 @@
     const displayName = document.getElementById('application-name')?.value.trim() || '';
     const email = document.getElementById('application-email')?.value.trim().toLowerCase() || '';
     const role = document.getElementById('application-role')?.value.trim() || '';
+    const password = document.getElementById('application-password')?.value || '';
+    const passwordConfirm = document.getElementById('application-password-confirm')?.value || '';
     const reason = document.getElementById('application-reason')?.value.trim() || '';
     const button = form.querySelector('button[type="submit"]');
 
     if (displayName.length < 2) return setStatus('Enter your full name.', true);
     if (!email || !email.includes('@')) return setStatus('Enter a valid email address.', true);
+    if (password.length < 8) return setStatus('Use a password with at least 8 characters.', true);
+    if (password !== passwordConfirm) return setStatus('Passwords do not match.', true);
 
     const reasonParts = [];
     if (role) reasonParts.push(`Role / Position: ${role}`);
     if (reason) reasonParts.push(`Purpose: ${reason}`);
 
     if (button) button.disabled = true;
-    setStatus('Sending your request...');
+    setStatus('Creating your account...');
 
-    const { error } = await client.from('content_admin_applications').insert({
+    const { data: signupData, error: signupError } = await client.auth.signUp({
+      email,
+      password,
+      options: { data: { display_name: displayName } },
+    });
+
+    if (signupError) {
+      console.error(signupError);
+      const message = String(signupError.message || '');
+      const alreadyRegistered = /already|registered|exists/i.test(message);
+      setStatus(alreadyRegistered ? 'This email already has a login account. Use Content Admin Login or another email.' : (message || 'Unable to create your login account.'), true);
+      if (button) button.disabled = false;
+      return;
+    }
+
+    const identities = signupData?.user?.identities;
+    if (Array.isArray(identities) && identities.length === 0) {
+      await safelySignOut();
+      setStatus('This email already has a login account. Use Content Admin Login or another email.', true);
+      if (button) button.disabled = false;
+      return;
+    }
+
+    setStatus('Account created. Sending your access request...');
+
+    const { error: applicationError } = await client.from('content_admin_applications').insert({
       display_name: displayName,
       email,
       reason: reasonParts.join('\n') || null,
     });
 
-    if (error) {
-      console.error(error);
-      const duplicate = error.code === '23505';
-      setStatus(duplicate ? 'A pending application already exists for this email.' : (error.message || 'Unable to submit your request.'), true);
+    if (applicationError) {
+      console.error(applicationError);
+      const duplicate = applicationError.code === '23505';
+      await safelySignOut();
+      setStatus(duplicate ? 'A pending application already exists for this email.' : (applicationError.message || 'Your login was created, but the access request could not be submitted. Contact the System Admin.'), true);
       if (button) button.disabled = false;
       return;
     }
 
+    await safelySignOut();
     form.reset();
-    setStatus('Request sent successfully. Wait for System Admin review and an activation email if approved.');
+    setStatus(signupData?.session
+      ? 'Account and request created successfully. Wait for System Admin approval, then sign in using the same email and password.'
+      : 'Account and request created successfully. Check your email if confirmation is required, then wait for System Admin approval. After approval, sign in using this email and password.');
     if (button) button.disabled = false;
   });
 })();
