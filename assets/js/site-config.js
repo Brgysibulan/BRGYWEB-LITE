@@ -10,10 +10,11 @@ window.BRGYWEB_CONFIG = {
   phone: "",
   email: "",
   theme: {
-    primary: "#0f5132",
-    secondary: "#198754",
-    accent: "#ffc107",
-    surface: "#f7f9f8",
+    primary: "#0b2f21",
+    secondary: "#1b6b45",
+    accent: "#d8b63e",
+    signal: "#a63d40",
+    surface: "#f5f8f5",
     text: "#1f2937"
   },
   features: {
