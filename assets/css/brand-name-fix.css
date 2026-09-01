@@ -1,0 +1,18 @@
+/* Keep the full barangay name visible in desktop/tablet navigation. */
+@media(min-width:900px){
+  .site-header .navbar-brand{
+    flex:0 0 auto!important;
+    min-width:max-content!important;
+    max-width:none!important;
+    overflow:visible!important;
+  }
+  .site-header .navbar-brand #site-name{
+    display:inline-block!important;
+    flex:0 0 auto!important;
+    min-width:max-content!important;
+    max-width:none!important;
+    overflow:visible!important;
+    text-overflow:clip!important;
+    white-space:nowrap!important;
+  }
+}
