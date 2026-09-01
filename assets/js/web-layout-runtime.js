@@ -29,6 +29,16 @@
     return id;
   }
 
+  function clearHiddenMenuState() {
+    const collapse = document.getElementById('mainNav');
+    const toggler = document.querySelector('.site-header .navbar-toggler');
+    document.body.classList.remove('public-menu-open');
+    collapse?.classList.remove('show','collapsing');
+    collapse?.setAttribute('aria-hidden', window.innerWidth < 901 ? 'true' : 'false');
+    toggler?.setAttribute('aria-expanded','false');
+    toggler?.setAttribute('aria-label','Open navigation');
+  }
+
   function setHiddenMenu(open) {
     if (root.dataset.webLayout !== 'hidden-navigation' || window.innerWidth < 901) return false;
     const collapse = document.getElementById('mainNav');
@@ -44,7 +54,7 @@
 
   window.addEventListener('brgy:government-theme-applied', (event) => {
     apply(event.detail?.config?.webLayout);
-    if (root.dataset.webLayout !== 'hidden-navigation') setHiddenMenu(false);
+    if (root.dataset.webLayout !== 'hidden-navigation') clearHiddenMenuState();
   });
 
   document.addEventListener('click', (event) => {
@@ -73,8 +83,7 @@
   });
 
   window.addEventListener('resize', () => {
-    if (window.innerWidth < 901) document.body.classList.remove('public-menu-open');
-    else if (root.dataset.webLayout !== 'hidden-navigation') setHiddenMenu(false);
+    if (window.innerWidth < 901 || root.dataset.webLayout !== 'hidden-navigation') clearHiddenMenuState();
   }, { passive:true });
 
   window.BRGY_WEB_LAYOUT_RUNTIME = Object.freeze({ layouts:[...LAYOUTS], normalize, apply });
