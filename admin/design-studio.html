@@ -5,8 +5,8 @@
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
   <title>Government Design Studio | BRGYWEB-LITE</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/admin.css?v=20260901-gov7">
-  <link rel="stylesheet" href="../assets/css/government-design-studio.css?v=20260901-gov8">
+  <link rel="stylesheet" href="../assets/css/admin.css?v=20260901-gov9">
+  <link rel="stylesheet" href="../assets/css/government-design-studio.css?v=20260901-gov9">
 </head>
 <body class="dashboard-page admin-control-center">
 <div class="dashboard-shell">
@@ -15,52 +15,98 @@
     <header class="gov-studio-hero">
       <div>
         <span class="gov-studio-kicker">Government Design Studio</span>
-        <h1>Five complete systems. One uniform government identity.</h1>
-        <p>Select one premium design system and publish it everywhere at once: public website, System Admin, Content Admin, login, signup and account activation.</p>
+        <h1>Choose once. Keep every barangay surface consistent.</h1>
+        <p>Five curated government systems. The selected system controls the public website, System Admin, Content Admin and access pages together.</p>
       </div>
-      <div class="gov-studio-actions">
-        <a class="btn btn-outline-light btn-sm" href="../index.html" target="_blank" rel="noopener">Public Site ↗</a>
-        <a class="btn btn-light btn-sm" href="dashboard.html" target="_blank" rel="noopener">Admin Dashboard ↗</a>
+      <div class="gov-studio-actions" aria-label="Open live surfaces">
+        <a class="btn btn-outline-light" href="../index.html" target="_blank" rel="noopener">Public Site ↗</a>
+        <a class="btn btn-light" href="dashboard.html" target="_blank" rel="noopener">Dashboard ↗</a>
       </div>
     </header>
 
     <form id="design-studio-form" class="gov-workspace">
       <div class="gov-editor">
-        <section class="gov-section">
+        <section class="gov-section gov-theme-section">
           <div class="gov-section-head">
-            <div><span class="gov-studio-kicker text-success">Complete Systems</span><h2>Choose one government-grade theme</h2><p>These are not color presets. Each option changes visual hierarchy, homepage section priority, navigation treatment, dashboard geometry and access-page presentation as one coordinated system.</p></div>
-            <span class="gov-count">5 curated themes</span>
+            <div>
+              <span class="gov-studio-kicker gov-accent-copy">Theme</span>
+              <h2>Choose a government system</h2>
+              <p>Theme cards are compact on phones. Each choice changes layout hierarchy and palette as one coordinated system.</p>
+            </div>
+            <span class="gov-count">5 systems</span>
           </div>
           <div class="gov-pack-grid" id="design-pack-grid" aria-label="Government design systems"></div>
         </section>
 
-        <section class="gov-section">
-          <div class="gov-section-head mb-2"><div><span class="gov-studio-kicker text-success">Quality Standard</span><h2>What stays consistent</h2><p>The selected theme never changes permissions, routes, data, authentication or publishing logic. It controls presentation and information priority only.</p></div></div>
-          <div class="gov-principles">
-            <div class="gov-principle"><strong>Uniform everywhere</strong><span>Public, dashboard, login, signup and activation use one design language.</span></div>
-            <div class="gov-principle"><strong>Government-first hierarchy</strong><span>Services, notices, transparency and official information are placed intentionally.</span></div>
-            <div class="gov-principle"><strong>Mobile + desktop</strong><span>Every theme keeps the same responsive architecture and role protections.</span></div>
+        <section class="gov-section gov-guardrail-section" aria-label="Design safeguards">
+          <div class="gov-guardrail-head">
+            <div>
+              <span class="gov-studio-kicker gov-accent-copy">Guardrails</span>
+              <h2>One color authority</h2>
+            </div>
+            <span class="gov-palette-health" id="palette-health">Checking palette…</span>
+          </div>
+          <div class="gov-guardrails">
+            <span>Brand colors from Design Studio</span>
+            <span>Semantic status colors protected</span>
+            <span>Touch targets ≥ 44px</span>
           </div>
         </section>
       </div>
 
-      <aside class="gov-preview-stack" aria-label="Theme previews">
-        <section class="gov-preview-card"><div class="gov-preview-head"><div><strong>Public Website</strong><small id="public-preview-label">Public website</small></div><a href="../index.html" target="_blank" rel="noopener">Open ↗</a></div><div class="gov-preview-surface" id="public-design-preview"><div class="gov-public-mock"><nav></nav><div class="hero"></div><div class="cards"><i></i><i></i><i></i></div></div></div></section>
-        <section class="gov-preview-card"><div class="gov-preview-head"><div><strong>Admin Dashboard</strong><small id="admin-preview-label">System + Content Admin</small></div><a href="dashboard.html" target="_blank" rel="noopener">Open ↗</a></div><div class="gov-preview-surface" id="admin-design-preview"><div class="gov-admin-mock"><aside><i></i><i></i><i></i><i></i></aside><main><header></header><section><i></i><i></i><i></i></section><div></div></main></div></div></section>
-        <section class="gov-preview-card"><div class="gov-preview-head"><div><strong>Login</strong><small id="login-preview-label">Access portal</small></div><a href="login.html" target="_blank" rel="noopener">Open ↗</a></div><div class="gov-preview-surface" id="login-design-preview"><div class="gov-auth-mock"><div class="card"></div></div></div></section>
-        <section class="gov-preview-card"><div class="gov-preview-head"><div><strong>Signup / Application</strong><small id="signup-preview-label">Content Admin signup</small></div><a href="../editor/apply.html" target="_blank" rel="noopener">Open ↗</a></div><div class="gov-preview-surface" id="signup-design-preview"><div class="gov-signup-mock"><aside></aside><main></main></div></div></section>
-      </aside>
+      <aside class="gov-preview-stack" aria-label="Theme preview">
+        <section class="gov-preview-shell">
+          <div class="gov-preview-toolbar">
+            <div>
+              <span class="gov-studio-kicker gov-accent-copy">Preview</span>
+              <strong id="preview-theme-name">Selected theme</strong>
+            </div>
+            <div class="gov-preview-tabs" role="tablist" aria-label="Preview surface">
+              <button type="button" role="tab" class="gov-preview-tab active" data-preview-target="public" aria-selected="true">Public</button>
+              <button type="button" role="tab" class="gov-preview-tab" data-preview-target="admin" aria-selected="false">Admin</button>
+              <button type="button" role="tab" class="gov-preview-tab" data-preview-target="login" aria-selected="false">Login</button>
+              <button type="button" role="tab" class="gov-preview-tab" data-preview-target="signup" aria-selected="false">Signup</button>
+            </div>
+          </div>
 
-      <div class="gov-savebar is-clean" id="design-savebar">
-        <div><strong id="design-change-state">Published theme is active</strong><small id="design-studio-status" aria-live="polite">Loading published government design…</small></div>
-        <div class="gov-save-actions"><button class="btn btn-outline-light btn-sm" id="design-reset" type="button">Restore Published</button><button class="btn btn-light btn-sm" id="design-save" type="submit" disabled>Publish Everywhere</button></div>
-      </div>
+          <section class="gov-preview-card active" data-preview-panel="public">
+            <div class="gov-preview-head"><div><strong>Public Website</strong><small id="public-preview-label">Public website</small></div><a href="../index.html" target="_blank" rel="noopener">Open ↗</a></div>
+            <div class="gov-preview-surface" id="public-design-preview"><div class="gov-public-mock"><nav></nav><div class="hero"></div><div class="cards"><i></i><i></i><i></i></div></div></div>
+          </section>
+
+          <section class="gov-preview-card" data-preview-panel="admin" hidden>
+            <div class="gov-preview-head"><div><strong>Admin Dashboard</strong><small id="admin-preview-label">System + Content Admin</small></div><a href="dashboard.html" target="_blank" rel="noopener">Open ↗</a></div>
+            <div class="gov-preview-surface" id="admin-design-preview"><div class="gov-admin-mock"><aside><i></i><i></i><i></i><i></i></aside><main><header></header><section><i></i><i></i><i></i></section><div></div></main></div></div>
+          </section>
+
+          <section class="gov-preview-card" data-preview-panel="login" hidden>
+            <div class="gov-preview-head"><div><strong>Login</strong><small id="login-preview-label">Access portal</small></div><a href="login.html" target="_blank" rel="noopener">Open ↗</a></div>
+            <div class="gov-preview-surface" id="login-design-preview"><div class="gov-auth-mock"><div class="card"></div></div></div>
+          </section>
+
+          <section class="gov-preview-card" data-preview-panel="signup" hidden>
+            <div class="gov-preview-head"><div><strong>Signup / Application</strong><small id="signup-preview-label">Content Admin signup</small></div><a href="../editor/apply.html" target="_blank" rel="noopener">Open ↗</a></div>
+            <div class="gov-preview-surface" id="signup-design-preview"><div class="gov-signup-mock"><aside></aside><main></main></div></div>
+          </section>
+        </section>
+
+        <section class="gov-savebar is-clean" id="design-savebar" aria-label="Publish theme">
+          <div class="gov-save-status">
+            <strong id="design-change-state">Published theme is active</strong>
+            <small id="design-studio-status" aria-live="polite">Loading published government design…</small>
+          </div>
+          <div class="gov-save-actions">
+            <button class="btn btn-outline-primary" id="design-reset" type="button">Restore Published</button>
+            <button class="btn btn-primary" id="design-save" type="submit" disabled>Publish Everywhere</button>
+          </div>
+        </section>
+      </aside>
     </form>
   </main>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../assets/js/supabase-config.js?v=20260901-gov7"></script>
-<script src="../assets/js/design-studio.js?v=20260901-gov7"></script>
+<script src="../assets/js/supabase-config.js?v=20260901-gov9"></script>
+<script src="../assets/js/design-studio.js?v=20260901-gov9"></script>
 </body>
 </html>

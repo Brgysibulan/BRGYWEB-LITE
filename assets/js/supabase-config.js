@@ -3,8 +3,8 @@
 
   const SUPABASE_URL = 'https://pkvorwvkqjnbgktkgjhr.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_RbaENAflMzLgXpemymGApA_TkVAhMoU';
-  const STAFF_ASSET_VERSION = '20260901-gov7';
-  const GOV_THEME_VERSION = '20260901-gov7';
+  const STAFF_ASSET_VERSION = '20260901-gov9';
+  const GOV_THEME_VERSION = '20260901-gov9';
   const path = window.location.pathname;
   const isStaffPage = /\/(admin|editor)\//.test(path);
   const isAccessPage = /\/(admin|editor)\/(?:login|apply|activate)\.html$/.test(path);
@@ -31,7 +31,15 @@
     document.head.appendChild(script);
     return script;
   }
-  function addStaffStyle(href,dataKey){if(document.querySelector(`link[${dataKey}]`))return null;const link=document.createElement('link');link.rel='stylesheet';link.href=href;link.setAttribute(dataKey,'true');document.head.appendChild(link);return link;}
+  function addStaffStyle(href,dataKey){
+    if(document.querySelector(`link[${dataKey}]`))return null;
+    const link=document.createElement('link');
+    link.rel='stylesheet';
+    link.href=href;
+    link.setAttribute(dataKey,'true');
+    document.head.appendChild(link);
+    return link;
+  }
 
   function ensureAuthorityLast(){
     const link=document.querySelector('link[data-brgy-government-theme-authority]');
@@ -82,10 +90,14 @@
     setTimeout(ensureAuthorityLast,1000);
   }
 
-  if(!window.supabase||typeof window.supabase.createClient!=='function'){console.error('Supabase client library is not loaded.');return;}
+  if(!window.supabase||typeof window.supabase.createClient!=='function'){
+    console.error('Supabase client library is not loaded.');
+    return;
+  }
+
   window.BRGY_SUPABASE=window.supabase.createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true}});
 
-  /* Legacy compatibility loads first; the five-theme authority is deliberately last. */
+  /* Legacy presentation loads first; semantic Design Studio authority is deliberately last. */
   loadStaffAssets();
   loadGovernmentThemeAssets();
 })();
