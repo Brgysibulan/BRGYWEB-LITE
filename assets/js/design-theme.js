@@ -1,8 +1,10 @@
 (() => {
   'use strict';
 
-  const THEME_CACHE_KEY = 'brgyweb:design-theme:v1';
-  const ASSET_VERSION = '20260901-studio5';
+  const THEME_SCHEMA_VERSION = 6;
+  const THEME_CACHE_KEY = 'brgyweb:design-theme:v6';
+  const LEGACY_THEME_CACHE_KEYS = ['brgyweb:design-theme:v1'];
+  const ASSET_VERSION = '20260901-studio7';
   const COLOR_DEFAULTS = Object.freeze({
     primary:'#0b2f21',
     secondary:'#1b6b45',
@@ -51,8 +53,22 @@
   const pick=(value,allowed,fallback)=>allowed.includes(value)?value:fallback;
 
   function syncUiReady(){const root=document.documentElement;if(root.dataset.adminShellReady==='true'&&root.dataset.adminThemeReady==='true')root.dataset.adminUiReady='true';}
-  function readCache(){try{const raw=localStorage.getItem(THEME_CACHE_KEY);if(!raw)return null;const parsed=JSON.parse(raw);const config=parsed?.config||parsed;return config&&typeof config==='object'?config:null;}catch{return null;}}
-  function writeCache(config){try{localStorage.setItem(THEME_CACHE_KEY,JSON.stringify({version:5,savedAt:Date.now(),config}));}catch{}}
+  function readCache(){
+    try{
+      const raw=localStorage.getItem(THEME_CACHE_KEY);
+      if(!raw)return null;
+      const parsed=JSON.parse(raw);
+      if(parsed?.version!==THEME_SCHEMA_VERSION)return null;
+      const config=parsed?.config;
+      return config&&typeof config==='object'?config:null;
+    }catch{return null;}
+  }
+  function writeCache(config){
+    try{
+      localStorage.setItem(THEME_CACHE_KEY,JSON.stringify({version:THEME_SCHEMA_VERSION,savedAt:Date.now(),config}));
+      LEGACY_THEME_CACHE_KEYS.forEach((key)=>localStorage.removeItem(key));
+    }catch{}
+  }
   function normalizeColors(input={}){
     return {
       primary:color(input.primary,COLOR_DEFAULTS.primary),
@@ -70,7 +86,7 @@
   function normalizeAdmin(input={}){return {preset:String(input.preset||ADMIN_DEFAULT.preset),font:pick(input.font,choices.admin.font,ADMIN_DEFAULT.font),radius:pick(input.radius,choices.admin.radius,ADMIN_DEFAULT.radius),density:pick(input.density,choices.admin.density,ADMIN_DEFAULT.density),sidebar:pick(input.sidebar,choices.admin.sidebar,ADMIN_DEFAULT.sidebar),cards:pick(input.cards,choices.admin.cards,ADMIN_DEFAULT.cards)};}
 
   function isTouchLike(){return navigator.maxTouchPoints>0||window.matchMedia('(hover:none), (pointer:coarse)').matches;}
-  function supportsAdvancedDesktopNav(){return !isTouchLike()&&window.matchMedia('(min-width:1366px) and (hover:hover) and (pointer:fine)').matches;}
+  function supportsAdvancedDesktopNav(){return !isTouchLike()&&window.matchMedia('(min-width:1200px) and (hover:hover) and (pointer:fine)').matches;}
   function effectiveNavPosition(requested){if(requested==='top')return 'top';return supportsAdvancedDesktopNav()?requested:'top';}
 
   function ensureStyles(){
@@ -82,7 +98,7 @@
     ensureStyles();
     const theme=normalizePublic(input),root=document.documentElement,effectivePosition=effectiveNavPosition(theme.navPosition);
     lastPublicTheme=theme;
-    root.dataset.publicFont=theme.font;root.dataset.publicRadius=theme.radius;root.dataset.publicDensity=theme.density;root.dataset.publicNav=theme.navSkin;root.dataset.publicNavSkin=theme.navSkin;root.dataset.publicNavRequested=theme.navPosition;root.dataset.publicNavPosition=effectivePosition;root.dataset.publicNavAlign=theme.navAlign;root.dataset.publicNavMode=theme.navMode;root.dataset.publicResponsiveMode=effectivePosition===theme.navPosition?'desktop-capable':'safe-top';root.dataset.publicHero=theme.hero;root.dataset.publicCards=theme.cards;root.dataset.publicContentWidth=theme.contentWidth;
+    root.dataset.publicPreset=theme.preset;root.dataset.publicFont=theme.font;root.dataset.publicRadius=theme.radius;root.dataset.publicDensity=theme.density;root.dataset.publicNav=theme.navSkin;root.dataset.publicNavSkin=theme.navSkin;root.dataset.publicNavRequested=theme.navPosition;root.dataset.publicNavPosition=effectivePosition;root.dataset.publicNavAlign=theme.navAlign;root.dataset.publicNavMode=theme.navMode;root.dataset.publicResponsiveMode=effectivePosition===theme.navPosition?'desktop-capable':'safe-top';root.dataset.publicHero=theme.hero;root.dataset.publicCards=theme.cards;root.dataset.publicContentWidth=theme.contentWidth;root.dataset.publicThemeReady='true';
     root.style.setProperty('--brand-primary',theme.colors.primary);
     root.style.setProperty('--brand-secondary',theme.colors.secondary);
     root.style.setProperty('--brand-primary-dark',theme.colors.primary);
@@ -90,10 +106,10 @@
     root.style.setProperty('--brand-signal',theme.colors.signal);
     root.style.setProperty('--brand-danger',theme.colors.signal);
     root.style.setProperty('--soft-bg',theme.colors.surface);
-    return theme;
+    return {...theme,effectiveNavPosition:effectivePosition};
   }
 
-  function applyAdmin(input={}){ensureStyles();const theme=normalizeAdmin(input),root=document.documentElement;root.dataset.adminFont=theme.font;root.dataset.adminRadius=theme.radius;root.dataset.adminDensity=theme.density;root.dataset.adminSidebar=theme.sidebar;root.dataset.adminCards=theme.cards;root.dataset.adminThemeReady='true';syncUiReady();return theme;}
+  function applyAdmin(input={}){ensureStyles();const theme=normalizeAdmin(input),root=document.documentElement;root.dataset.adminPreset=theme.preset;root.dataset.adminFont=theme.font;root.dataset.adminRadius=theme.radius;root.dataset.adminDensity=theme.density;root.dataset.adminSidebar=theme.sidebar;root.dataset.adminCards=theme.cards;root.dataset.adminThemeReady='true';syncUiReady();return theme;}
 
   async function load(client,scope='admin'){
     const cached=readCache();if(cached){if(scope==='public')applyPublic(cached.public||{});else applyAdmin(cached.admin||{});}
@@ -102,7 +118,7 @@
   }
 
   window.addEventListener('resize',()=>{if(!lastPublicTheme)return;window.clearTimeout(resizeTimer);resizeTimer=window.setTimeout(()=>applyPublic(lastPublicTheme),80);},{passive:true});
-  window.BRGY_THEME=Object.freeze({COLOR_DEFAULTS,PUBLIC_DEFAULT,ADMIN_DEFAULT,publicPresets,adminPresets,normalizeColors,normalizePublic,normalizeAdmin,applyPublic,applyAdmin,load,ensureStyles,readCache,writeCache});
+  window.BRGY_THEME=Object.freeze({THEME_SCHEMA_VERSION,COLOR_DEFAULTS,PUBLIC_DEFAULT,ADMIN_DEFAULT,publicPresets,adminPresets,normalizeColors,normalizePublic,normalizeAdmin,effectiveNavPosition,supportsAdvancedDesktopNav,applyPublic,applyAdmin,load,ensureStyles,readCache,writeCache});
   ensureStyles();
   const cachedAtBoot=readCache();if(cachedAtBoot){if(/\/(admin|editor)\//.test(location.pathname))applyAdmin(cachedAtBoot.admin||{});else applyPublic(cachedAtBoot.public||{});}
   if(/\/(admin|editor)\//.test(location.pathname)){const boot=()=>load(window.BRGY_SUPABASE,'admin');if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',boot,{once:true});else boot();}
