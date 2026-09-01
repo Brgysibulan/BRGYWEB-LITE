@@ -96,13 +96,21 @@
     return (Math.max(l1,l2)+0.05)/(Math.min(l1,l2)+0.05);
   }
 
+  function bestTextContrast(background) {
+    const light='#ffffff';
+    const dark='#17201a';
+    const lightContrast=contrast(background,light);
+    const darkContrast=contrast(background,dark);
+    return {color:darkContrast>lightContrast?dark:light,ratio:Math.max(lightContrast,darkContrast)};
+  }
+
   function evaluateColors(colors={}) {
     const invalid=COLOR_ROLES.some(({key})=>!/^#[0-9a-f]{6}$/i.test(String(colors[key]||'')));
     if(invalid) return {ok:false,warning:false,message:'Enter a valid 6-digit hex color for all four colors.'};
-    const mainContrast=contrast(colors.primary,'#ffffff');
-    const secondContrast=contrast(colors.secondary,'#ffffff');
-    if(mainContrast<4.5||secondContrast<3.2) return {ok:true,warning:true,message:'Colors are usable, but Main or Second may have low contrast with white text.'};
-    return {ok:true,warning:false,message:'Four custom colors are ready to publish.'};
+    const main=bestTextContrast(colors.primary);
+    const second=bestTextContrast(colors.secondary);
+    if(main.ratio<4.5||second.ratio<4.5) return {ok:true,warning:true,message:'Colors are usable, but Main or Second may still have low contrast even with automatic light/dark text.'};
+    return {ok:true,warning:false,message:'Four custom colors are ready to publish with automatic contrast text.'};
   }
 
   async function waitForRuntime() {
