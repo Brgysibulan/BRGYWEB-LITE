@@ -4,7 +4,7 @@
   const THEME_SCHEMA_VERSION = 6;
   const THEME_CACHE_KEY = 'brgyweb:design-theme:v6';
   const LEGACY_THEME_CACHE_KEYS = ['brgyweb:design-theme:v1'];
-  const ASSET_VERSION = '20260901-studio8';
+  const ASSET_VERSION = '20260901-studio9';
   const COLOR_DEFAULTS = Object.freeze({primary:'#0b2f21',secondary:'#1b6b45',accent:'#d8b63e',signal:'#a63d40',surface:'#f5f8f5'});
   let lastPublicTheme=null,resizeTimer=0;
   const PUBLIC_DEFAULT=Object.freeze({preset:'civic',font:'system',radius:'rounded',density:'comfortable',navSkin:'gradient',navPosition:'top',navAlign:'right',navMode:'links',hero:'bold',cards:'elevated',contentWidth:'wide',colors:{...COLOR_DEFAULTS}});
