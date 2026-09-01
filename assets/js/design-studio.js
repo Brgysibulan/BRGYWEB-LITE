@@ -31,6 +31,7 @@
   let selected = 'modern-lgu';
   let saved = null;
   let dirty = false;
+  let loadingSaved = false;
 
   const clone = (value) => JSON.parse(JSON.stringify(value));
   const setStatus = (message, error=false) => {
@@ -127,27 +128,56 @@
     if (!catalog[id]) return;
     selected=id;
     refreshPreview();
-    syncDirty(`${catalog[id].name} selected. All four surfaces will switch together when published.`);
+    syncDirty(`${catalog[id].name} selected. Public, dashboard, all admin forms and access pages will switch together when published.`);
   }
 
-  async function loadSaved() {
-    setStatus('Loading published government design…');
+  function sameColors(actual={}, expected={}) {
+    return ['primary','secondary','accent','signal'].every((key)=>String(actual?.[key]||'').toLowerCase()===String(expected?.[key]||'').toLowerCase());
+  }
+
+  function verifyPayload(actual, expected, expectedId) {
+    const actualId = window.BRGY_GOV_THEME_RUNTIME.normalize(actual?.experience, actual?.pack);
+    if (actualId !== expectedId) throw new Error(`Theme verification failed: expected ${expectedId}, received ${actualId}.`);
+    if (actual?.pack !== expected.pack) throw new Error('Theme verification failed: base design package did not match.');
+    if (!sameColors(actual?.public?.colors, expected.public.colors)) throw new Error('Theme verification failed: public colors did not match.');
+    if (!sameColors(actual?.admin?.colors, expected.admin.colors)) throw new Error('Theme verification failed: admin colors did not match.');
+  }
+
+  async function readSavedRecord() {
     const {data,error}=await client.from('site_settings').select('design_theme').eq('id',1).single();
     if (error) throw error;
-    const raw=clone(data?.design_theme||{});
-    selected=window.BRGY_GOV_THEME_RUNTIME.normalize(raw.experience, raw.pack);
-    saved=selected;
-    refreshPreview();
-    syncDirty();
-    setStatus(`${catalog[selected].name} is currently published across public, dashboard and access pages.`);
+    return clone(data?.design_theme||{});
+  }
+
+  async function loadSaved(message='') {
+    if (loadingSaved) return;
+    loadingSaved=true;
+    try {
+      if (!message) setStatus('Loading published government design…');
+      const raw=await readSavedRecord();
+      const live=window.BRGY_GOV_THEME_RUNTIME.normalize(raw.experience, raw.pack);
+      if (!catalog[live]) throw new Error('Published theme is not part of the five-theme catalog.');
+      saved=live;
+      if (!dirty || !selected) selected=live;
+      else if (selected===saved) dirty=false;
+      window.BRGY_GOV_THEME_RUNTIME.apply(live,raw);
+      theme.writeCache(theme.normalizeConfig(raw));
+      theme.applyAdmin(raw.admin||{});
+      refreshPreview();
+      syncDirty();
+      setStatus(message || `${catalog[live].name} is the verified published theme across public, dashboard, all admin forms and access pages.`);
+    } finally {
+      loadingSaved=false;
+    }
   }
 
   async function publish() {
     if (!dirty) return;
-    const payload=compose(selected);
+    const expectedId=selected;
+    const payload=compose(expectedId);
     saveButton.disabled=true;
     resetButton.disabled=true;
-    setStatus(`Publishing ${catalog[selected].name} across all website surfaces…`);
+    setStatus(`Publishing ${catalog[expectedId].name} across every website surface…`);
     try {
       const {data,error}=await client.from('site_settings').update({
         design_theme:payload,
@@ -157,16 +187,20 @@
         updated_at:new Date().toISOString()
       }).eq('id',1).select('design_theme').single();
       if (error) throw error;
-      const verified=data?.design_theme||{};
-      if (verified.experience!==selected) throw new Error('Theme verification failed.');
-      saved=selected;
+      verifyPayload(data?.design_theme||{},payload,expectedId);
+
+      /* Re-read from Supabase instead of trusting local selection/status. */
+      const reread=await readSavedRecord();
+      verifyPayload(reread,payload,expectedId);
+      saved=expectedId;
+      selected=expectedId;
       dirty=false;
-      theme.writeCache(verified);
-      theme.applyAdmin(verified.admin);
-      window.BRGY_GOV_THEME_RUNTIME.apply(selected, verified);
+      theme.writeCache(theme.normalizeConfig(reread));
+      theme.applyAdmin(reread.admin||{});
+      window.BRGY_GOV_THEME_RUNTIME.apply(expectedId,reread);
       refreshPreview();
       syncDirty();
-      setStatus(`${catalog[selected].name} published and verified. Public website, dashboards, login, signup and activation now use one design system.`);
+      setStatus(`${catalog[expectedId].name} published and re-verified from Supabase. One theme now controls public, dashboard, all admin forms, login, signup and activation.`);
     } catch (error) {
       console.error(error);
       setStatus(error.message||'Unable to publish the government design.',true);
@@ -176,13 +210,18 @@
     }
   }
 
-  resetButton?.addEventListener('click',()=>{
+  resetButton?.addEventListener('click',async()=>{
     if (!saved) return;
+    dirty=false;
     selected=saved;
     refreshPreview();
-    syncDirty('Restored the currently published theme in preview.');
+    syncDirty('Restored the verified published theme in preview.');
+    try { await loadSaved('Published theme rechecked from Supabase.'); } catch(error){ console.error(error); }
   });
   form?.addEventListener('submit',(event)=>{event.preventDefault();publish();});
+  document.addEventListener('visibilitychange',()=>{
+    if(document.visibilityState==='visible'&&!dirty)loadSaved().catch((error)=>console.warn('Theme status refresh failed:',error));
+  });
 
   async function init() {
     if (!await requireAdmin()) return;
