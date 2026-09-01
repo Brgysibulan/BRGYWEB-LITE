@@ -4,7 +4,7 @@
   const SUPABASE_URL = 'https://pkvorwvkqjnbgktkgjhr.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_RbaENAflMzLgXpemymGApA_TkVAhMoU';
   const STAFF_ASSET_VERSION = '20260901-gov11';
-  const GOV_THEME_VERSION = '20260901-gov10';
+  const GOV_THEME_VERSION = '20260901-gov11';
   const HEADER_TEXT_VERSION = '20260901-header1';
   const ADMIN_SHELL_VERSION = '20260901nav3';
   const path = window.location.pathname;
@@ -80,6 +80,21 @@
     if(!isAccessPage)addStaffScript(`../assets/js/admin-table-tools.js?v=${STAFF_ASSET_VERSION}`,'data-brgy-admin-table-tools');
   }
 
+  function applyCachedGovernmentTheme(){
+    const runtime=window.BRGY_GOV_THEME_RUNTIME;
+    if(!runtime?.cached||!runtime?.apply)return false;
+    try{
+      const saved=runtime.cached();
+      if(!saved?.id||!saved?.config)return false;
+      runtime.apply(saved.id,saved.config);
+      ensureAuthorityLast();
+      return true;
+    }catch(error){
+      console.warn('Unable to prime cached government theme:',error);
+      return false;
+    }
+  }
+
   function loadGovernmentThemeAssets(){
     if(!document.querySelector('link[data-brgy-government-themes]')){
       const link=document.createElement('link');
@@ -100,7 +115,14 @@
       script.src=new URL(`government-theme-runtime.js?v=${GOV_THEME_VERSION}`,thisScript).href;
       script.async=false;
       script.dataset.brgyGovernmentThemeRuntime='true';
+      script.addEventListener('load',()=>{
+        applyCachedGovernmentTheme();
+        requestAnimationFrame(ensureAuthorityLast);
+      },{once:true});
+      script.addEventListener('error',()=>markAssetFailure('theme'),{once:true});
       document.head.appendChild(script);
+    }else{
+      applyCachedGovernmentTheme();
     }
     ensureAuthorityLast();
     requestAnimationFrame(ensureAuthorityLast);
