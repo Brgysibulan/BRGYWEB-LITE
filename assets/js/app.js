@@ -25,7 +25,7 @@
       const existing=document.querySelector('script[data-brgy-design-theme]');
       if(existing){ if(window.BRGY_THEME){resolve(window.BRGY_THEME);return;} existing.addEventListener('load',()=>resolve(window.BRGY_THEME),{once:true}); existing.addEventListener('error',()=>resolve(null),{once:true}); return; }
       const script=document.createElement('script');
-      script.src='assets/js/design-theme.js?v=20260901-studio10';
+      script.src='assets/js/design-theme.js?v=20260901-stability1';
       script.dataset.brgyDesignTheme='true';
       script.onload=()=>resolve(window.BRGY_THEME);
       script.onerror=()=>resolve(null);
