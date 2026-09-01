@@ -3,7 +3,7 @@
   if (window.__BRGY_RESPONSIVE_GUARD__) return;
   window.__BRGY_RESPONSIVE_GUARD__ = true;
   const BREAKPOINT = 900;
-  const GUARD_VERSION = '20260901-viewport1';
+  const GUARD_VERSION = '20260901-viewport2';
   const root = document.documentElement;
   let scheduled = false;
   function isCompactNavigation(){return window.innerWidth < BREAKPOINT;}
