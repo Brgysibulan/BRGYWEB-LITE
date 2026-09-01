@@ -1,111 +1,90 @@
-/* BRGYWEB-LITE public web-layout layer.
-   Layout is independent from the published palette. Desktop gets the chosen composition;
-   phones always return to a safe single-column reading flow. */
+/* BRGYWEB-LITE semantic public layout layer.
+   The placement engine owns information order; this file owns composition.
+   Brand colors stay under Design Studio theme authority. */
 
-html[data-web-layout][data-web-layout-ready="true"] body[data-public-page="index"] main>section{order:initial!important}
+html[data-web-layout][data-content-placement-ready="true"] body[data-public-page="index"] main{min-width:0}
+html[data-web-layout][data-content-placement-ready="true"] body[data-public-page="index"] main>[data-content-zone]{min-width:0}
+html[data-web-layout][data-content-placement-ready="true"] body[data-public-page="index"] main>[data-content-zone]>.container{width:100%;min-width:0}
 
 @media(min-width:901px){
-  html[data-web-layout] body[data-public-page="index"] main{min-width:0}
-  html[data-web-layout] body[data-public-page="index"] main>section{min-width:0}
-  html[data-web-layout] body[data-public-page="index"] main>section>.container{width:100%}
+  html[data-web-layout] body[data-public-page="index"] main{--layout-gap:1rem}
 
-  html[data-web-layout="two-column"] body[data-public-page="index"] main{display:grid!important;grid-template-columns:minmax(0,2fr) minmax(300px,1fr);gap:1rem;padding:1rem max(1rem,3vw) 2rem;background:var(--theme-canvas,#f7f9f8)}
-  html[data-web-layout="two-column"] body[data-public-page="index"] main>.hero-section,
-  html[data-web-layout="two-column"] body[data-public-page="index"] main>.civic-trust-strip,
-  html[data-web-layout="two-column"] body[data-public-page="index"] main>#barangay-hall-map-section{grid-column:1/-1}
-  html[data-web-layout="two-column"] body[data-public-page="index"] main>.quick-links{grid-column:2;grid-row:3/6}
-  html[data-web-layout="two-column"] body[data-public-page="index"] main>.premium-home-band{grid-column:2;grid-row:6/8}
-  html[data-web-layout="two-column"] body[data-public-page="index"] main>#profile,
-  html[data-web-layout="two-column"] body[data-public-page="index"] main>#announcements,
-  html[data-web-layout="two-column"] body[data-public-page="index"] main>#services,
-  html[data-web-layout="two-column"] body[data-public-page="index"] main>#officials{grid-column:1}
-  html[data-web-layout="two-column"] body[data-public-page="index"] :is(.quick-links,.premium-home-band,#profile,#announcements,#services,#officials){padding:1.5rem 0!important}
-  html[data-web-layout="two-column"] body[data-public-page="index"] .quick-links .row{display:grid;grid-template-columns:1fr!important}
-  html[data-web-layout="two-column"] body[data-public-page="index"] .quick-links .row>*{width:100%!important}
+  html[data-web-layout="two-column"] body[data-public-page="index"] main{display:grid!important;grid-template-columns:minmax(0,2fr) minmax(300px,1fr);gap:var(--layout-gap);padding:0 max(1rem,3vw) 2rem;background:var(--theme-canvas,#f7f9f8)}
+  html[data-web-layout="two-column"] body[data-public-page="index"] main>:is([data-content-zone="hero"],[data-content-zone="trust"],[data-content-zone="location"]){grid-column:1/-1}
+  html[data-web-layout="two-column"] body[data-public-page="index"] main>:is([data-content-zone="announcements"],[data-content-zone="services"],[data-content-zone="profile"],[data-content-zone="officials"]){grid-column:1}
+  html[data-web-layout="two-column"] body[data-public-page="index"] main>:is([data-content-zone="utilities"],[data-content-zone="portal"]){grid-column:2}
+  html[data-web-layout="two-column"] body[data-public-page="index"] main>:not([data-content-zone="hero"]):not([data-content-zone="trust"]):not([data-content-zone="location"]){padding:1.35rem 0!important}
+  html[data-web-layout="two-column"] body[data-public-page="index"] [data-content-zone="utilities"] .row{display:grid;grid-template-columns:1fr!important}
+  html[data-web-layout="two-column"] body[data-public-page="index"] [data-content-zone="utilities"] .row>*{width:100%!important}
+  html[data-web-layout="two-column"] body[data-public-page="index"] [data-content-zone="portal"] .premium-band-grid{grid-template-columns:1fr!important}
 
-  html[data-web-layout="split-screen"] body[data-public-page="index"] main{display:grid!important;grid-template-columns:1fr 1fr}
-  html[data-web-layout="split-screen"] body[data-public-page="index"] main>.hero-section{grid-column:1;grid-row:1;min-height:620px!important}
-  html[data-web-layout="split-screen"] body[data-public-page="index"] main>.premium-home-band{grid-column:2;grid-row:1;display:flex;align-items:center;padding:clamp(2rem,5vw,5rem) 0}
-  html[data-web-layout="split-screen"] body[data-public-page="index"] main>.civic-trust-strip,
-  html[data-web-layout="split-screen"] body[data-public-page="index"] main>.quick-links,
-  html[data-web-layout="split-screen"] body[data-public-page="index"] main>#profile,
-  html[data-web-layout="split-screen"] body[data-public-page="index"] main>#officials,
-  html[data-web-layout="split-screen"] body[data-public-page="index"] main>#announcements,
-  html[data-web-layout="split-screen"] body[data-public-page="index"] main>#services,
-  html[data-web-layout="split-screen"] body[data-public-page="index"] main>#barangay-hall-map-section{grid-column:1/-1}
-  html[data-web-layout="split-screen"] body[data-public-page="index"] .premium-band-grid{grid-template-columns:1fr!important}
-  html[data-web-layout="split-screen"] body[data-public-page="index"] .premium-capabilities{grid-template-columns:1fr 1fr}
+  html[data-web-layout="split-screen"] body[data-public-page="index"] main{display:grid!important;grid-template-columns:1fr 1fr;background:var(--theme-canvas,#f7f9f8)}
+  html[data-web-layout="split-screen"] body[data-public-page="index"] main>[data-content-zone="hero"]{grid-column:1;grid-row:1;min-height:620px!important}
+  html[data-web-layout="split-screen"] body[data-public-page="index"] main>[data-content-zone="announcements"]{grid-column:2;grid-row:1;align-self:stretch;padding:clamp(2rem,4vw,4.5rem) 0!important}
+  html[data-web-layout="split-screen"] body[data-public-page="index"] main>:is([data-content-zone="trust"],[data-content-zone="utilities"],[data-content-zone="location"]){grid-column:1/-1}
+  html[data-web-layout="split-screen"] body[data-public-page="index"] main>[data-content-zone="services"]{grid-column:1}
+  html[data-web-layout="split-screen"] body[data-public-page="index"] main>[data-content-zone="portal"]{grid-column:2}
+  html[data-web-layout="split-screen"] body[data-public-page="index"] main>[data-content-zone="officials"]{grid-column:1}
+  html[data-web-layout="split-screen"] body[data-public-page="index"] main>[data-content-zone="profile"]{grid-column:2}
+  html[data-web-layout="split-screen"] body[data-public-page="index"] [data-content-zone="announcements"] #homepage-announcements-list>*{width:100%!important}
+  html[data-web-layout="split-screen"] body[data-public-page="index"] [data-content-zone="portal"] .premium-band-grid{grid-template-columns:1fr!important}
 
   html[data-web-layout="asymmetrical"] body[data-public-page="index"] main,
+  html[data-web-layout="card-block"] body[data-public-page="index"] main,
   html[data-web-layout="masonry"] body[data-public-page="index"] main,
-  html[data-web-layout="magazine"] body[data-public-page="index"] main,
-  html[data-web-layout="card-block"] body[data-public-page="index"] main{display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr));gap:1rem;padding:1rem max(1rem,3vw) 2rem;background:var(--theme-canvas,#f7f9f8)}
-  html[data-web-layout="asymmetrical"] body[data-public-page="index"] main>.hero-section,
-  html[data-web-layout="asymmetrical"] body[data-public-page="index"] main>.civic-trust-strip,
-  html[data-web-layout="asymmetrical"] body[data-public-page="index"] main>#barangay-hall-map-section{grid-column:1/-1}
-  html[data-web-layout="asymmetrical"] body[data-public-page="index"] main>.quick-links{grid-column:1/8}
-  html[data-web-layout="asymmetrical"] body[data-public-page="index"] main>.premium-home-band{grid-column:8/13}
-  html[data-web-layout="asymmetrical"] body[data-public-page="index"] main>#profile{grid-column:1/5}
-  html[data-web-layout="asymmetrical"] body[data-public-page="index"] main>#announcements{grid-column:5/13}
-  html[data-web-layout="asymmetrical"] body[data-public-page="index"] main>#services{grid-column:1/9}
-  html[data-web-layout="asymmetrical"] body[data-public-page="index"] main>#officials{grid-column:9/13}
+  html[data-web-layout="magazine"] body[data-public-page="index"] main{display:grid!important;grid-template-columns:repeat(12,minmax(0,1fr));gap:var(--layout-gap);padding:0 max(1rem,3vw) 2rem;background:var(--theme-canvas,#f7f9f8)}
 
-  html[data-web-layout="f-shape"] body[data-public-page="index"] main{display:block!important;background:var(--theme-surface,#fff)}
-  html[data-web-layout="f-shape"] body[data-public-page="index"] main>.hero-section,
-  html[data-web-layout="f-shape"] body[data-public-page="index"] main>.civic-trust-strip{width:100%}
-  html[data-web-layout="f-shape"] body[data-public-page="index"] main>.quick-links{width:92%;margin-right:auto}
-  html[data-web-layout="f-shape"] body[data-public-page="index"] main>.premium-home-band{width:84%;margin-right:auto}
-  html[data-web-layout="f-shape"] body[data-public-page="index"] main>#announcements{width:78%;margin-right:auto}
-  html[data-web-layout="f-shape"] body[data-public-page="index"] main>#services{width:72%;margin-right:auto}
-  html[data-web-layout="f-shape"] body[data-public-page="index"] main>#profile{width:66%;margin-right:auto}
-  html[data-web-layout="f-shape"] body[data-public-page="index"] main>#officials{width:76%;margin-right:auto}
-  html[data-web-layout="f-shape"] body[data-public-page="index"] main>#barangay-hall-map-section{width:100%}
+  html[data-web-layout="asymmetrical"] body[data-public-page="index"] main>:is([data-content-zone="hero"],[data-content-zone="trust"],[data-content-zone="location"]){grid-column:1/-1}
+  html[data-web-layout="asymmetrical"] body[data-public-page="index"] main>[data-content-zone="utilities"]{grid-column:1/8}
+  html[data-web-layout="asymmetrical"] body[data-public-page="index"] main>[data-content-zone="portal"]{grid-column:8/13}
+  html[data-web-layout="asymmetrical"] body[data-public-page="index"] main>[data-content-zone="services"]{grid-column:1/9}
+  html[data-web-layout="asymmetrical"] body[data-public-page="index"] main>[data-content-zone="announcements"]{grid-column:9/13}
+  html[data-web-layout="asymmetrical"] body[data-public-page="index"] main>[data-content-zone="profile"]{grid-column:1/5}
+  html[data-web-layout="asymmetrical"] body[data-public-page="index"] main>[data-content-zone="officials"]{grid-column:5/13}
+  html[data-web-layout="asymmetrical"] body[data-public-page="index"] main>:not([data-content-zone="hero"]):not([data-content-zone="trust"]):not([data-content-zone="location"]){padding:1rem 0!important}
 
-  html[data-web-layout="z-shape"] body[data-public-page="index"] main{display:block!important;overflow:hidden}
-  html[data-web-layout="z-shape"] body[data-public-page="index"] main>:is(.quick-links,#profile,#announcements){width:84%;margin-right:auto}
-  html[data-web-layout="z-shape"] body[data-public-page="index"] main>:is(.premium-home-band,#officials,#services){width:84%;margin-left:auto}
-  html[data-web-layout="z-shape"] body[data-public-page="index"] main>.civic-trust-strip,
-  html[data-web-layout="z-shape"] body[data-public-page="index"] main>.hero-section,
-  html[data-web-layout="z-shape"] body[data-public-page="index"] main>#barangay-hall-map-section{width:100%}
+  html[data-web-layout="f-shape"] body[data-public-page="index"] main{display:block!important;overflow:hidden;background:var(--theme-surface,#fff)}
+  html[data-web-layout="f-shape"] body[data-public-page="index"] main>:is([data-content-zone="hero"],[data-content-zone="trust"],[data-content-zone="location"]){width:100%}
+  html[data-web-layout="f-shape"] body[data-public-page="index"] main>[data-content-zone="announcements"]{width:92%;margin-right:auto}
+  html[data-web-layout="f-shape"] body[data-public-page="index"] main>[data-content-zone="services"]{width:86%;margin-right:auto}
+  html[data-web-layout="f-shape"] body[data-public-page="index"] main>[data-content-zone="utilities"]{width:80%;margin-right:auto}
+  html[data-web-layout="f-shape"] body[data-public-page="index"] main>[data-content-zone="profile"]{width:72%;margin-right:auto}
+  html[data-web-layout="f-shape"] body[data-public-page="index"] main>[data-content-zone="officials"]{width:78%;margin-right:auto}
+  html[data-web-layout="f-shape"] body[data-public-page="index"] main>[data-content-zone="portal"]{width:70%;margin-right:auto}
 
-  html[data-web-layout="card-block"] body[data-public-page="index"] main>.hero-section,
-  html[data-web-layout="card-block"] body[data-public-page="index"] main>.civic-trust-strip,
-  html[data-web-layout="card-block"] body[data-public-page="index"] main>#barangay-hall-map-section{grid-column:1/-1}
-  html[data-web-layout="card-block"] body[data-public-page="index"] main>.quick-links,
-  html[data-web-layout="card-block"] body[data-public-page="index"] main>.premium-home-band,
-  html[data-web-layout="card-block"] body[data-public-page="index"] main>#profile,
-  html[data-web-layout="card-block"] body[data-public-page="index"] main>#officials,
-  html[data-web-layout="card-block"] body[data-public-page="index"] main>#announcements,
-  html[data-web-layout="card-block"] body[data-public-page="index"] main>#services{grid-column:span 6;padding:1rem 0!important}
-  html[data-web-layout="card-block"] body[data-public-page="index"] main>:is(.quick-links,.premium-home-band,#profile,#officials,#announcements,#services)>.container{height:100%;padding:1rem;border:1px solid var(--theme-border,#dfe5df);background:var(--theme-surface,#fff)}
+  html[data-web-layout="z-shape"] body[data-public-page="index"] main{display:block!important;overflow:hidden;background:var(--theme-surface,#fff)}
+  html[data-web-layout="z-shape"] body[data-public-page="index"] main>:is([data-content-zone="hero"],[data-content-zone="trust"],[data-content-zone="location"]){width:100%}
+  html[data-web-layout="z-shape"] body[data-public-page="index"] main>:is([data-content-zone="utilities"],[data-content-zone="services"],[data-content-zone="profile"],[data-content-zone="portal"]){width:84%;margin-right:auto}
+  html[data-web-layout="z-shape"] body[data-public-page="index"] main>:is([data-content-zone="announcements"],[data-content-zone="officials"]){width:84%;margin-left:auto}
 
-  html[data-web-layout="featured-media"] body[data-public-page="index"] main{display:block!important}
-  html[data-web-layout="featured-media"] body[data-public-page="index"] .hero-section{min-height:78vh!important}
-  html[data-web-layout="featured-media"] body[data-public-page="index"] main>:not(.hero-section):not(.civic-trust-strip){max-width:1180px;margin-left:auto;margin-right:auto}
-  html[data-web-layout="featured-media"] body[data-public-page="index"] main>.civic-trust-strip{max-width:1280px;margin-left:auto;margin-right:auto}
+  html[data-web-layout="card-block"] body[data-public-page="index"] main>:is([data-content-zone="hero"],[data-content-zone="trust"],[data-content-zone="location"]){grid-column:1/-1}
+  html[data-web-layout="card-block"] body[data-public-page="index"] main>:is([data-content-zone="utilities"],[data-content-zone="services"],[data-content-zone="announcements"],[data-content-zone="profile"],[data-content-zone="officials"],[data-content-zone="portal"]){grid-column:span 6;padding:1rem 0!important}
+  html[data-web-layout="card-block"] body[data-public-page="index"] main>:is([data-content-zone="utilities"],[data-content-zone="services"],[data-content-zone="announcements"],[data-content-zone="profile"],[data-content-zone="officials"],[data-content-zone="portal"])>.container{height:100%;padding:1rem;border:1px solid var(--theme-border,#dfe5df);background:var(--theme-surface,#fff);border-radius:var(--public-radius,18px)}
+
+  html[data-web-layout="featured-media"] body[data-public-page="index"] main{display:block!important;background:var(--theme-surface,#fff)}
+  html[data-web-layout="featured-media"] body[data-public-page="index"] [data-content-zone="hero"]{min-height:78vh!important}
+  html[data-web-layout="featured-media"] body[data-public-page="index"] main>[data-content-zone]:not([data-content-zone="hero"]):not([data-content-zone="trust"]){max-width:1180px;margin-left:auto;margin-right:auto}
+  html[data-web-layout="featured-media"] body[data-public-page="index"] main>[data-content-zone="announcements"]{max-width:1280px}
+  html[data-web-layout="featured-media"] body[data-public-page="index"] main>[data-content-zone="trust"]{max-width:1320px;margin-left:auto;margin-right:auto}
 
   html[data-web-layout="masonry"] body[data-public-page="index"] main{grid-auto-flow:dense}
-  html[data-web-layout="masonry"] body[data-public-page="index"] main>.hero-section,
-  html[data-web-layout="masonry"] body[data-public-page="index"] main>.civic-trust-strip,
-  html[data-web-layout="masonry"] body[data-public-page="index"] main>#barangay-hall-map-section{grid-column:1/-1}
-  html[data-web-layout="masonry"] body[data-public-page="index"] main>.quick-links{grid-column:1/7}
-  html[data-web-layout="masonry"] body[data-public-page="index"] main>.premium-home-band{grid-column:7/13}
-  html[data-web-layout="masonry"] body[data-public-page="index"] main>#profile{grid-column:1/5}
-  html[data-web-layout="masonry"] body[data-public-page="index"] main>#officials{grid-column:5/13}
-  html[data-web-layout="masonry"] body[data-public-page="index"] main>#announcements{grid-column:1/9}
-  html[data-web-layout="masonry"] body[data-public-page="index"] main>#services{grid-column:9/13}
-  html[data-web-layout="masonry"] body[data-public-page="index"] main>:is(.quick-links,.premium-home-band,#profile,#officials,#announcements,#services){padding:1rem 0!important}
+  html[data-web-layout="masonry"] body[data-public-page="index"] main>:is([data-content-zone="hero"],[data-content-zone="trust"],[data-content-zone="location"]){grid-column:1/-1}
+  html[data-web-layout="masonry"] body[data-public-page="index"] main>[data-content-zone="utilities"]{grid-column:1/7}
+  html[data-web-layout="masonry"] body[data-public-page="index"] main>[data-content-zone="announcements"]{grid-column:7/13}
+  html[data-web-layout="masonry"] body[data-public-page="index"] main>[data-content-zone="services"]{grid-column:1/9}
+  html[data-web-layout="masonry"] body[data-public-page="index"] main>[data-content-zone="profile"]{grid-column:9/13}
+  html[data-web-layout="masonry"] body[data-public-page="index"] main>[data-content-zone="officials"]{grid-column:1/8}
+  html[data-web-layout="masonry"] body[data-public-page="index"] main>[data-content-zone="portal"]{grid-column:8/13}
+  html[data-web-layout="masonry"] body[data-public-page="index"] main>:not([data-content-zone="hero"]):not([data-content-zone="trust"]):not([data-content-zone="location"]){padding:1rem 0!important}
 
-  html[data-web-layout="magazine"] body[data-public-page="index"] main>.hero-section{grid-column:1/9}
-  html[data-web-layout="magazine"] body[data-public-page="index"] main>#announcements{grid-column:9/13}
-  html[data-web-layout="magazine"] body[data-public-page="index"] main>.civic-trust-strip{grid-column:1/-1}
-  html[data-web-layout="magazine"] body[data-public-page="index"] main>.premium-home-band{grid-column:1/9}
-  html[data-web-layout="magazine"] body[data-public-page="index"] main>.quick-links{grid-column:9/13}
-  html[data-web-layout="magazine"] body[data-public-page="index"] main>#profile{grid-column:1/5}
-  html[data-web-layout="magazine"] body[data-public-page="index"] main>#services{grid-column:5/9}
-  html[data-web-layout="magazine"] body[data-public-page="index"] main>#officials{grid-column:9/13}
-  html[data-web-layout="magazine"] body[data-public-page="index"] main>#barangay-hall-map-section{grid-column:1/-1}
-  html[data-web-layout="magazine"] body[data-public-page="index"] main>:not(.hero-section):not(.civic-trust-strip){padding:1rem 0!important}
+  html[data-web-layout="magazine"] body[data-public-page="index"] main>[data-content-zone="hero"]{grid-column:1/9;grid-row:1}
+  html[data-web-layout="magazine"] body[data-public-page="index"] main>[data-content-zone="announcements"]{grid-column:9/13;grid-row:1;padding:clamp(1.5rem,3vw,3rem) 0!important}
+  html[data-web-layout="magazine"] body[data-public-page="index"] main>[data-content-zone="trust"]{grid-column:1/-1}
+  html[data-web-layout="magazine"] body[data-public-page="index"] main>[data-content-zone="services"]{grid-column:1/9}
+  html[data-web-layout="magazine"] body[data-public-page="index"] main>[data-content-zone="utilities"]{grid-column:9/13}
+  html[data-web-layout="magazine"] body[data-public-page="index"] main>[data-content-zone="profile"]{grid-column:1/5}
+  html[data-web-layout="magazine"] body[data-public-page="index"] main>[data-content-zone="officials"]{grid-column:5/13}
+  html[data-web-layout="magazine"] body[data-public-page="index"] main>:is([data-content-zone="portal"],[data-content-zone="location"]){grid-column:1/-1}
   html[data-web-layout="magazine"] body[data-public-page="index"] :is(#homepage-announcements-list,#home-services-list,#officials-list)>*{width:100%!important}
 
   html[data-web-layout="fixed-navigation"] body:not(.dashboard-page) .site-header{position:fixed!important;top:0;left:0;right:0;width:100%;z-index:1050}
@@ -122,19 +101,19 @@ html[data-web-layout][data-web-layout-ready="true"] body[data-public-page="index
   html[data-web-layout="hidden-navigation"] body[data-public-page="index"] main{display:block!important}
 
   html[data-web-layout="interactive"] body[data-public-page="index"] main{display:block!important}
-  html[data-web-layout="interactive"] body[data-public-page="index"] :is(.quick-links .row,#homepage-announcements-list,#home-services-list){display:flex!important;flex-wrap:nowrap!important;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-inline:contain;padding-bottom:.6rem;scrollbar-width:thin}
-  html[data-web-layout="interactive"] body[data-public-page="index"] :is(.quick-links .row,#homepage-announcements-list,#home-services-list)>*{flex:0 0 min(430px,42vw)!important;width:auto!important;scroll-snap-align:start}
-  html[data-web-layout="interactive"] body[data-public-page="index"] .quick-card,
-  html[data-web-layout="interactive"] body[data-public-page="index"] :is(#homepage-announcements-list,#home-services-list)>*>*{height:100%}
+  html[data-web-layout="interactive"] body[data-public-page="index"] :is([data-content-zone="utilities"] .row,#homepage-announcements-list,#home-services-list,#officials-list){display:flex!important;flex-wrap:nowrap!important;overflow-x:auto;scroll-snap-type:x mandatory;overscroll-behavior-inline:contain;padding-bottom:.65rem;scrollbar-width:thin}
+  html[data-web-layout="interactive"] body[data-public-page="index"] :is([data-content-zone="utilities"] .row,#homepage-announcements-list,#home-services-list,#officials-list)>*{flex:0 0 min(430px,42vw)!important;width:auto!important;scroll-snap-align:start}
+  html[data-web-layout="interactive"] body[data-public-page="index"] [data-content-zone="utilities"] .quick-card,
+  html[data-web-layout="interactive"] body[data-public-page="index"] :is(#homepage-announcements-list,#home-services-list,#officials-list)>*>*{height:100%}
 }
 
 @media(max-width:900px){
   html[data-web-layout] body[data-public-page="index"] main{display:flex!important;flex-direction:column!important;padding:0!important;gap:0!important;background:var(--theme-surface,#fff)}
-  html[data-web-layout] body[data-public-page="index"] main>section{width:100%!important;max-width:none!important;margin:0!important;grid-column:auto!important;grid-row:auto!important}
+  html[data-web-layout] body[data-public-page="index"] main>[data-content-zone]{width:100%!important;max-width:none!important;margin:0!important;grid-column:auto!important;grid-row:auto!important}
   html[data-web-layout="fixed-navigation"] body:not(.dashboard-page){padding-top:0!important}
   html[data-web-layout="fixed-navigation"] body:not(.dashboard-page) .site-header{position:sticky!important}
-  html[data-web-layout="interactive"] body[data-public-page="index"] :is(.quick-links .row,#homepage-announcements-list,#home-services-list){display:flex!important;flex-wrap:wrap!important;overflow:visible!important;scroll-snap-type:none!important}
-  html[data-web-layout="interactive"] body[data-public-page="index"] :is(.quick-links .row,#homepage-announcements-list,#home-services-list)>*{flex:0 0 auto!important;width:100%!important}
+  html[data-web-layout="interactive"] body[data-public-page="index"] :is([data-content-zone="utilities"] .row,#homepage-announcements-list,#home-services-list,#officials-list){display:flex!important;flex-wrap:wrap!important;overflow:visible!important;scroll-snap-type:none!important}
+  html[data-web-layout="interactive"] body[data-public-page="index"] :is([data-content-zone="utilities"] .row,#homepage-announcements-list,#home-services-list,#officials-list)>*{flex:0 0 auto!important;width:100%!important}
 }
 
 @media(prefers-reduced-motion:reduce){html[data-web-layout="hidden-navigation"] .site-header .navbar-collapse{transition:none!important}}
