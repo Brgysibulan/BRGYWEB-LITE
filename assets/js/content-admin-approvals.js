@@ -6,6 +6,7 @@
   const pendingCount = document.getElementById('content-admin-pending-count');
   const status = document.getElementById('content-admin-application-status');
   const accounts = document.getElementById('editor-list');
+  const accountStatus = document.getElementById('editor-manage-status');
   if (!client || !list) return;
 
   const esc = (value) => String(value ?? '')
@@ -21,6 +22,14 @@
     status.classList.toggle('text-danger', isError);
     status.classList.toggle('text-success', !isError && Boolean(message));
     status.classList.toggle('text-secondary', !isError && !message);
+  }
+
+  function setAccountStatus(message, isError = false) {
+    if (!accountStatus) return;
+    accountStatus.textContent = message;
+    accountStatus.classList.toggle('text-danger', isError);
+    accountStatus.classList.toggle('text-success', !isError && Boolean(message));
+    accountStatus.classList.toggle('text-secondary', !isError && !message);
   }
 
   function formatDate(value) {
@@ -84,7 +93,18 @@
     }
     accounts.innerHTML = items.map((item) => {
       const active = item.is_active === true;
-      return `<tr><td>${esc(item.display_name || 'Unnamed Content Admin')}</td><td>${esc(item.email || '')}</td><td><span class="badge ${active ? 'text-bg-success' : 'text-bg-secondary'}">${active ? 'Active' : 'Disabled'}</span></td><td class="text-end"><button class="btn btn-sm ${active ? 'btn-outline-danger' : 'btn-outline-success'}" data-editor-toggle="${esc(item.user_id)}" data-active="${active}">${active ? 'Disable' : 'Enable'}</button></td></tr>`;
+      const email = item.email || '';
+      return `<tr>
+        <td><strong>${esc(item.display_name || 'Unnamed Content Admin')}</strong></td>
+        <td>${esc(email)}</td>
+        <td><span class="badge ${active ? 'text-bg-success' : 'text-bg-secondary'}">${active ? 'Active' : 'Disabled'}</span></td>
+        <td class="text-end">
+          <div class="d-inline-flex flex-wrap gap-1 justify-content-end">
+            <button class="btn btn-sm ${active ? 'btn-outline-warning' : 'btn-outline-success'}" type="button" data-editor-toggle="${esc(item.user_id)}" data-active="${active}">${active ? 'Disable' : 'Enable'}</button>
+            <button class="btn btn-sm btn-outline-danger" type="button" data-editor-delete="${esc(item.user_id)}" data-editor-email="${esc(email)}" data-editor-name="${esc(item.display_name || 'Content Admin')}">Delete</button>
+          </div>
+        </td>
+      </tr>`;
     }).join('');
   }
 
@@ -136,6 +156,60 @@
         setStatus(error.message || 'Unable to reject application.', true);
         button.disabled = false;
       }
+    }
+  });
+
+  accounts?.addEventListener('click', async (event) => {
+    const toggle = event.target.closest('[data-editor-toggle]');
+    const remove = event.target.closest('[data-editor-delete]');
+    if (!toggle && !remove) return;
+
+    if (toggle) {
+      const userId = toggle.dataset.editorToggle || '';
+      const active = toggle.dataset.active === 'true';
+      if (!userId) return;
+      const verb = active ? 'disable' : 'enable';
+      if (!window.confirm(`Are you sure you want to ${verb} this Content Admin account?`)) return;
+      toggle.disabled = true;
+      try {
+        setAccountStatus(`${active ? 'Disabling' : 'Enabling'} Content Admin...`);
+        await callManager({ action:'set_active', user_id:userId, is_active:!active });
+        setAccountStatus(`Content Admin ${active ? 'disabled' : 'enabled'} successfully.`);
+        await load();
+      } catch (error) {
+        console.error(error);
+        setAccountStatus(error.message || `Unable to ${verb} Content Admin.`, true);
+        toggle.disabled = false;
+      }
+      return;
+    }
+
+    const userId = remove.dataset.editorDelete || '';
+    const email = remove.dataset.editorEmail || '';
+    const name = remove.dataset.editorName || 'Content Admin';
+    if (!userId || !email) {
+      setAccountStatus('This account is missing an email and cannot be safely deleted.', true);
+      return;
+    }
+
+    if (!window.confirm(`Permanently delete ${name} (${email})?\n\nThis removes the Content Admin login account. This action cannot be undone.`)) return;
+    const typed = window.prompt(`For safety, type the Content Admin email exactly:\n${email}`, '');
+    if (typed === null) return;
+    if (typed.trim().toLowerCase() !== email.trim().toLowerCase()) {
+      setAccountStatus('Delete cancelled: email confirmation did not match.', true);
+      return;
+    }
+
+    remove.disabled = true;
+    try {
+      setAccountStatus('Deleting Content Admin account...');
+      await callManager({ action:'delete_content_admin', user_id:userId, confirm_email:typed });
+      setAccountStatus('Content Admin account permanently deleted.');
+      await load();
+    } catch (error) {
+      console.error(error);
+      setAccountStatus(error.message || 'Unable to delete Content Admin account.', true);
+      remove.disabled = false;
     }
   });
 
