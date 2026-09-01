@@ -5,6 +5,7 @@
   const form = document.getElementById('profile-form');
   const status = document.getElementById('profile-status');
   const signout = document.getElementById('profile-signout');
+  const CACHE_KEY = 'brgyweb:admin-barangay-profile:v1';
 
   const sections = [
     { slug: 'barangay-about', title: 'About the Barangay', field: 'profile-about', order: 10 },
@@ -22,6 +23,29 @@
     status.classList.toggle('text-secondary', !message);
   }
 
+  function readCache() {
+    try {
+      const value = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+      return Array.isArray(value) ? value : null;
+    } catch { return null; }
+  }
+
+  function writeCache(rows) {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify(rows)); } catch {}
+  }
+
+  function applyRows(rows) {
+    const data = Array.isArray(rows) ? rows : [];
+    const bySlug = new Map(data.map((row) => [row.slug, row]));
+    sections.forEach((section) => {
+      const field = document.getElementById(section.field);
+      if (field) field.value = bySlug.get(section.slug)?.content || '';
+    });
+    const publishedField = document.getElementById('profile-published');
+    const published = data.length === 0 ? true : data.every((row) => row.is_published === true);
+    if (publishedField) publishedField.checked = published;
+  }
+
   async function requireStaff() {
     if (!client) return false;
     const { data, error } = await client.auth.getUser();
@@ -32,23 +56,15 @@
     return true;
   }
 
-  async function loadProfile() {
-    setStatus('Loading profile...');
+  async function loadProfile(showLoading = false) {
+    if (showLoading) setStatus('Loading profile...');
     const slugs = sections.map((item) => item.slug);
     const { data, error } = await client.from('pages').select('slug,content,is_published').in('slug', slugs);
     if (error) throw error;
-
-    const bySlug = new Map((data || []).map((row) => [row.slug, row]));
-    sections.forEach((section) => {
-      const field = document.getElementById(section.field);
-      if (field) field.value = bySlug.get(section.slug)?.content || '';
-    });
-
-    const existing = data || [];
-    const published = existing.length === 0 ? true : existing.every((row) => row.is_published === true);
-    const publishedField = document.getElementById('profile-published');
-    if (publishedField) publishedField.checked = published;
-    setStatus('Profile loaded.');
+    const rows = data || [];
+    writeCache(rows);
+    applyRows(rows);
+    setStatus('');
   }
 
   async function saveProfile() {
@@ -66,7 +82,13 @@
 
     const { error } = await client.from('pages').upsert(rows, { onConflict: 'slug' });
     if (error) throw error;
+    const cacheRows = rows.map(({ slug, content, is_published }) => ({ slug, content, is_published }));
+    writeCache(cacheRows);
+    applyRows(cacheRows);
   }
+
+  const cachedProfile = readCache();
+  if (cachedProfile) applyRows(cachedProfile);
 
   if (form) {
     form.addEventListener('submit', async (event) => {
@@ -98,7 +120,7 @@
       window.location.href = 'login.html';
       return;
     }
-    loadProfile().catch((error) => {
+    loadProfile(!cachedProfile).catch((error) => {
       console.error(error);
       setStatus(error?.message || 'Unable to load barangay profile.', true);
     });
