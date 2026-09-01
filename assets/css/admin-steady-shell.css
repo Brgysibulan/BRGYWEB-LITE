@@ -1,28 +1,44 @@
-/* Keep the admin shell and current page visible while theme/data refresh in place. */
+/* Keep admin navigation visually stable and hide half-initialized UI until the shared shell/theme are ready. */
 @view-transition{navigation:auto}
 .sidebar{view-transition-name:admin-sidebar}
 
-/* Never block the dashboard behind a readiness flag. The HTML already contains a usable shell. */
 html:not([data-admin-ui-ready="true"]) body.dashboard-page{
   min-height:100vh;
-  overflow-x:hidden!important;
-  overflow-y:auto!important;
+  overflow:hidden!important;
+  background:#f5f7f6!important;
 }
-html:not([data-admin-ui-ready="true"]) body.dashboard-page>*,
-html:not([data-admin-ui-ready="true"]) body.dashboard-page .dashboard-main,
-html:not([data-admin-ui-ready="true"]) body.dashboard-page .dashboard-main>*,
-html:not([data-admin-ui-ready="true"]) body.dashboard-page>main,
-html:not([data-admin-ui-ready="true"]) body.dashboard-page>main>*{
-  visibility:visible!important;
+
+/* Do not expose raw Bootstrap/page markup while async shell + theme assets are still resolving. */
+html:not([data-admin-ui-ready="true"]) body.dashboard-page .dashboard-shell,
+html:not([data-admin-ui-ready="true"]) body.dashboard-page>main{
+  visibility:hidden!important;
+  opacity:0!important;
 }
-html:not([data-admin-ui-ready="true"]) body.dashboard-page::before,
-html:not([data-admin-ui-ready="true"]) body.dashboard-page::after,
-html:not([data-admin-ui-ready="true"]) body.dashboard-page .dashboard-main::before,
-html:not([data-admin-ui-ready="true"]) body.dashboard-page .dashboard-main::after,
-html:not([data-admin-ui-ready="true"]) body.dashboard-page>main::before,
-html:not([data-admin-ui-ready="true"]) body.dashboard-page>main::after{
-  content:none!important;
-  display:none!important;
+
+/* One calm boot surface instead of blank fields, shifting cards, or a partially rebuilt sidebar. */
+html:not([data-admin-ui-ready="true"]) body.dashboard-page::before{
+  content:'Loading workspace…';
+  position:fixed;
+  inset:0;
+  z-index:2147483646;
+  display:grid;
+  place-items:center;
+  padding:24px;
+  font:700 14px/1.4 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+  letter-spacing:.01em;
+  color:#33413a;
+  background:#f5f7f6;
+}
+
+html[data-admin-ui-ready="true"] body.dashboard-page .dashboard-shell,
+html[data-admin-ui-ready="true"] body.dashboard-page>main{
+  visibility:visible;
+  opacity:1;
+  transition:opacity .14s ease-out;
+}
+
+html[data-admin-ui-ready="true"] body.dashboard-page{
+  overflow-x:hidden;
 }
 
 /* The left navigation should not fade or slide between document navigations. */
@@ -30,4 +46,11 @@ html:not([data-admin-ui-ready="true"]) body.dashboard-page>main::after{
 ::view-transition-new(admin-sidebar){
   animation:none!important;
   mix-blend-mode:normal;
+}
+
+@media(prefers-reduced-motion:reduce){
+  html[data-admin-ui-ready="true"] body.dashboard-page .dashboard-shell,
+  html[data-admin-ui-ready="true"] body.dashboard-page>main{
+    transition:none!important;
+  }
 }
