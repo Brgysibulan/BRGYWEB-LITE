@@ -17,9 +17,18 @@
     document.head.appendChild(link);
   }
 
+  function ensureThemeEngine() {
+    if (window.BRGY_THEME || document.querySelector('script[data-brgy-design-theme]')) return;
+    const script = document.createElement('script');
+    script.src = `assets/js/design-theme.js?v=${UI_VERSION}`;
+    script.dataset.brgyDesignTheme = 'true';
+    document.head.appendChild(script);
+  }
+
   addStyle('premium-public', 'premium-public.css');
   addStyle('premium-pages', 'premium-pages.css');
   addStyle('mobile-menu-fix', 'mobile-menu-fix.css');
+  ensureThemeEngine();
   document.body.dataset.publicPage = page.replace(/\.html$/,'') || 'home';
 
   const escapeHtml = (value) => String(value ?? '')
