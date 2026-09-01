@@ -17,6 +17,12 @@
     try { await client?.auth?.signOut(); } catch {}
   }
 
+  async function nameExistsInBarangayDatabase(displayName) {
+    const { data, error } = await client.rpc('can_apply_content_admin', { candidate_name: displayName });
+    if (error) throw error;
+    return data === true;
+  }
+
   form.addEventListener('submit', async (event) => {
     event.preventDefault();
     if (!client) return setStatus('Connection is unavailable. Please try again later.', true);
@@ -39,7 +45,23 @@
     if (reason) reasonParts.push(`Purpose: ${reason}`);
 
     if (button) button.disabled = true;
-    setStatus('Creating your account...');
+
+    try {
+      setStatus('Checking your name in the barangay database...');
+      const nameExists = await nameExistsInBarangayDatabase(displayName);
+      if (!nameExists) {
+        setStatus('Signup denied. Your name was not found in the barangay database. Enter your name exactly as recorded in the ID database or contact the Barangay Office.', true);
+        if (button) button.disabled = false;
+        return;
+      }
+    } catch (error) {
+      console.error(error);
+      setStatus('Unable to verify your name in the barangay database. Please try again.', true);
+      if (button) button.disabled = false;
+      return;
+    }
+
+    setStatus('Name verified. Creating your account...');
 
     const { data: signupData, error: signupError } = await client.auth.signUp({
       email,
