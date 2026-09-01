@@ -1,8 +1,11 @@
 (() => {
   'use strict';
 
+  if (window.__BRGY_RESPONSIVE_GUARD__) return;
+  window.__BRGY_RESPONSIVE_GUARD__ = true;
+
   const BREAKPOINT = 900;
-  const GUARD_VERSION = '20260901-guard1';
+  const GUARD_VERSION = '20260901-guard2';
   const root = document.documentElement;
   let scheduled = false;
 
@@ -26,10 +29,15 @@
     if (document.head.lastElementChild !== link) document.head.appendChild(link);
   }
 
+  function setDatasetValue(key, value) {
+    if (root.dataset[key] !== value) root.dataset[key] = value;
+  }
+
   function syncStructure() {
     const mobile = isMobileViewport();
-    root.dataset.publicStructure = mobile ? 'mobile-locked' : 'desktop-wide';
-    root.dataset.publicResponsiveMode = mobile ? 'mobile-locked' : 'desktop-wide';
+    const structure = mobile ? 'mobile-locked' : 'desktop-wide';
+    setDatasetValue('publicStructure', structure);
+    setDatasetValue('publicResponsiveMode', structure);
 
     const body = document.body;
     const nav = document.getElementById('mainNav');
@@ -66,8 +74,7 @@
 
   const observer = new MutationObserver((mutations) => {
     for (const mutation of mutations) {
-      if (mutation.type === 'attributes' && mutation.target === root &&
-          (mutation.attributeName === 'data-public-structure' || mutation.attributeName === 'data-public-responsive-mode')) {
+      if (mutation.type === 'attributes' && mutation.target === root) {
         scheduleSync();
         return;
       }
