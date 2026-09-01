@@ -6,6 +6,8 @@
   const list = document.getElementById('officials-admin-list');
   const status = document.getElementById('official-status');
   const resetButton = document.getElementById('official-reset');
+  const CACHE_KEY = 'brgyweb:admin-officials:v1';
+  let officials = [];
 
   function setStatus(message, isError = false) {
     if (!status) return;
@@ -17,6 +19,35 @@
 
   function escapeHtml(input) {
     return String(input ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
+  }
+
+  function readCache() {
+    try {
+      const value = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+      return Array.isArray(value) ? value : null;
+    } catch { return null; }
+  }
+
+  function writeCache(value) {
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify(value)); } catch {}
+  }
+
+  function render() {
+    if (!list) return;
+    if (!officials.length) {
+      list.innerHTML = '<tr><td colspan="5" class="text-secondary">No officials yet.</td></tr>';
+      return;
+    }
+    list.innerHTML = officials.map((item) => `<tr>
+      <td>${Number(item.sort_order) || 0}</td>
+      <td>${escapeHtml(item.full_name)}</td>
+      <td>${escapeHtml(item.position)}</td>
+      <td><span class="badge ${item.is_active ? 'text-bg-success' : 'text-bg-secondary'}">${item.is_active ? 'Published' : 'Hidden'}</span></td>
+      <td class="text-end">
+        <button class="btn btn-sm btn-outline-dark me-1" type="button" data-edit-official="${item.id}">Edit</button>
+        <button class="btn btn-sm btn-outline-danger" type="button" data-delete-official="${item.id}">Delete</button>
+      </td>
+    </tr>`).join('');
   }
 
   function resetForm() {
@@ -37,33 +68,18 @@
     return !error && profile?.is_active === true && ['admin','editor'].includes(profile.role);
   }
 
-  async function loadOfficials() {
+  async function loadOfficials(showLoading = false) {
     if (!list) return;
-    list.innerHTML = '<tr><td colspan="5" class="text-secondary">Loading officials...</td></tr>';
+    if (showLoading && !officials.length) list.innerHTML = '<tr><td colspan="5" class="text-secondary">Loading officials...</td></tr>';
     const { data, error } = await client.from('officials').select('id,full_name,position,photo_url,bio,sort_order,is_active').order('sort_order', { ascending: true }).order('id', { ascending: true });
     if (error) throw error;
-
-    if (!data?.length) {
-      list.innerHTML = '<tr><td colspan="5" class="text-secondary">No officials yet.</td></tr>';
-      return;
-    }
-
-    list.innerHTML = data.map((item) => `<tr>
-      <td>${Number(item.sort_order) || 0}</td>
-      <td>${escapeHtml(item.full_name)}</td>
-      <td>${escapeHtml(item.position)}</td>
-      <td><span class="badge ${item.is_active ? 'text-bg-success' : 'text-bg-secondary'}">${item.is_active ? 'Published' : 'Hidden'}</span></td>
-      <td class="text-end">
-        <button class="btn btn-sm btn-outline-dark me-1" type="button" data-edit-official="${item.id}">Edit</button>
-        <button class="btn btn-sm btn-outline-danger" type="button" data-delete-official="${item.id}">Delete</button>
-      </td>
-    </tr>`).join('');
-
-    list._officials = data;
+    officials = data || [];
+    writeCache(officials);
+    render();
   }
 
   function editOfficial(id) {
-    const item = Array.isArray(list?._officials) ? list._officials.find((row) => String(row.id) === String(id)) : null;
+    const item = officials.find((row) => String(row.id) === String(id));
     if (!item) return;
     document.getElementById('official-id').value = item.id;
     document.getElementById('official-name').value = item.full_name || '';
@@ -81,9 +97,18 @@
     setStatus('Deleting official...');
     const { error } = await client.from('officials').delete().eq('id', id);
     if (error) throw error;
+    officials = officials.filter((row) => String(row.id) !== String(id));
+    writeCache(officials);
+    render();
     resetForm();
     setStatus('Official deleted.');
-    await loadOfficials();
+    loadOfficials().catch((refreshError) => console.warn('Officials refresh failed:', refreshError));
+  }
+
+  const cachedOfficials = readCache();
+  if (cachedOfficials) {
+    officials = cachedOfficials;
+    render();
   }
 
   if (form) {
@@ -138,10 +163,10 @@
   document.addEventListener('DOMContentLoaded', async () => {
     try {
       if (!(await ensureStaff())) return;
-      await loadOfficials();
+      await loadOfficials(!cachedOfficials);
     } catch (error) {
       console.error(error);
-      if (list) list.innerHTML = '<tr><td colspan="5" class="text-danger">Unable to load officials.</td></tr>';
+      if (!cachedOfficials && list) list.innerHTML = '<tr><td colspan="5" class="text-danger">Unable to load officials.</td></tr>';
       setStatus(error?.message || 'Unable to load officials.', true);
     }
   });
