@@ -8,7 +8,7 @@
     tagline: 'Official Community Website', heroTitle: 'Welcome to Our Barangay',
     heroText: 'A simple, accessible, and transparent digital home for barangay information, services, programs, and community updates.',
     address: 'Barangay Office Address', phone: '', email: '', logoUrl: '', designTheme: null,
-    theme: { primary: '#0f5132', secondary: '#198754', accent: '#ffc107', surface: '#f7f9f8', text: '#1f2937' }
+    theme: { primary: '#0b2f21', secondary: '#1b6b45', accent: '#d8b63e', signal:'#a63d40', surface: '#f5f8f5', text: '#1f2937' }
   });
 
   function setText(id, value, fallback = '') { const element=document.getElementById(id); if(!element)return; const text=typeof value==='string'?value.trim():''; element.textContent=text||fallback; }
@@ -43,7 +43,7 @@
         return;
       }
       const script=document.createElement('script');
-      script.src='assets/js/design-theme.js?v=20260901-studio4';
+      script.src='assets/js/design-theme.js?v=20260901-studio5';
       script.dataset.brgyDesignTheme='true';
       script.onload=()=>resolve(window.BRGY_THEME);
       script.onerror=()=>resolve(null);
@@ -72,8 +72,10 @@
     const root=document.documentElement,merged={...DEFAULT_SITE.theme,...theme};
     root.style.setProperty('--brand-primary',merged.primary);
     root.style.setProperty('--brand-secondary',merged.secondary);
-    root.style.setProperty('--brand-primary-dark',merged.secondary);
+    root.style.setProperty('--brand-primary-dark',merged.primary);
     root.style.setProperty('--brand-accent',merged.accent);
+    root.style.setProperty('--brand-signal',merged.signal);
+    root.style.setProperty('--brand-danger',merged.signal);
     root.style.setProperty('--soft-bg',merged.surface);
     root.style.setProperty('--text-main',merged.text);
   }
