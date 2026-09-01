@@ -11,6 +11,14 @@
 
   window.BRGY_SUPABASE_CONFIG = { url: SUPABASE_URL, publishableKey: SUPABASE_PUBLISHABLE_KEY };
 
+  function registerCacheManager(){
+    if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;
+    window.addEventListener('load',()=>{
+      navigator.serviceWorker.register(new URL('../sw.js',location.href),{updateViaCache:'none'}).then((registration)=>registration.update()).catch((error)=>console.warn('Cache manager unavailable:',error));
+    },{once:true});
+  }
+  registerCacheManager();
+
   function syncReady() { const root=document.documentElement;if(root.dataset.adminShellReady==='true'&&root.dataset.adminThemeReady==='true')root.dataset.adminUiReady='true'; }
   function markAssetFailure(kind) { const root=document.documentElement;if(kind==='theme')root.dataset.adminThemeReady='true';if(kind==='shell')root.dataset.adminShellReady='true';syncReady(); }
   function addStaffScript(src,dataKey){if(document.querySelector(`script[${dataKey}]`))return;const script=document.createElement('script');script.src=src;script.setAttribute(dataKey,'true');document.head.appendChild(script);}
