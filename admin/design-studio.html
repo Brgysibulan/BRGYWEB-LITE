@@ -3,79 +3,84 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <title>Design Studio Pro</title>
+  <title>Government Design Studio | BRGYWEB-LITE</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/admin.css?v=20260901-studiopro1">
-  <link rel="stylesheet" href="../assets/css/design-studio-pro.css?v=20260901-studiopro1">
+  <link rel="stylesheet" href="../assets/css/admin.css?v=20260901-gov5">
+  <link rel="stylesheet" href="../assets/css/government-design-studio.css?v=20260901-gov5">
 </head>
 <body class="dashboard-page admin-control-center">
 <div class="dashboard-shell">
   <aside class="sidebar"></aside>
-  <main class="dashboard-main pro-studio-main">
-    <header class="pro-hero">
+  <main class="dashboard-main gov-studio-main">
+    <header class="gov-studio-hero">
       <div>
-        <span class="pro-kicker">Design Studio Pro</span>
-        <h1>Choose a complete design. Then choose colors.</h1>
-        <p>Each design is a tested presentation package for both the Public Website and the System Admin / Content Admin dashboards. No manual layout controls, no conflicting combinations.</p>
+        <span class="gov-studio-kicker">Government Design Studio</span>
+        <h1>Five complete systems. One uniform government identity.</h1>
+        <p>Select one premium design system and publish it everywhere at once: public website, System Admin, Content Admin, login, signup and account activation.</p>
       </div>
-      <div class="pro-hero-actions">
-        <a class="btn btn-outline-secondary btn-sm" href="../index.html" target="_blank" rel="noopener">Open Public Site</a>
-        <a class="btn btn-outline-dark btn-sm" href="dashboard.html" target="_blank" rel="noopener">Open Admin Dashboard</a>
+      <div class="gov-studio-actions">
+        <a class="btn btn-outline-light btn-sm" href="../index.html" target="_blank" rel="noopener">Public Site ↗</a>
+        <a class="btn btn-light btn-sm" href="dashboard.html" target="_blank" rel="noopener">Admin Dashboard ↗</a>
       </div>
     </header>
 
-    <form id="design-studio-form" class="pro-workspace">
-      <div class="pro-editor">
-        <section class="pro-section">
-          <div class="pro-section-head">
-            <div><span class="pro-kicker">Step 1</span><h2>Choose Design</h2><p>20 complete high-end layouts. One selection styles both public and admin interfaces.</p></div>
-            <span class="pro-count" id="design-pack-count">20 designs</span>
+    <form id="design-studio-form" class="gov-workspace">
+      <div class="gov-editor">
+        <section class="gov-section">
+          <div class="gov-section-head">
+            <div>
+              <span class="gov-studio-kicker text-success">Complete Systems</span>
+              <h2>Choose one government-grade theme</h2>
+              <p>These are not color presets. Each option changes visual hierarchy, homepage section priority, navigation treatment, dashboard geometry and access-page presentation as one coordinated system.</p>
+            </div>
+            <span class="gov-count">5 curated themes</span>
           </div>
-          <div class="pro-pack-grid" id="design-pack-grid" aria-label="Premade designs"></div>
+          <div class="gov-pack-grid" id="design-pack-grid" aria-label="Government design systems"></div>
         </section>
 
-        <section class="pro-section">
-          <div class="pro-section-head">
-            <div><span class="pro-kicker">Step 2</span><h2>Choose Color Palette</h2><p>Palette changes colors only. It never changes the selected layout or navigation structure.</p></div>
-            <span class="pro-count" id="palette-count">12 palettes</span>
-          </div>
-          <div class="pro-palette-grid" id="palette-grid" aria-label="Color palettes"></div>
-          <div class="pro-custom">
-            <div class="pro-custom-head"><div><strong>Custom 4-color palette</strong><span>Optional — use only when you want your own combination.</span></div><span id="custom-palette-state">Not selected</span></div>
-            <div class="pro-custom-colors">
-              <label class="pro-color" for="custom-primary"><input id="custom-primary" type="color" value="#0b2f21"><span><strong>Primary</strong><small id="custom-primary-code">#0b2f21</small></span></label>
-              <label class="pro-color" for="custom-secondary"><input id="custom-secondary" type="color" value="#1b6b45"><span><strong>Secondary</strong><small id="custom-secondary-code">#1b6b45</small></span></label>
-              <label class="pro-color" for="custom-accent"><input id="custom-accent" type="color" value="#d8b63e"><span><strong>Accent</strong><small id="custom-accent-code">#d8b63e</small></span></label>
-              <label class="pro-color" for="custom-signal"><input id="custom-signal" type="color" value="#a63d40"><span><strong>Signal</strong><small id="custom-signal-code">#a63d40</small></span></label>
+        <section class="gov-section">
+          <div class="gov-section-head mb-2">
+            <div>
+              <span class="gov-studio-kicker text-success">Quality Standard</span>
+              <h2>What stays consistent</h2>
+              <p>The selected theme never changes permissions, routes, data, authentication or publishing logic. It controls presentation and information priority only.</p>
             </div>
           </div>
+          <div class="gov-principles">
+            <div class="gov-principle"><strong>Uniform everywhere</strong><span>Public, dashboard, login, signup and activation use one design language.</span></div>
+            <div class="gov-principle"><strong>Government-first hierarchy</strong><span>Services, notices, transparency and official information are placed intentionally.</span></div>
+            <div class="gov-principle"><strong>Mobile + desktop</strong><span>Every theme keeps the same responsive architecture and role protections.</span></div>
+          </div>
         </section>
-
-        <div class="pro-safe"><span>✓</span><div><strong>Safe presentation layer</strong><p>Publishing a design changes presentation settings only. Routes, links, Supabase queries, verification logic, form IDs, authentication, RLS and role permissions are not edited by Design Studio.</p></div></div>
       </div>
 
-      <aside class="pro-preview-stack" aria-label="Live previews">
-        <section class="pro-preview-card">
-          <div class="pro-preview-head"><div><strong>Public Website</strong><small id="public-preview-label">Current design preview</small></div><a href="../index.html" target="_blank" rel="noopener">Open ↗</a></div>
-          <div class="pro-public-preview" id="public-design-preview" data-nav-position="top" data-nav-skin="gradient" data-hero="bold" data-radius="rounded" data-cards="elevated">
-            <div class="pro-public-shell"><div class="pro-public-nav"></div><div class="pro-public-hero"><b></b><i></i></div><div class="pro-public-cards"><i></i><i></i><i></i></div></div>
-          </div>
+      <aside class="gov-preview-stack" aria-label="Theme previews">
+        <section class="gov-preview-card">
+          <div class="gov-preview-head"><div><strong>Public Website</strong><small id="public-preview-label">Public website</small></div><a href="../index.html" target="_blank" rel="noopener">Open ↗</a></div>
+          <div class="gov-preview-surface" id="public-design-preview"><div class="gov-public-mock"><nav></nav><div class="hero"></div><div class="cards"><i></i><i></i><i></i></div></div></div>
         </section>
 
-        <section class="pro-preview-card">
-          <div class="pro-preview-head"><div><strong>Admin Dashboard</strong><small id="admin-preview-label">System Admin + Content Admin</small></div><a href="dashboard.html" target="_blank" rel="noopener">Open ↗</a></div>
-          <div class="pro-admin-preview" id="admin-design-preview" data-sidebar="brand" data-topbar="soft" data-cards="elevated">
-            <div class="pro-admin-side"><b></b><i></i><i></i><i></i><i></i></div>
-            <div class="pro-admin-main"><div class="pro-admin-top"></div><div class="pro-admin-metrics"><i></i><i></i><i></i></div><div class="pro-admin-panel"></div></div>
-          </div>
+        <section class="gov-preview-card">
+          <div class="gov-preview-head"><div><strong>Admin Dashboard</strong><small id="admin-preview-label">System + Content Admin</small></div><a href="dashboard.html" target="_blank" rel="noopener">Open ↗</a></div>
+          <div class="gov-preview-surface" id="admin-design-preview"><div class="gov-admin-mock"><aside><i></i><i></i><i></i><i></i></aside><main><header></header><section><i></i><i></i><i></i></section><div></div></main></div></div>
+        </section>
+
+        <section class="gov-preview-card">
+          <div class="gov-preview-head"><div><strong>Login</strong><small id="login-preview-label">Access portal</small></div><a href="login.html" target="_blank" rel="noopener">Open ↗</a></div>
+          <div class="gov-preview-surface" id="login-design-preview"><div class="gov-auth-mock"><div class="card"></div></div></div>
+        </section>
+
+        <section class="gov-preview-card">
+          <div class="gov-preview-head"><div><strong>Signup / Application</strong><small id="signup-preview-label">Content Admin signup</small></div><a href="../editor/apply.html" target="_blank" rel="noopener">Open ↗</a></div>
+          <div class="gov-preview-surface" id="signup-design-preview"><div class="gov-signup-mock"><aside></aside><main></main></div></div>
         </section>
       </aside>
 
-      <div class="pro-savebar is-clean" id="design-savebar">
-        <div><strong id="design-change-state">No unsaved changes</strong><small id="design-studio-status" aria-live="polite">Loading saved design…</small></div>
-        <div class="pro-save-actions">
-          <button class="btn btn-outline-light btn-sm" id="design-reset" type="button">Restore Saved</button>
-          <button class="btn btn-light btn-sm" id="design-save" type="submit" disabled>Publish Design</button>
+      <div class="gov-savebar is-clean" id="design-savebar">
+        <div><strong id="design-change-state">Published theme is active</strong><small id="design-studio-status" aria-live="polite">Loading published government design…</small></div>
+        <div class="gov-save-actions">
+          <button class="btn btn-outline-light btn-sm" id="design-reset" type="button">Restore Published</button>
+          <button class="btn btn-light btn-sm" id="design-save" type="submit" disabled>Publish Everywhere</button>
         </div>
       </div>
     </form>
@@ -83,8 +88,9 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../assets/js/supabase-config.js?v=20260901-studiopro1"></script>
-<script src="../assets/js/design-theme.js?v=20260901-studiopro1"></script>
-<script src="../assets/js/design-studio.js?v=20260901-studiopro1"></script>
+<script src="../assets/js/supabase-config.js?v=20260901-gov5"></script>
+<script src="../assets/js/government-theme-runtime.js?v=20260901-gov5"></script>
+<script src="../assets/js/design-theme.js?v=20260901-gov5"></script>
+<script src="../assets/js/design-studio.js?v=20260901-gov5"></script>
 </body>
 </html>
