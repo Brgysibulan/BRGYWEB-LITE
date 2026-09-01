@@ -53,6 +53,26 @@
     });
   }
 
+  function ensureHeaderTextRuntime() {
+    if(window.BRGY_HEADER_TEXT_RUNTIME) return Promise.resolve(window.BRGY_HEADER_TEXT_RUNTIME);
+    return new Promise((resolve)=>{
+      const existing=document.querySelector('script[data-brgy-header-text-runtime]');
+      if(existing){
+        if(window.BRGY_HEADER_TEXT_RUNTIME){resolve(window.BRGY_HEADER_TEXT_RUNTIME);return;}
+        existing.addEventListener('load',()=>resolve(window.BRGY_HEADER_TEXT_RUNTIME||null),{once:true});
+        existing.addEventListener('error',()=>resolve(null),{once:true});
+        return;
+      }
+      const script=document.createElement('script');
+      script.src='assets/js/header-text-runtime.js?v=20260901-stability1';
+      script.async=false;
+      script.dataset.brgyHeaderTextRuntime='true';
+      script.onload=()=>resolve(window.BRGY_HEADER_TEXT_RUNTIME||null);
+      script.onerror=()=>resolve(null);
+      document.head.appendChild(script);
+    });
+  }
+
   function applyLogo(site) {
     const logo=document.getElementById('brand-logo'),mark=document.getElementById('brand-mark');
     const logoUrl=isHttpsUrl(site.logoUrl)?site.logoUrl:'';
@@ -66,16 +86,29 @@
   function applyTheme(theme={}) {
     const root=document.documentElement,merged={...DEFAULT_SITE.theme,...theme};
     root.style.setProperty('--brand-primary',merged.primary);root.style.setProperty('--brand-secondary',merged.secondary);root.style.setProperty('--brand-primary-dark',merged.primary);root.style.setProperty('--brand-accent',merged.accent);root.style.setProperty('--brand-signal',merged.signal);root.style.setProperty('--brand-danger',merged.signal);root.style.setProperty('--soft-bg',merged.surface);root.style.setProperty('--text-main',merged.text);
+    window.BRGY_HEADER_TEXT_RUNTIME?.apply?.('',{public:{colors:{primary:merged.primary}}});
   }
 
   function applyPublishedDesignTheme(designTheme={}) {
     if(!hasPublishedDesignTheme(designTheme)) return false;
     window.BRGY_WEB_LAYOUT_RUNTIME?.apply?.(designTheme.webLayout);
     const runtime=window.BRGY_GOV_THEME_RUNTIME;
-    if(runtime?.apply){ runtime.apply(designTheme.experience,designTheme); return true; }
-    if(window.BRGY_THEME?.applyPublic){ window.BRGY_THEME.applyPublic(designTheme.public||{}); return true; }
+    if(runtime?.apply){
+      runtime.apply(designTheme.experience,designTheme);
+      window.BRGY_HEADER_TEXT_RUNTIME?.applyConfig?.(designTheme);
+      return true;
+    }
+    if(window.BRGY_THEME?.applyPublic){
+      window.BRGY_THEME.applyPublic(designTheme.public||{});
+      window.BRGY_HEADER_TEXT_RUNTIME?.applyConfig?.(designTheme);
+      return true;
+    }
     const colors=designTheme.public?.colors;
-    if(colors){ applyTheme({...DEFAULT_SITE.theme,...colors}); return true; }
+    if(colors){
+      applyTheme({...DEFAULT_SITE.theme,...colors});
+      window.BRGY_HEADER_TEXT_RUNTIME?.applyConfig?.(designTheme);
+      return true;
+    }
     return false;
   }
 
@@ -118,7 +151,10 @@
   if(earlyCache){applySiteSettings(mergeSite(fallback,earlyCache),{applyDesign:false});initYear();}
 
   async function boot(){
-    const cached=readCachedSettings();initYear();await ensureDesignTheme();if(cached)applySiteSettings(mergeSite(fallback,cached),{applyDesign:false});
+    const cached=readCachedSettings();
+    initYear();
+    await Promise.all([ensureDesignTheme(),ensureHeaderTextRuntime()]);
+    if(cached)applySiteSettings(mergeSite(fallback,cached),{applyDesign:false});
     try{const remote=await loadRemoteSettings();if(remote){const merged=mergeSite(fallback,remote);applySiteSettings(merged,{applyDesign:true});writeCachedSettings(merged);}else if(!cached){applySiteSettings(fallback,{applyDesign:true});}}catch(error){console.warn('Unable to refresh site settings; using last known settings:',error);if(!cached)applySiteSettings(fallback,{applyDesign:true});}
   }
 
