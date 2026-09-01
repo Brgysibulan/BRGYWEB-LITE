@@ -14,13 +14,6 @@
     if (cached === 'admin' || cached === 'editor') role = cached;
   } catch {}
 
-  const labels = {
-    'dashboard.html':'Dashboard','announcements.html':'Announcements','officials.html':'Officials',
-    'services.html':'Services','forms.html':'Downloadable Forms','directory.html':'Directory',
-    'disclosure.html':'Disclosure','gallery.html':'Gallery','profile.html':'Barangay Profile',
-    'verification.html':'Verification / QR','settings.html':'Site Settings',
-    'design-studio.html':'Design Studio','editors.html':'Content Admin Access'
-  };
   const contentItems = [
     ['announcements.html','Announcements'],['officials.html','Officials'],['services.html','Services'],
     ['directory.html','Directory'],['disclosure.html','Disclosure'],['gallery.html','Gallery'],['profile.html','Barangay Profile']
@@ -50,7 +43,7 @@
     const administration = role === 'admin'
       ? `<div class="sidebar-label">Administration</div>${adminItems.map(([target,label])=>navLink(target,label)).join('')}`
       : '';
-    return `<div class="sidebar-head"><div class="sidebar-logo">B</div><div class="sidebar-identity"><div class="sidebar-brand">BRGYWEB-LITE</div><div class="sidebar-role-badge"><span class="sidebar-role-dot"></span><span class="sidebar-role">${roleLabel}</span></div></div></div><nav class="sidebar-nav mt-3"><div class="sidebar-label">Overview</div>${navLink('dashboard.html','Dashboard')}<div class="sidebar-label">Content</div>${contentItems.map(([target,label])=>navLink(target,label)).join('')}${administration}</nav><a class="sidebar-exit" href="../index.html">View public site</a>`;
+    return `<div class="sidebar-head"><div class="sidebar-logo">B</div><div class="sidebar-identity"><div class="sidebar-brand">BRGYWEB-LITE</div><div class="sidebar-role-badge"><span class="sidebar-role-dot"></span><span class="sidebar-role">${roleLabel}</span></div></div><button class="admin-sidebar-collapse" type="button" data-admin-sidebar-collapse aria-label="Hide admin navigation" aria-expanded="true" title="Hide navigation">‹</button></div><nav class="sidebar-nav mt-3"><div class="sidebar-label">Overview</div>${navLink('dashboard.html','Dashboard')}<div class="sidebar-label">Content</div>${contentItems.map(([target,label])=>navLink(target,label)).join('')}${administration}<div class="sidebar-divider"></div><button class="unified-signout" type="button" data-unified-signout>Sign out</button></nav><a class="sidebar-exit" href="../index.html">View public site</a>`;
   }
 
   function prime() {
@@ -84,6 +77,7 @@
     main.classList.remove('py-4','py-lg-5');
     if (!sidebar.querySelector('.sidebar-nav')) sidebar.innerHTML = markup();
     document.documentElement.dataset.adminShellPrimed = 'true';
+    document.documentElement.dataset.staffRole = role;
     return true;
   }
 
