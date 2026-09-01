@@ -8,7 +8,7 @@
   const root = document.documentElement;
   let scheduled = false;
 
-  function isCompactNavigation(){ return window.innerWidth < BREAKPOINT; }
+  function isCompactNavigation(){ return window.innerWidth <= BREAKPOINT; }
 
   function ensureStyle(selector,file,key){
     let link=document.querySelector(selector);
