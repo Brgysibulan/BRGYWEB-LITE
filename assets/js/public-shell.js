@@ -3,11 +3,40 @@
 
   const SITE_CACHE_VERSION = 3;
   const SITE_CACHE_KEY = 'brgyweb:site-settings:v3';
-  const UI_VERSION = '20260901-viewport3';
+  const UI_VERSION = '20260901-maintenance1';
   const BREAKPOINT = 900;
+  const PUBLIC_SUPABASE_URL = 'https://pkvorwvkqjnbgktkgjhr.supabase.co';
+  const PUBLIC_SUPABASE_KEY = 'sb_publishable_RbaENAflMzLgXpemymGApA_TkVAhMoU';
   const header = document.querySelector('.site-header');
   const footer = document.querySelector('.site-footer');
   const page = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
+
+  /* Public availability guard: hide normal content until maintenance state is known. */
+  const maintenanceBootStyle = document.createElement('style');
+  maintenanceBootStyle.id = 'brgy-maintenance-boot';
+  maintenanceBootStyle.textContent = 'html[data-maintenance-checking="true"] body{visibility:hidden!important}';
+  document.head.appendChild(maintenanceBootStyle);
+  document.documentElement.dataset.maintenanceChecking = 'true';
+
+  async function checkMaintenanceMode(){
+    try{
+      const endpoint = `${PUBLIC_SUPABASE_URL}/rest/v1/site_settings?id=eq.1&select=maintenance_mode`;
+      const response = await fetch(endpoint,{cache:'no-store',headers:{apikey:PUBLIC_SUPABASE_KEY,Authorization:`Bearer ${PUBLIC_SUPABASE_KEY}`,Accept:'application/json'}});
+      if(!response.ok) throw new Error(`Maintenance check failed (${response.status}).`);
+      const rows = await response.json();
+      const settings = Array.isArray(rows) ? rows[0] : null;
+      if(settings?.maintenance_mode === true){
+        window.location.replace('maintenance.html');
+        return;
+      }
+    }catch(error){
+      /* Fail open: a maintenance-check outage must not accidentally take the public site offline. */
+      console.warn('Maintenance status unavailable; public site remains available:',error);
+    }
+    document.documentElement.dataset.maintenanceChecking = 'false';
+    maintenanceBootStyle.remove();
+  }
+  checkMaintenanceMode();
 
   function registerCacheManager(){if(!('serviceWorker' in navigator)||location.protocol!=='https:')return;window.addEventListener('load',()=>{navigator.serviceWorker.register(new URL('sw.js',location.href),{updateViaCache:'none'}).then((registration)=>registration.update()).catch((error)=>console.warn('Cache manager unavailable:',error));},{once:true});}
   registerCacheManager();
@@ -27,7 +56,6 @@
   if(header){
     header.innerHTML=`<nav class="navbar navbar-expand-xl navbar-dark"><div class="container"><a class="navbar-brand d-flex align-items-center gap-2" href="index.html" aria-label="Home"><span class="brand-mark" id="brand-mark" aria-hidden="true">${escapeHtml(initialMark)}</span><img class="brand-logo d-none" id="brand-logo" alt=""><span id="site-name">${escapeHtml(initialName)}</span></a><button class="navbar-toggler" type="button" aria-controls="mainNav" aria-expanded="false" aria-label="Open navigation"><span class="navbar-toggler-icon"></span></button><div class="navbar-collapse" id="mainNav" aria-hidden="true"><div class="public-mobile-menu-head"><div><strong>Navigation</strong><small>Official barangay website</small></div><button class="public-menu-close" type="button" aria-label="Close navigation">×</button></div><ul class="navbar-nav ms-auto align-items-xl-center gap-xl-1">${navItems.map(([href,label])=>`<li class="nav-item"><a class="nav-link${page===href?' active':''}" href="${href}"${page===href?' aria-current="page"':''}>${label}</a></li>`).join('')}${adminMenu}</ul></div></div></nav>`;
 
-    /* Remove any stale backdrop left by an older shell. The mobile menu no longer uses one. */
     document.querySelectorAll('.public-nav-backdrop').forEach((node)=>node.remove());
 
     const collapseElement=document.getElementById('mainNav');
@@ -59,12 +87,10 @@
       closeMenu();
     });
 
-    /* Native anchors remain untouched. Close only after the link receives its click. */
     collapseElement?.querySelectorAll('a[href]').forEach((link)=>{
       link.addEventListener('click',()=>{ if(isCompactNavigation()) closeMenu(); });
     });
 
-    /* Outside tap closes the drawer without placing any element above the page. */
     document.addEventListener('pointerdown',(event)=>{
       if(!document.body.classList.contains('public-menu-open')) return;
       const target=event.target;
