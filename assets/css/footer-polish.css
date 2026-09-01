@@ -1,0 +1,99 @@
+/* Public footer polish. Uses theme variables so Design Studio colors remain authoritative. */
+.site-footer{
+  padding-top:clamp(3.5rem,6vw,5rem)!important;
+  padding-bottom:clamp(2.1rem,4vw,3rem)!important;
+}
+.site-footer:before{
+  content:"";
+  position:absolute;
+  inset:0;
+  pointer-events:none;
+  background:
+    linear-gradient(180deg,rgba(255,255,255,.025),transparent 34%),
+    radial-gradient(circle at 12% 0%,color-mix(in srgb,var(--brand-accent) 9%,transparent),transparent 32%);
+}
+.site-footer .container{position:relative;z-index:2}
+.site-footer .row{row-gap:2rem!important}
+.site-footer .eyebrow{
+  display:inline-flex;
+  align-items:center;
+  min-height:40px;
+  padding:.55rem 1rem;
+  border:1px solid rgba(255,255,255,.28);
+  border-radius:999px;
+  background:rgba(255,255,255,.055);
+  color:rgba(255,255,255,.94);
+  font-size:.68rem;
+  font-weight:850;
+  letter-spacing:.16em;
+  text-transform:uppercase;
+  backdrop-filter:blur(8px);
+}
+.site-footer h2{
+  margin-top:.1rem;
+  color:#fff;
+  font-size:clamp(1.45rem,2.5vw,1.8rem)!important;
+  line-height:1.15;
+}
+.site-footer p{line-height:1.65}
+.site-footer .text-white-50{color:rgba(255,255,255,.70)!important}
+.site-footer #footer-address,
+.site-footer #footer-contact{
+  color:rgba(255,255,255,.88);
+  overflow-wrap:anywhere;
+}
+.site-footer #footer-address{font-weight:650}
+.site-footer #footer-contact{margin-top:.3rem}
+.site-footer .btn-outline-light{
+  min-height:46px;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  padding:.62rem .92rem;
+  border-color:rgba(255,255,255,.58);
+  border-radius:11px;
+  background:rgba(255,255,255,.035);
+  color:#fff;
+  font-weight:780;
+  box-shadow:none;
+}
+.site-footer .btn-outline-light:hover,
+.site-footer .btn-outline-light:focus-visible{
+  border-color:#fff;
+  background:#fff;
+  color:var(--brand-primary-dark);
+}
+.site-footer hr{
+  margin-top:2rem!important;
+  margin-bottom:1.5rem!important;
+  border-color:rgba(255,255,255,.24)!important;
+  opacity:1!important;
+}
+.site-footer .small{
+  color:rgba(255,255,255,.62)!important;
+  font-size:.78rem;
+  letter-spacing:.005em;
+}
+
+@media(max-width:991.98px){
+  .site-footer .col-lg-5{text-align:left!important}
+  .site-footer .justify-content-lg-end{justify-content:flex-start!important}
+}
+
+@media(max-width:575.98px){
+  .site-footer{
+    padding-top:3.25rem!important;
+    padding-bottom:2rem!important;
+  }
+  .site-footer .eyebrow{
+    min-height:38px;
+    padding:.5rem .9rem;
+    font-size:.64rem;
+  }
+  .site-footer .row{row-gap:1.65rem!important}
+  .site-footer #footer-contact + .d-flex{display:grid!important;grid-template-columns:1fr;gap:.65rem!important}
+  .site-footer #footer-contact + .d-flex .btn{width:100%;min-height:48px}
+  .site-footer hr{margin-top:1.65rem!important;margin-bottom:1.25rem!important}
+  .site-footer .d-flex.flex-wrap.justify-content-between{gap:.35rem!important}
+  .site-footer .d-flex.flex-wrap.justify-content-between p{width:100%}
+}
