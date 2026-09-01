@@ -3,7 +3,7 @@
 
   const SITE_CACHE_VERSION = 3;
   const SITE_CACHE_KEY = 'brgyweb:site-settings:v3';
-  const UI_VERSION = '20260901-studio7';
+  const UI_VERSION = '20260901-studio9';
   const header = document.querySelector('.site-header');
   const footer = document.querySelector('.site-footer');
   const page = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
@@ -23,28 +23,10 @@
   document.body.dataset.publicPage = page.replace(/\.html$/,'') || 'home';
 
   const escapeHtml = (value) => String(value ?? '')
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#039;');
+    .replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;').replaceAll('"', '&quot;').replaceAll("'", '&#039;');
 
-  function isCompactNavigation() {
-    return window.matchMedia('(max-width:1199.98px), (hover:none), (pointer:coarse)').matches || navigator.maxTouchPoints > 0;
-  }
-
-  function readCachedSite() {
-    try {
-      const raw = localStorage.getItem(SITE_CACHE_KEY);
-      if (!raw) return null;
-      const parsed = JSON.parse(raw);
-      if (parsed?.version !== SITE_CACHE_VERSION) return null;
-      const data = parsed?.data;
-      return data && typeof data === 'object' ? data : null;
-    } catch {
-      return null;
-    }
-  }
+  function isCompactNavigation() { return window.matchMedia('(max-width:1199.98px), (hover:none), (pointer:coarse)').matches || navigator.maxTouchPoints > 0; }
+  function readCachedSite() { try { const raw=localStorage.getItem(SITE_CACHE_KEY); if(!raw)return null; const parsed=JSON.parse(raw); if(parsed?.version!==SITE_CACHE_VERSION)return null; const data=parsed?.data; return data&&typeof data==='object'?data:null; } catch { return null; } }
 
   const cachedSite = readCachedSite();
   const initialName = cachedSite?.siteName || '';
@@ -52,62 +34,16 @@
   const initialContact = [cachedSite?.phone, cachedSite?.email].filter(Boolean).join(' • ');
   const initialMark = String(cachedSite?.shortName || cachedSite?.siteName || 'B').trim().charAt(0).toUpperCase() || 'B';
 
-  const navItems = [
-    ['index.html', 'Home'],
-    ['barangay-profile.html', 'Profile'],
-    ['officials.html', 'Officials'],
-    ['announcements.html', 'Announcements'],
-    ['services.html', 'Services'],
-    ['forms.html', 'Forms'],
-    ['barangay-directory.html', 'Directory'],
-    ['barangay-disclosure.html', 'Disclosure'],
-    ['gallery.html', 'Gallery'],
-    ['verify.html', 'Verify'],
-    ['contact.html', 'Contact']
-  ];
-
+  const navItems = [['index.html','Home'],['barangay-profile.html','Profile'],['officials.html','Officials'],['announcements.html','Announcements'],['services.html','Services'],['forms.html','Forms'],['barangay-directory.html','Directory'],['barangay-disclosure.html','Disclosure'],['gallery.html','Gallery'],['verify.html','Verify'],['contact.html','Contact']];
   const adminMenu = `<li class="nav-item ms-xl-2"><a class="btn btn-sm btn-outline-light" href="editor/login.html">Admin Portal</a></li>`;
 
   if (header) {
     header.innerHTML = `<nav class="navbar navbar-expand-xl navbar-dark"><div class="container"><a class="navbar-brand d-flex align-items-center gap-2" href="index.html" aria-label="Home"><span class="brand-mark" id="brand-mark" aria-hidden="true">${escapeHtml(initialMark)}</span><img class="brand-logo d-none" id="brand-logo" alt=""><span id="site-name">${escapeHtml(initialName)}</span></a><button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Open navigation"><span class="navbar-toggler-icon"></span></button><div class="collapse navbar-collapse" id="mainNav"><div class="public-mobile-menu-head"><div><strong>Navigation</strong><small>Official barangay website</small></div><button class="public-menu-close" type="button" aria-label="Close navigation">×</button></div><ul class="navbar-nav ms-auto align-items-xl-center gap-xl-1">${navItems.map(([href,label]) => `<li class="nav-item"><a class="nav-link${page === href ? ' active' : ''}" href="${href}"${page === href ? ' aria-current="page"' : ''}>${label}</a></li>`).join('')}${adminMenu}</ul></div></div></nav>`;
-
-    const backdrop = document.createElement('div');
-    backdrop.className = 'public-nav-backdrop';
-    backdrop.setAttribute('aria-hidden','true');
-    document.body.appendChild(backdrop);
-
-    const collapseElement = document.getElementById('mainNav');
-    const toggler = header.querySelector('.navbar-toggler');
-
-    function setMenuState(open) {
-      document.body.classList.toggle('public-menu-open', open);
-      backdrop.classList.toggle('show', open);
-      backdrop.setAttribute('aria-hidden', open ? 'false' : 'true');
-      toggler?.setAttribute('aria-label', open ? 'Close navigation' : 'Open navigation');
-    }
-
-    function closeMenu() {
-      if (!collapseElement) return;
-      if (window.bootstrap?.Collapse) {
-        window.bootstrap.Collapse.getOrCreateInstance(collapseElement, { toggle:false }).hide();
-      } else {
-        collapseElement.classList.remove('show');
-        setMenuState(false);
-      }
-    }
-
-    collapseElement?.addEventListener('show.bs.collapse', () => setMenuState(true));
-    collapseElement?.addEventListener('shown.bs.collapse', () => setMenuState(true));
-    collapseElement?.addEventListener('hide.bs.collapse', () => setMenuState(false));
-    collapseElement?.addEventListener('hidden.bs.collapse', () => setMenuState(false));
-    header.querySelector('.public-menu-close')?.addEventListener('click', closeMenu);
-    backdrop.addEventListener('click', closeMenu);
-    collapseElement?.querySelectorAll('a').forEach((link) => link.addEventListener('click', () => {
-      if (isCompactNavigation()) closeMenu();
-    }));
-    window.addEventListener('resize', () => {
-      if (!isCompactNavigation()) setMenuState(false);
-    }, { passive:true });
+    const backdrop=document.createElement('div');backdrop.className='public-nav-backdrop';backdrop.setAttribute('aria-hidden','true');document.body.appendChild(backdrop);
+    const collapseElement=document.getElementById('mainNav'),toggler=header.querySelector('.navbar-toggler');
+    function setMenuState(open){document.body.classList.toggle('public-menu-open',open);backdrop.classList.toggle('show',open);backdrop.setAttribute('aria-hidden',open?'false':'true');toggler?.setAttribute('aria-label',open?'Close navigation':'Open navigation');}
+    function closeMenu(){if(!collapseElement)return;if(window.bootstrap?.Collapse){window.bootstrap.Collapse.getOrCreateInstance(collapseElement,{toggle:false}).hide();}else{collapseElement.classList.remove('show');setMenuState(false);}}
+    collapseElement?.addEventListener('show.bs.collapse',()=>setMenuState(true));collapseElement?.addEventListener('shown.bs.collapse',()=>setMenuState(true));collapseElement?.addEventListener('hide.bs.collapse',()=>setMenuState(false));collapseElement?.addEventListener('hidden.bs.collapse',()=>setMenuState(false));header.querySelector('.public-menu-close')?.addEventListener('click',closeMenu);backdrop.addEventListener('click',closeMenu);collapseElement?.querySelectorAll('a').forEach(link=>link.addEventListener('click',()=>{if(isCompactNavigation())closeMenu();}));window.addEventListener('resize',()=>{if(!isCompactNavigation())setMenuState(false);},{passive:true});
   }
 
   if (footer) {
