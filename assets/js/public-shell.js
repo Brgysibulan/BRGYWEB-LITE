@@ -1,8 +1,9 @@
 (() => {
   'use strict';
 
-  const SITE_CACHE_KEY = 'brgyweb:site-settings:v2';
-  const UI_VERSION = '20260901-studio5';
+  const SITE_CACHE_VERSION = 3;
+  const SITE_CACHE_KEY = 'brgyweb:site-settings:v3';
+  const UI_VERSION = '20260901-studio7';
   const header = document.querySelector('.site-header');
   const footer = document.querySelector('.site-footer');
   const page = (window.location.pathname.split('/').pop() || 'index.html').toLowerCase();
@@ -37,7 +38,8 @@
       const raw = localStorage.getItem(SITE_CACHE_KEY);
       if (!raw) return null;
       const parsed = JSON.parse(raw);
-      const data = parsed?.data || parsed;
+      if (parsed?.version !== SITE_CACHE_VERSION) return null;
+      const data = parsed?.data;
       return data && typeof data === 'object' ? data : null;
     } catch {
       return null;
