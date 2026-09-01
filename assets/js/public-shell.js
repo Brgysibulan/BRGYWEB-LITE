@@ -34,7 +34,7 @@
   const initialContact = [cachedSite?.phone, cachedSite?.email].filter(Boolean).join(' • ');
   const initialMark = String(cachedSite?.shortName || cachedSite?.siteName || 'B').trim().charAt(0).toUpperCase() || 'B';
 
-  const navItems = [['index.html','Home'],['barangay-profile.html','Profile'],['officials.html','Officials'],['announcements.html','Announcements'],['services.html','Services'],['forms.html','Forms'],['barangay-directory.html','Directory'],['barangay-disclosure.html','Disclosure'],['gallery.html','Gallery'],['verify.html','Verify'],['contact.html','Contact']];
+  const navItems = [['index.html','Home'],['barangay-profile.html','Profile'],['officials.html','Officials'],['announcements.html','Announcements'],['services.html','Services'],['forms.html','Forms'],['barangay-directory.html','Directory'],['barangay-disclosure.html','Disclosure'],['gallery.html','Gallery'],['verify.html','Verify ID'],['contact.html','Contact']];
   const adminMenu = `<li class="nav-item ms-xl-2"><a class="btn btn-sm btn-outline-light" href="editor/login.html">Admin Portal</a></li>`;
 
   if (header) {
