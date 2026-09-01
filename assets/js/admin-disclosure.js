@@ -2,11 +2,13 @@
   'use strict';
   const client = window.BRGY_SUPABASE;
   const BUCKET = 'disclosure-documents';
+  const CACHE_KEY = 'brgyweb:admin-disclosures:v1';
   const form = document.getElementById('disclosure-form');
   const list = document.getElementById('disclosure-list');
   const status = document.getElementById('disclosure-status');
   const cancel = document.getElementById('disclosure-cancel');
   const signout = document.getElementById('admin-signout');
+  let rows = [];
 
   const esc = (v) => String(v ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;').replaceAll("'",'&#039;');
   const val = (id) => document.getElementById(id)?.value.trim() || '';
@@ -16,6 +18,18 @@
   function storagePath(url){ const marker=`/storage/v1/object/public/${BUCKET}/`; return url?.includes(marker) ? decodeURIComponent(url.split(marker)[1]) : null; }
   function publicUrl(path){ return client.storage.from(BUCKET).getPublicUrl(path).data.publicUrl; }
   function reset(){ form.reset(); setVal('disclosure-id'); setVal('disclosure-existing-url'); document.getElementById('disclosure-published').checked=true; setVal('disclosure-order','0'); cancel.classList.add('d-none'); document.getElementById('disclosure-form-title').textContent='Add Disclosure'; }
+
+  function readCache(){
+    try {
+      const value = JSON.parse(localStorage.getItem(CACHE_KEY) || 'null');
+      return Array.isArray(value?.rows) ? value.rows : null;
+    } catch { return null; }
+  }
+
+  function writeCache(nextRows){
+    try { localStorage.setItem(CACHE_KEY, JSON.stringify({ rows: Array.isArray(nextRows) ? nextRows : [], savedAt: Date.now() })); }
+    catch {}
+  }
 
   async function requireStaff(){
     if(!client){ location.href='login.html'; return false; }
@@ -28,13 +42,22 @@
 
   async function removeStored(url){ const path=storagePath(url); if(!path) return true; const {error}=await client.storage.from(BUCKET).remove([path]); if(error){ console.warn('Unable to remove disclosure file:',error); return false; } signalStorageChange('disclosure-remove'); return true; }
 
+  function render(){
+    if(!list) return;
+    if(!rows.length){ list.innerHTML='<div class="empty-state">No disclosure records yet.</div>'; return; }
+    list.innerHTML=rows.map(r=>`<div class="border rounded-3 p-3 mb-3"><div class="d-flex flex-wrap justify-content-between gap-3"><div><div class="d-flex gap-2 align-items-center flex-wrap"><strong>${esc(r.title)}</strong><span class="badge ${r.is_published?'text-bg-success':'text-bg-secondary'}">${r.is_published?'Published':'Hidden'}</span></div><div class="small text-secondary mt-1">${esc(r.category||'Uncategorized')}${r.document_date?` • ${esc(r.document_date)}`:''} • Order ${Number(r.sort_order)||0}</div>${r.description?`<p class="mb-1 mt-2">${esc(r.description)}</p>`:''}${r.file_url?`<a class="small" href="${esc(r.file_url)}" target="_blank" rel="noopener noreferrer">Open document</a>`:'<span class="small text-secondary">No file uploaded</span>'}</div><div class="d-flex gap-2 align-self-start"><button class="btn btn-sm btn-outline-dark" type="button" data-edit="${r.id}">Edit</button><button class="btn btn-sm btn-outline-danger" type="button" data-delete="${r.id}">Delete</button></div></div></div>`).join('');
+  }
+
   async function load(){
-    list.innerHTML='<div class="empty-state">Loading disclosure records...</div>';
     const {data,error}=await client.from('disclosures').select('*').order('sort_order').order('document_date',{ascending:false,nullsFirst:false}).order('id',{ascending:false});
     if(error) throw error;
-    if(!data?.length){ list.innerHTML='<div class="empty-state">No disclosure records yet.</div>'; return; }
-    list.innerHTML=data.map(r=>`<div class="border rounded-3 p-3 mb-3"><div class="d-flex flex-wrap justify-content-between gap-3"><div><div class="d-flex gap-2 align-items-center flex-wrap"><strong>${esc(r.title)}</strong><span class="badge ${r.is_published?'text-bg-success':'text-bg-secondary'}">${r.is_published?'Published':'Hidden'}</span></div><div class="small text-secondary mt-1">${esc(r.category||'Uncategorized')}${r.document_date?` • ${esc(r.document_date)}`:''} • Order ${Number(r.sort_order)||0}</div>${r.description?`<p class="mb-1 mt-2">${esc(r.description)}</p>`:''}${r.file_url?`<a class="small" href="${esc(r.file_url)}" target="_blank" rel="noopener noreferrer">Open document</a>`:'<span class="small text-secondary">No file uploaded</span>'}</div><div class="d-flex gap-2 align-self-start"><button class="btn btn-sm btn-outline-dark" type="button" data-edit="${r.id}">Edit</button><button class="btn btn-sm btn-outline-danger" type="button" data-delete="${r.id}">Delete</button></div></div></div>`).join('');
+    rows = data || [];
+    writeCache(rows);
+    render();
   }
+
+  const cachedRows = readCache();
+  if(cachedRows){ rows = cachedRows; render(); }
 
   async function upload(file){
     if(file.size>10*1024*1024) throw new Error('File must be 10 MB or smaller.');
@@ -63,10 +86,10 @@
 
   list.addEventListener('click', async (e)=>{
     const edit=e.target.closest('[data-edit]'); const del=e.target.closest('[data-delete]');
-    if(edit){ const {data,error}=await client.from('disclosures').select('*').eq('id',edit.dataset.edit).single(); if(error)return setStatus(error.message,true); setVal('disclosure-id',data.id);setVal('disclosure-existing-url',data.file_url||'');setVal('disclosure-title',data.title);setVal('disclosure-category',data.category||'');setVal('disclosure-date',data.document_date||'');setVal('disclosure-description',data.description||'');setVal('disclosure-order',data.sort_order);document.getElementById('disclosure-published').checked=data.is_published===true;cancel.classList.remove('d-none');document.getElementById('disclosure-form-title').textContent='Edit Disclosure';window.scrollTo({top:0,behavior:'smooth'}); }
-    if(del){ if(!confirm('Delete this disclosure record and its uploaded document?')) return; del.disabled=true; try{ const {data,error}=await client.from('disclosures').select('file_url').eq('id',del.dataset.delete).single(); if(error)throw error; const {error:dErr}=await client.from('disclosures').delete().eq('id',del.dataset.delete); if(dErr)throw dErr; const cleanupOkay=await removeStored(data.file_url); setStatus(cleanupOkay?'Disclosure deleted.':'Disclosure record deleted, but its uploaded file could not be removed from Storage.',!cleanupOkay); await load(); }catch(err){ console.error(err); setStatus(err.message||'Unable to delete disclosure.',true); del.disabled=false; } }
+    if(edit){ const cached=rows.find((item)=>String(item.id)===String(edit.dataset.edit)); if(cached){ setVal('disclosure-id',cached.id);setVal('disclosure-existing-url',cached.file_url||'');setVal('disclosure-title',cached.title);setVal('disclosure-category',cached.category||'');setVal('disclosure-date',cached.document_date||'');setVal('disclosure-description',cached.description||'');setVal('disclosure-order',cached.sort_order);document.getElementById('disclosure-published').checked=cached.is_published===true;cancel.classList.remove('d-none');document.getElementById('disclosure-form-title').textContent='Edit Disclosure';window.scrollTo({top:0,behavior:'smooth'}); return; } const {data,error}=await client.from('disclosures').select('*').eq('id',edit.dataset.edit).single(); if(error)return setStatus(error.message,true); setVal('disclosure-id',data.id);setVal('disclosure-existing-url',data.file_url||'');setVal('disclosure-title',data.title);setVal('disclosure-category',data.category||'');setVal('disclosure-date',data.document_date||'');setVal('disclosure-description',data.description||'');setVal('disclosure-order',data.sort_order);document.getElementById('disclosure-published').checked=data.is_published===true;cancel.classList.remove('d-none');document.getElementById('disclosure-form-title').textContent='Edit Disclosure';window.scrollTo({top:0,behavior:'smooth'}); }
+    if(del){ if(!confirm('Delete this disclosure record and its uploaded document?')) return; del.disabled=true; try{ const id=del.dataset.delete; const cached=rows.find((item)=>String(item.id)===String(id)); let fileUrl=cached?.file_url||null; if(!cached){ const {data,error}=await client.from('disclosures').select('file_url').eq('id',id).single(); if(error)throw error; fileUrl=data.file_url; } const {error:dErr}=await client.from('disclosures').delete().eq('id',id); if(dErr)throw dErr; rows=rows.filter((item)=>String(item.id)!==String(id)); writeCache(rows); render(); const cleanupOkay=await removeStored(fileUrl); setStatus(cleanupOkay?'Disclosure deleted.':'Disclosure record deleted, but its uploaded file could not be removed from Storage.',!cleanupOkay); load().catch(()=>{}); }catch(err){ console.error(err); setStatus(err.message||'Unable to delete disclosure.',true); del.disabled=false; } }
   });
   cancel.addEventListener('click',reset);
   if(signout)signout.addEventListener('click',async()=>{await client.auth.signOut();location.href='login.html';});
-  requireStaff().then(ok=>{if(ok)load().catch(err=>setStatus(err.message,true));});
+  requireStaff().then(ok=>{if(ok)load().catch(err=>{console.error(err); if(!cachedRows)setStatus(err.message,true);});});
 })();
