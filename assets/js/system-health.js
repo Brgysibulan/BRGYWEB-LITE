@@ -13,7 +13,10 @@
   let loading = false;
 
   const byId = (id) => document.getElementById(id);
-  const setText = (id, value) => { const el = byId(id); if (el) el.textContent = String(value ?? '—'); };
+  const setText = (id, value) => {
+    const el = byId(id);
+    if (el) el.textContent = String(value ?? '—');
+  };
 
   function formatBytes(bytes) {
     const value = Number(bytes || 0);
@@ -22,7 +25,10 @@
     const units = ['KB', 'MB', 'GB', 'TB'];
     let size = value / 1024;
     let index = 0;
-    while (size >= 1024 && index < units.length - 1) { size /= 1024; index += 1; }
+    while (size >= 1024 && index < units.length - 1) {
+      size /= 1024;
+      index += 1;
+    }
     return `${size >= 100 ? size.toFixed(0) : size >= 10 ? size.toFixed(1) : size.toFixed(2)} ${units[index]}`;
   }
 
@@ -55,12 +61,33 @@
     el.className = `progress-bar bg-${healthTone(safe)}`;
   }
 
+  function cleanActionsLabel(value) {
+    const text = String(value || '').replace(/\bfree\b\s*\/?\s*/ig, '').trim();
+    return text || 'Unlimited for public standard runners';
+  }
+
+  function hideTierWording() {
+    const slotsValue = byId('supabase-project-slots');
+    const label = slotsValue?.previousElementSibling;
+    if (label) {
+      const badge = label.querySelector('.badge');
+      label.textContent = 'Project slots ';
+      if (badge) label.appendChild(badge);
+    }
+  }
+
   function renderSupabase(data = {}) {
     const dbPercent = percentage(data.database_bytes, data.database_limit_bytes);
     const storagePercent = percentage(data.storage_bytes, data.storage_limit_bytes);
     const worst = Math.max(dbPercent, storagePercent);
-    setBadge('supabase-health-state', data.status === 'healthy' ? 'Healthy' : 'Attention', data.status === 'healthy' ? healthTone(worst) : 'danger');
-    setText('supabase-health-plan', String(data.plan || 'unknown').toUpperCase());
+    setBadge(
+      'supabase-health-state',
+      data.status === 'healthy' ? 'Healthy' : 'Attention',
+      data.status === 'healthy' ? healthTone(worst) : 'danger'
+    );
+
+    const plan = String(data.plan || '').trim().toLowerCase();
+    setText('supabase-health-plan', plan && plan !== 'free' ? plan.toUpperCase() : '');
 
     const slots = data.project_slots || {};
     const activeSlots = Number(slots.active);
@@ -74,6 +101,7 @@
     setText('supabase-db-remaining', `${formatBytes(data.database_remaining_bytes)} remaining`);
     setText('supabase-db-percent', `${dbPercent.toFixed(1)}% used`);
     setProgress('supabase-db-progress', dbPercent);
+
     setText('supabase-storage-usage', `${formatBytes(data.storage_bytes)} / ${formatBytes(data.storage_limit_bytes)}`);
     setText('supabase-storage-remaining', `${formatBytes(data.storage_remaining_bytes)} remaining`);
     setText('supabase-storage-percent', `${storagePercent.toFixed(1)}% used`);
@@ -84,18 +112,24 @@
   function renderGitHub(data = {}) {
     const status = String(data.status || 'unavailable');
     const tone = status === 'healthy' ? 'success' : status === 'deploying' ? 'warning' : 'danger';
-    setBadge('github-health-state', status === 'healthy' ? 'Healthy' : status === 'deploying' ? 'Deploying' : status === 'attention' ? 'Attention' : 'Unavailable', tone);
+    setBadge(
+      'github-health-state',
+      status === 'healthy' ? 'Healthy' : status === 'deploying' ? 'Deploying' : status === 'attention' ? 'Attention' : 'Unavailable',
+      tone
+    );
+
     const runNumber = data.latest_run_number ? `#${data.latest_run_number}` : '—';
     const conclusion = data.latest_run_conclusion || data.latest_run_status || 'unknown';
     setText('github-latest-deploy', `${runNumber} · ${conclusion}`);
     const sha = String(data.latest_run_sha || '');
     setText('github-latest-sha', sha ? sha.slice(0, 10) : '—');
+
     const repoPercent = percentage(data.repository_bytes, data.repository_recommended_limit_bytes);
     setText('github-repo-usage', `${formatBytes(data.repository_bytes)} / ${formatBytes(data.repository_recommended_limit_bytes)}`);
     setText('github-repo-remaining', `${formatBytes(data.repository_remaining_bytes)} recommended headroom`);
     setText('github-repo-percent', `${repoPercent.toFixed(1)}% used`);
     setProgress('github-repo-progress', repoPercent);
-    setText('github-actions-minutes', data.actions_minutes || '—');
+    setText('github-actions-minutes', cleanActionsLabel(data.actions_minutes));
     setText('github-pages-bandwidth', data.pages_bandwidth_limit_gb ? `${data.pages_bandwidth_limit_gb} GB/month soft limit` : '—');
     setText('github-pages-bandwidth-note', data.pages_bandwidth_note || '');
   }
@@ -124,15 +158,21 @@
     clearAutoTimer();
     if (refreshButton) refreshButton.disabled = true;
     setText('system-health-status', reason === 'storage-change' ? 'Storage changed — refreshing health…' : 'Checking GitHub and Supabase…');
+
     try {
       const { data, error } = await client.functions.invoke('system-health', { body: {} });
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
       renderSupabase(data?.supabase || {});
       renderGitHub(data?.github || {});
+
       const checked = data?.checked_at ? new Date(data.checked_at) : new Date();
       lastCheckedAt = Number.isFinite(checked.getTime()) ? checked.getTime() : Date.now();
-      const message = reason === 'auto' ? 'Automatic health check completed.' : reason === 'storage-change' ? 'Health refreshed after a Storage change.' : 'Live health check completed.';
+      const message = reason === 'auto'
+        ? 'Automatic health check completed.'
+        : reason === 'storage-change'
+          ? 'Health refreshed after a Storage change.'
+          : 'Live health check completed.';
       setText('system-health-status', message);
       setText('system-health-checked', `Checked ${checked.toLocaleString()}`);
     } catch (error) {
@@ -148,6 +188,7 @@
     }
   }
 
+  hideTierWording();
   refreshButton?.addEventListener('click', () => loadHealth('manual'));
   dashboardRefresh?.addEventListener('click', () => loadHealth('dashboard-refresh'));
 
@@ -168,7 +209,7 @@
   window.addEventListener('pageshow', (event) => {
     if (event.persisted && (!lastCheckedAt || Date.now() - lastCheckedAt >= AUTO_REFRESH_MS)) loadHealth('resume');
   });
-  window.addEventListener('beforeunload', clearAutoTimer);
 
+  window.addEventListener('beforeunload', clearAutoTimer);
   loadHealth('initial');
 })();
