@@ -1,4 +1,4 @@
-const CACHE_NAME = 'brgyweb-runtime-v1';
+const CACHE_NAME = 'brgyweb-runtime-v2';
 const CACHE_PREFIX = 'brgyweb-runtime-';
 
 self.addEventListener('install', () => {
