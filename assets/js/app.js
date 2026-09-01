@@ -4,6 +4,7 @@
   const SITE_CACHE_VERSION = 4;
   const SITE_CACHE_KEY = 'brgyweb:site-settings:v4';
   const LEGACY_SITE_CACHE_KEYS = ['brgyweb:site-settings:v3','brgyweb:site-settings:v2'];
+  const LAYOUT_ASSET_VERSION = '20260901-layout2';
   const INITIAL_TITLE = document.title;
   const DEFAULT_SITE = Object.freeze({
     siteName: 'Barangay Website', shortName: 'Barangay', municipality: 'Municipality', province: 'Province',
@@ -12,6 +13,24 @@
     address: 'Barangay Office Address', phone: '', email: '', logoUrl: '', designTheme: null,
     theme: { primary: '#0b2f21', secondary: '#1b6b45', accent: '#d8b63e', signal:'#a63d40', surface: '#f5f8f5', text: '#1f2937' }
   });
+
+  function ensureWebLayoutAssets() {
+    if(!document.querySelector('link[data-brgy-web-layouts]')){
+      const link=document.createElement('link');
+      link.rel='stylesheet';
+      link.href=`assets/css/web-layouts.css?v=${LAYOUT_ASSET_VERSION}`;
+      link.dataset.brgyWebLayouts='true';
+      document.head.appendChild(link);
+    }
+    if(!document.querySelector('script[data-brgy-web-layout-runtime]')){
+      const script=document.createElement('script');
+      script.src=`assets/js/web-layout-runtime.js?v=${LAYOUT_ASSET_VERSION}`;
+      script.async=false;
+      script.dataset.brgyWebLayoutRuntime='true';
+      document.head.appendChild(script);
+    }
+  }
+  ensureWebLayoutAssets();
 
   function setText(id, value, fallback = '') { const element=document.getElementById(id); if(!element)return; const text=typeof value==='string'?value.trim():''; element.textContent=text||fallback; }
   function isHttpsUrl(value) { try { return new URL(value).protocol === 'https:'; } catch { return false; } }
@@ -51,6 +70,7 @@
 
   function applyPublishedDesignTheme(designTheme={}) {
     if(!hasPublishedDesignTheme(designTheme)) return false;
+    window.BRGY_WEB_LAYOUT_RUNTIME?.apply?.(designTheme.webLayout);
     const runtime=window.BRGY_GOV_THEME_RUNTIME;
     if(runtime?.apply){ runtime.apply(designTheme.experience,designTheme); return true; }
     if(window.BRGY_THEME?.applyPublic){ window.BRGY_THEME.applyPublic(designTheme.public||{}); return true; }
