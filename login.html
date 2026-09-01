@@ -5,18 +5,18 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Admin Login</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="assets/css/admin.css?v=20260902-login1">
-  <link rel="stylesheet" href="assets/css/access.css?v=20260902-login1">
+  <link rel="stylesheet" href="assets/css/admin.css?v=20260902-login2">
+  <link rel="stylesheet" href="assets/css/access.css?v=20260902-login2">
 </head>
 <body class="access-page">
   <main class="access-wrap">
-    <section class="access-login-card">
+    <section class="access-login-card unified-access-card">
       <div class="access-brand"><div class="access-brand-mark">B</div><div><strong>BRGYWEB-LITE</strong><small>Administration Access</small></div></div>
       <span class="eyebrow">Secure Workspace</span>
       <h1 class="h2 mt-2 mb-2">Admin Login</h1>
-      <p class="text-secondary mb-3">Choose the workspace you want to enter, then sign in with your account.</p>
+      <p class="mb-0">Select your workspace and sign in with your assigned account.</p>
 
-      <div class="access-route-grid mt-0 pt-0 border-0" role="group" aria-label="Choose admin workspace">
+      <div class="access-role-picker" role="group" aria-label="Choose admin workspace">
         <button class="access-route-card access-route-admin" id="login-role-editor" type="button" data-login-role="editor" aria-pressed="true"><small>Public content</small><strong>Content Admin</strong></button>
         <button class="access-route-card" id="login-role-admin" type="button" data-login-role="admin" aria-pressed="false"><small>Full control</small><strong>System Admin</strong></button>
       </div>
@@ -30,13 +30,12 @@
         <div id="unified-login-status" class="small mt-3 text-secondary" role="status" aria-live="polite"></div>
       </form>
 
-      <div class="access-secondary"><p>Need Content Admin access?</p><a class="btn btn-outline-success w-100" href="editor/apply.html">Apply for Content Admin</a></div>
-      <nav class="access-route-grid" aria-label="Other access options"><a class="access-route-card" href="index.html"><small>Back to</small><strong>Public Website</strong></a><span class="access-route-card"><small>Selected workspace</small><strong id="login-selected-label">Content Admin</strong></span></nav>
+      <div class="access-foot"><a href="index.html">← Public Website</a><a href="editor/apply.html">Apply for Content Admin</a></div>
     </section>
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="assets/js/supabase-config.js?v=20260902-login1"></script>
+  <script src="assets/js/supabase-config.js?v=20260902-login2"></script>
   <script>
     (()=>{
       'use strict';
@@ -45,7 +44,6 @@
       const status=document.getElementById('unified-login-status');
       const submit=document.getElementById('unified-login-submit');
       const note=document.getElementById('login-role-note');
-      const label=document.getElementById('login-selected-label');
       const buttons=[...document.querySelectorAll('[data-login-role]')];
       let selected='editor';
 
@@ -56,7 +54,6 @@
         buttons.forEach((button)=>{const active=button.dataset.loginRole===selected;button.classList.toggle('access-route-admin',active);button.setAttribute('aria-pressed',String(active));});
         const system=selected==='admin';
         submit.textContent=system?'Sign in as System Admin':'Sign in as Content Admin';
-        label.textContent=system?'System Admin':'Content Admin';
         note.textContent=system?'System Admin has full control over settings, accounts, secure records, content, forms, and presentation.':'Content Admin can manage approved public-facing content and downloadable forms.';
         setStatus('');
       };
