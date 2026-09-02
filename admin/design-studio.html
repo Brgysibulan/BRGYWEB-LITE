@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Design Studio | BRGYWEB-LITE</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="../assets/css/admin.css?v=20260902-studio1">
+  <style>
+    .studio-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:1rem}.studio-card{border:1px solid #dfe7e1;border-radius:16px;background:#fff;padding:1rem;box-shadow:0 8px 24px rgba(17,44,26,.05)}.studio-card label{font-weight:700;font-size:.82rem;margin-bottom:.4rem}.studio-preview{min-height:170px;border-radius:18px;border:1px solid #dfe7e1;padding:1rem;background:var(--studio-bg,#f6f8f6)}.studio-preview-bar{height:42px;border-radius:12px;background:var(--studio-primary,#176b3a);margin-bottom:1rem}.studio-preview-card{height:76px;border-radius:var(--studio-radius,14px);background:#fff;border:1px solid #dfe7e1;box-shadow:var(--studio-shadow,0 8px 20px rgba(17,44,26,.08))}.studio-actions{display:flex;flex-wrap:wrap;gap:.6rem}.studio-note{font-size:.82rem;color:#68756d}
+  </style>
+</head>
+<body class="dashboard-page admin-control-center">
+<div class="dashboard-shell">
+  <aside class="sidebar">
+    <div><div class="sidebar-brand">BRGYWEB-LITE</div><div class="sidebar-role">System Admin</div></div>
+    <nav class="sidebar-nav mt-4">
+      <a href="dashboard.html">Dashboard</a><a href="announcements.html">Announcements</a><a href="officials.html">Officials</a><a href="services.html">Services</a><a href="directory.html">Directory</a><a href="disclosure.html">Disclosure</a><a href="gallery.html">Gallery</a><a href="profile.html">Barangay Profile</a><a href="verification.html">Verification / QR</a><a href="settings.html">Site Settings</a><a class="active" href="design-studio.html">Design Studio</a><a href="editors.html">Content Admin Access</a>
+      <button class="btn btn-link text-white text-start text-decoration-none px-2 py-2 w-100" type="button" id="admin-signout">Sign out</button>
+    </nav>
+    <a class="sidebar-exit" href="../index.html">View public site</a>
+  </aside>
+  <main class="dashboard-main">
+    <header class="dashboard-topbar"><div><span class="eyebrow">Appearance</span><h1 class="h3 mb-1">Design Studio</h1><p class="text-secondary mb-0">Customize the public website appearance without changing page content.</p></div></header>
+    <section class="dashboard-section">
+      <div class="section-card">
+        <div class="section-card-head"><div><span class="eyebrow">Public Website</span><h2 class="h5 mb-1">Theme Controls</h2><p class="text-secondary mb-0">Choose the main visual settings used by the resident-facing site.</p></div></div>
+        <div id="studio-status" class="small text-secondary mt-3" role="status" aria-live="polite"></div>
+        <div class="studio-grid mt-3">
+          <div class="studio-card"><label for="studio-primary">Primary color</label><input id="studio-primary" class="form-control form-control-color w-100" type="color" value="#176b3a"></div>
+          <div class="studio-card"><label for="studio-accent">Accent color</label><input id="studio-accent" class="form-control form-control-color w-100" type="color" value="#d4a72c"></div>
+          <div class="studio-card"><label for="studio-radius">Corner style</label><select id="studio-radius" class="form-select"><option value="8">Compact</option><option value="14" selected>Rounded</option><option value="22">Soft</option></select></div>
+          <div class="studio-card"><label for="studio-width">Content width</label><select id="studio-width" class="form-select"><option value="1120">Standard</option><option value="1240" selected>Wide</option><option value="1360">Extra wide</option></select></div>
+        </div>
+        <div class="studio-preview mt-4" id="studio-preview"><div class="studio-preview-bar"></div><div class="studio-preview-card"></div></div>
+        <p class="studio-note mt-2 mb-0">Preview is local to this page until you save. Saved values are stored in Site Settings and can be consumed by the public theme runtime.</p>
+        <div class="studio-actions mt-3"><button class="btn btn-success" id="studio-save" type="button">Save Design</button><button class="btn btn-outline-secondary" id="studio-reset" type="button">Reset Preview</button><a class="btn btn-outline-primary" href="../index.html" target="_blank" rel="noopener">Open Public Site</a></div>
+      </div>
+    </section>
+  </main>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="../assets/js/core/supabase-config.js?v=20260902-studio1"></script>
+<script src="../assets/js/admin/dashboard.js?v=20260902-studio1"></script>
+<script src="../assets/js/admin/design-studio.js?v=20260902-studio1"></script>
+</body>
+</html>
