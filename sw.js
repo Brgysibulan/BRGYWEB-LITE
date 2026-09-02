@@ -1,4 +1,9 @@
-const CACHE_NAME = 'brgyweb-runtime-v6-cssreset';
+/**
+ * BRGYWEB-LITE — Runtime Cache Manager
+ * Purpose: Keep same-origin HTML, CSS, and JavaScript available with network-first freshness.
+ * Used by: browsers that register the site service worker.
+ */
+const CACHE_NAME = 'brgyweb-runtime-v7-structure';
 const CACHE_PREFIX = 'brgyweb-runtime-';
 
 self.addEventListener('install', () => {
@@ -8,7 +13,11 @@ self.addEventListener('install', () => {
 self.addEventListener('activate', (event) => {
   event.waitUntil((async () => {
     const names = await caches.keys();
-    await Promise.all(names.filter((name) => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME).map((name) => caches.delete(name)));
+    await Promise.all(
+      names
+        .filter((name) => name.startsWith(CACHE_PREFIX) && name !== CACHE_NAME)
+        .map((name) => caches.delete(name))
+    );
     await self.clients.claim();
   })());
 });
@@ -16,14 +25,14 @@ self.addEventListener('activate', (event) => {
 function shouldHandle(request, url) {
   if (request.method !== 'GET' || url.origin !== self.location.origin) return false;
   if (request.mode === 'navigate') return true;
-  if (['script','style','worker','document'].includes(request.destination)) return true;
+  if (['script', 'style', 'worker', 'document'].includes(request.destination)) return true;
   return /\.(?:html?|css|js)$/i.test(url.pathname) || /\/assets\/(?:css|js)\//.test(url.pathname);
 }
 
 async function networkFirst(request) {
   const cache = await caches.open(CACHE_NAME);
   try {
-    const freshRequest = new Request(request, { cache: 'no-store' });
+    const freshRequest = new Request(request, { cache:'no-store' });
     const response = await fetch(freshRequest);
     if (response && response.ok) await cache.put(request, response.clone());
     return response;
