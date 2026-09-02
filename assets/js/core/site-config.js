@@ -9,14 +9,7 @@ window.BRGYWEB_CONFIG = {
   address: "Barangay Office Address",
   phone: "",
   email: "",
-  theme: {
-    primary: "#0b2f21",
-    secondary: "#1b6b45",
-    accent: "#d8b63e",
-    signal: "#a63d40",
-    surface: "#f5f8f5",
-    text: "#1f2937"
-  },
+  colorPreset: "civic-blue",
   features: {
     profile: true,
     officials: true,
