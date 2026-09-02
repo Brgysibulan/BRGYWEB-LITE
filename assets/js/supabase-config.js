@@ -3,7 +3,7 @@
 
   const SUPABASE_URL = 'https://pkvorwvkqjnbgktkgjhr.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_RbaENAflMzLgXpemymGApA_TkVAhMoU';
-  const ASSET_VERSION = '20260902-plain1';
+  const ASSET_VERSION = '20260902-reset1';
   const path = window.location.pathname;
   const isStaffPage = /\/(admin|editor)\//.test(path);
   const isAccessPage = /\/(admin|editor)\/(?:login|apply|activate)\.html$/.test(path);
@@ -83,7 +83,6 @@
   });
 
   if (isStaffPage && !isAccessPage) {
-    addStyle(`../assets/css/admin-steady-shell.css?v=${ASSET_VERSION}`, 'data-brgy-admin-steady-shell');
     addStyle(`../assets/css/admin-shell.css?v=${ASSET_VERSION}`, 'data-brgy-admin-shell');
     addScript(`../assets/js/admin-shell-prime.js?v=${ASSET_VERSION}`, 'data-brgy-admin-shell-prime');
     addScript(`../assets/js/admin-shell.js?v=${ASSET_VERSION}`, 'data-brgy-admin-shell');
