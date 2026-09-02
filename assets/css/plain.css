@@ -1,0 +1,143 @@
+/* Plain baseline: structure first, no barangay color system. */
+:root{
+  --brand-primary:#222;
+  --brand-secondary:#444;
+  --brand-primary-dark:#111;
+  --brand-accent:#777;
+  --brand-signal:#555;
+  --brand-danger:#555;
+  --brand-on-primary:#fff;
+  --brand-on-secondary:#fff;
+  --page-bg:#fff;
+  --soft-bg:#f5f5f5;
+  --text-main:#1f1f1f;
+  --text-muted:#666;
+  --border:#d9d9d9;
+  --line:#d9d9d9;
+  --admin-primary:#222;
+  --admin-secondary:#444;
+  --admin-accent:#777;
+  --admin-signal:#555;
+  --admin-bg:#f6f6f6;
+  --admin-surface:#fff;
+  --admin-text:#1f1f1f;
+  --admin-muted:#666;
+  --theme-primary:#222;
+  --theme-secondary:#444;
+  --theme-accent:#777;
+  --theme-signal:#555;
+  --theme-surface:#fff;
+  --theme-surface-soft:#f5f5f5;
+  --theme-text:#1f1f1f;
+  --theme-muted:#666;
+  --theme-border:#d9d9d9;
+  --theme-on-primary:#fff;
+  --theme-on-secondary:#fff;
+}
+
+html,body{background:#fff!important;color:#1f1f1f!important}
+body{background-image:none!important}
+
+.site-header,.navbar,.hero-section,.site-footer,
+.dashboard-page .sidebar,.unified-admin-shell>.unified-sidebar{
+  background:#222!important;
+  background-image:none!important;
+  color:#fff!important;
+}
+
+.site-header{box-shadow:none!important;border-bottom:1px solid #333!important}
+.hero-section{color:#fff!important}
+.site-footer{border-top:1px solid #333!important}
+
+.navbar-brand,.site-header .nav-link,.site-header .navbar-toggler,
+.unified-sidebar a,.unified-sidebar button,.unified-sidebar .sidebar-brand,
+.unified-sidebar .sidebar-role,.unified-sidebar .sidebar-label,
+.unified-sidebar .sidebar-exit{color:#fff!important}
+
+.brand-mark,.sidebar-logo{background:#fff!important;color:#222!important;border-color:#fff!important;box-shadow:none!important}
+
+.btn-primary,.btn-success{
+  --bs-btn-bg:#222;
+  --bs-btn-border-color:#222;
+  --bs-btn-hover-bg:#000;
+  --bs-btn-hover-border-color:#000;
+  --bs-btn-active-bg:#000;
+  --bs-btn-active-border-color:#000;
+  --bs-btn-color:#fff;
+  --bs-btn-hover-color:#fff;
+  --bs-btn-active-color:#fff;
+}
+.btn-outline-primary,.btn-outline-success{
+  --bs-btn-color:#222;
+  --bs-btn-border-color:#444;
+  --bs-btn-hover-bg:#222;
+  --bs-btn-hover-border-color:#222;
+  --bs-btn-hover-color:#fff;
+  --bs-btn-active-bg:#222;
+  --bs-btn-active-border-color:#222;
+  --bs-btn-active-color:#fff;
+}
+.btn-danger{
+  --bs-btn-bg:#444;
+  --bs-btn-border-color:#444;
+  --bs-btn-hover-bg:#222;
+  --bs-btn-hover-border-color:#222;
+}
+
+.text-success,.text-primary{color:#222!important}
+.text-danger,.text-warning{color:#555!important}
+.bg-success,.bg-primary,.text-bg-success,.text-bg-primary{background:#222!important;color:#fff!important}
+.bg-warning,.text-bg-warning,.bg-danger,.text-bg-danger{background:#555!important;color:#fff!important}
+
+.quick-card,.content-panel,.service-card,.placeholder-card,.empty-state,
+.section-card,.dashboard-section,.card,.modal-content,.dropdown-menu,
+.form-control,.form-select,.table-responsive{
+  background:#fff!important;
+  color:#1f1f1f!important;
+  border-color:#d9d9d9!important;
+  box-shadow:none!important;
+}
+
+.section-soft,.premium-home-band,.dashboard-page,.dashboard-main,.admin-module-main{
+  background:#f6f6f6!important;
+  background-image:none!important;
+}
+
+.section-heading>span,.eyebrow,.gov-studio-kicker{color:#555!important}
+
+.unified-sidebar .sidebar-nav a.active,
+.unified-sidebar .sidebar-nav a:hover,
+.unified-sidebar .unified-signout:hover{
+  background:#3a3a3a!important;
+  color:#fff!important;
+}
+.unified-sidebar .sidebar-role-dot{background:#bbb!important;box-shadow:none!important}
+.unified-sidebar .sidebar-divider{background:#444!important}
+
+.admin-mobile-bar{
+  background:#fff!important;
+  color:#1f1f1f!important;
+  border-color:#d9d9d9!important;
+  box-shadow:none!important;
+}
+.admin-mobile-menu-btn,.admin-mobile-public,.admin-sidebar-reopen{
+  background:#fff!important;
+  color:#222!important;
+  border-color:#ccc!important;
+  box-shadow:none!important;
+}
+.admin-mobile-overlay{background:rgba(0,0,0,.45)!important;backdrop-filter:none!important}
+
+.access-page,.access-shell,.access-card,.access-panel,
+.login-page,.login-card,.auth-card{
+  background:#fff!important;
+  color:#1f1f1f!important;
+  background-image:none!important;
+  box-shadow:none!important;
+}
+
+input,select,textarea{accent-color:#222}
+a{color:#222}
+.site-header a,.site-footer a,.unified-sidebar a{color:#fff}
+
+*{text-shadow:none!important}
