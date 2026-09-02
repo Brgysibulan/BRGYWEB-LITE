@@ -1,15 +1,23 @@
+/**
+ * BRGYWEB-LITE — Supabase Core Configuration
+ * Purpose: Initialize the shared Supabase client and load staff-wide runtime modules.
+ * Depends on: Supabase JS browser library
+ * Used by: public, admin, and editor pages that require Supabase.
+ */
 (() => {
   'use strict';
 
+  // Configuration
   const SUPABASE_URL = 'https://pkvorwvkqjnbgktkgjhr.supabase.co';
   const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_RbaENAflMzLgXpemymGApA_TkVAhMoU';
-  const ASSET_VERSION = '20260902-cssreset2';
+  const ASSET_VERSION = '20260902-structure11';
   const path = window.location.pathname;
   const isStaffPage = /\/(admin|editor)\//.test(path);
   const isAccessPage = /\/(admin|editor)\/(?:login|apply|activate)\.html$/.test(path);
 
   window.BRGY_SUPABASE_CONFIG = { url: SUPABASE_URL, publishableKey: SUPABASE_PUBLISHABLE_KEY };
 
+  // Shared asset loading
   function absoluteAssetUrl(value) {
     try { return new URL(value, document.baseURI).href; }
     catch { return value; }
@@ -30,6 +38,7 @@
     return script;
   }
 
+  // Cache registration
   function registerCacheManager() {
     if (!('serviceWorker' in navigator) || location.protocol !== 'https:') return;
     window.addEventListener('load', () => {
@@ -51,6 +60,7 @@
     });
   } catch {}
 
+  // Supabase initialization
   if (!window.supabase || typeof window.supabase.createClient !== 'function') {
     console.error('Supabase client library is not loaded.');
     markReady();
@@ -61,11 +71,11 @@
     auth: { persistSession:true, autoRefreshToken:true, detectSessionInUrl:true }
   });
 
+  // Staff-wide runtime modules. Keep these paths aligned with the organized folders.
   if (isStaffPage && !isAccessPage) {
-    addScript(`../assets/js/admin-shell-prime.js?v=${ASSET_VERSION}`, 'data-brgy-admin-shell-prime');
-    addScript(`../assets/js/admin-shell.js?v=${ASSET_VERSION}`, 'data-brgy-admin-shell');
-    addScript(`../assets/js/staff-forms-nav.js?v=${ASSET_VERSION}`, 'data-brgy-staff-forms-nav');
-    addScript(`../assets/js/admin-table-tools.js?v=${ASSET_VERSION}`, 'data-brgy-admin-table-tools');
+    addScript(`../assets/js/admin/shell-prime.js?v=${ASSET_VERSION}`, 'data-brgy-admin-shell-prime');
+    addScript(`../assets/js/admin/shell.js?v=${ASSET_VERSION}`, 'data-brgy-admin-shell');
+    addScript(`../assets/js/editor/forms-nav.js?v=${ASSET_VERSION}`, 'data-brgy-staff-forms-nav');
   }
 
   markReady();
