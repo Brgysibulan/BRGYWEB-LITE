@@ -5,72 +5,13 @@
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Site Settings</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
-  <link rel="stylesheet" href="../assets/css/admin.css?v=20260901-gov7">
-  <style>
-    /* Maintenance control must stay visible in every admin preset and viewport. */
-    #maintenance-toggle {
-      display: inline-flex !important;
-      visibility: visible !important;
-      opacity: 1 !important;
-      align-items: center;
-      justify-content: center;
-      position: static !important;
-      transform: none !important;
-      min-height: 48px;
-      min-width: 190px;
-      padding: .72rem 1rem;
-      font-weight: 800;
-      z-index: 2;
-    }
-    #maintenance-toggle.btn-success {
-      background: #198754 !important;
-      border-color: #198754 !important;
-      color: #fff !important;
-    }
-    #maintenance-toggle.btn-warning {
-      background: #ffc107 !important;
-      border-color: #ffc107 !important;
-      color: #1f261f !important;
-    }
-    #maintenance-toggle:disabled {
-      display: inline-flex !important;
-      visibility: visible !important;
-      opacity: .65 !important;
-    }
-    @media (max-width: 560px) {
-      #maintenance-toggle {
-        width: 100% !important;
-        min-width: 0 !important;
-      }
-      #maintenance-status {
-        display: block;
-        width: 100%;
-      }
-    }
-  </style>
+  <link rel="stylesheet" href="../assets/css/admin.css?v=20260902-reset1">
+  <link rel="stylesheet" href="../assets/css/admin-shell.css?v=20260902-reset1">
+  <link rel="stylesheet" href="../assets/css/plain.css?v=20260902-reset1">
 </head>
 <body class="dashboard-page admin-control-center">
 <div class="dashboard-shell">
-  <aside class="sidebar">
-    <div><div class="sidebar-brand">BRGYWEB-LITE</div><div class="sidebar-role">System Admin</div></div>
-    <nav class="sidebar-nav mt-4">
-      <a href="dashboard.html">Dashboard</a>
-      <a href="announcements.html">Announcements</a>
-      <a href="officials.html">Officials</a>
-      <a href="services.html">Services</a>
-      <a href="directory.html">Directory</a>
-      <a href="disclosure.html">Disclosure</a>
-      <a href="gallery.html">Gallery</a>
-      <a href="profile.html">Barangay Profile</a>
-      <a href="verification.html">Verification / QR</a>
-      <a class="active" href="settings.html">Site Settings</a>
-      <a href="design-studio.html">Design Studio</a>
-      <a href="editors.html">Content Admin Accounts</a>
-      <button class="btn btn-link text-white text-start text-decoration-none px-2 py-2 w-100" type="button" id="admin-signout">Sign out</button>
-    </nav>
-    <a class="sidebar-exit" href="../index.html">View public site</a>
-  </aside>
-
+  <aside class="sidebar"></aside>
   <main class="dashboard-main">
     <header class="dashboard-topbar">
       <div>
@@ -78,18 +19,17 @@
         <h1 class="h3 mb-1">Site Settings</h1>
         <p class="text-secondary mb-0">Manage barangay identity, contact details, logo, map, homepage text, and public availability.</p>
       </div>
-      <a class="btn btn-outline-success" href="design-studio.html">Open Design Studio</a>
     </header>
 
     <section class="dashboard-section">
-      <div class="section-card border" id="maintenance-control">
+      <div class="section-card" id="maintenance-control">
         <div class="section-card-head align-items-start">
           <div>
             <span class="eyebrow">Public Availability</span>
             <h2 class="h5 mb-1">Maintenance Mode</h2>
-            <p class="text-secondary mb-0">Temporarily replace all public pages with a professional maintenance notice while staff pages remain accessible.</p>
+            <p class="text-secondary mb-0">Temporarily replace all public pages with a maintenance notice while staff pages remain accessible.</p>
           </div>
-          <span id="maintenance-state" class="badge rounded-pill text-bg-secondary">Checking</span>
+          <span id="maintenance-state" class="badge">Checking</span>
         </div>
         <div class="row g-3 mt-1">
           <div class="col-md-5">
@@ -101,17 +41,16 @@
             <textarea class="form-control" id="maintenance-message" rows="2" maxlength="500">The barangay website is temporarily undergoing maintenance and improvements. Please check back shortly.</textarea>
           </div>
           <div class="col-12 d-flex flex-wrap align-items-center gap-3">
-            <button class="btn btn-warning" id="maintenance-toggle" type="button">Enable Maintenance Mode</button>
+            <button class="btn btn-dark" id="maintenance-toggle" type="button">Enable Maintenance Mode</button>
             <span class="small text-secondary" id="maintenance-status" role="status" aria-live="polite">Loading maintenance status...</span>
           </div>
         </div>
-        <div class="alert alert-light border small mb-0 mt-3 py-2 px-3"><strong>Staff access stays available.</strong> System Admin and Content Admin login/dashboard pages are not blocked by Maintenance Mode.</div>
+        <div class="alert small mb-0 mt-3"><strong>Staff access stays available.</strong> System Admin and Content Admin login/dashboard pages are not blocked by Maintenance Mode.</div>
       </div>
     </section>
 
     <section class="dashboard-section mb-0">
       <div class="section-card">
-        <div class="alert alert-light border mb-3 py-2 px-3 small">Colors, navigation layouts, presets, cards, spacing and other visual styles are managed only in <a href="design-studio.html" class="fw-semibold">Design Studio</a>.</div>
         <form id="site-settings-form" class="row g-3">
           <div class="col-md-6">
             <label class="form-label" for="setting-barangay-name">Barangay Name</label>
@@ -120,16 +59,16 @@
 
           <div class="col-md-6">
             <label class="form-label" for="setting-logo-file">Barangay Logo</label>
-            <div class="border rounded-3 p-3 bg-light-subtle">
+            <div class="border p-3">
               <div class="d-flex align-items-center gap-3 flex-wrap">
-                <div class="bg-white border rounded-3 d-grid" style="width:88px;height:88px;place-items:center;overflow:hidden">
+                <div class="bg-white border d-grid" style="width:88px;height:88px;place-items:center;overflow:hidden">
                   <img id="setting-logo-preview" class="d-none" alt="Current barangay logo" style="width:100%;height:100%;object-fit:contain;padding:6px">
                   <span id="setting-logo-empty" class="small text-secondary text-center px-2">No logo</span>
                 </div>
                 <div class="flex-grow-1">
                   <input class="form-control" id="setting-logo-file" type="file" accept="image/png,image/jpeg,image/webp">
                   <div class="form-text">PNG, JPG, or WebP. Maximum 2 MB.</div>
-                  <button class="btn btn-sm btn-outline-danger mt-2 d-none" id="setting-logo-remove" type="button">Remove logo</button>
+                  <button class="btn btn-sm btn-outline-dark mt-2 d-none" id="setting-logo-remove" type="button">Remove logo</button>
                 </div>
               </div>
             </div>
@@ -145,7 +84,7 @@
           <div class="col-12">
             <label class="form-label" for="setting-map">Google Maps Location</label>
             <input class="form-control" id="setting-map" type="text" inputmode="url" placeholder="Paste the Google Maps place link or embed code">
-            <div class="form-text">You can paste a normal Google Maps place URL or the iframe embed code. The website converts supported Google Maps links automatically.</div>
+            <div class="form-text">You can paste a normal Google Maps place URL or the iframe embed code.</div>
           </div>
           <div class="col-12"><label class="form-label" for="setting-hero-title">Homepage Hero Title</label><input class="form-control" id="setting-hero-title" required></div>
           <div class="col-12"><label class="form-label" for="setting-hero-text">Homepage Hero Text</label><textarea class="form-control" id="setting-hero-text" rows="3"></textarea></div>
@@ -160,7 +99,7 @@
   </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../assets/js/supabase-config.js?v=20260901-gov7"></script>
+<script src="../assets/js/supabase-config.js?v=20260902-reset1"></script>
 <script src="../assets/js/admin-logo-upload.js?v=20260901-map2"></script>
 <script src="../assets/js/admin.js?v=20260901-map2"></script>
 <script src="../assets/js/admin-map-settings.js?v=20260901-map2"></script>
