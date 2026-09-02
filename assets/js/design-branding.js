@@ -5,8 +5,6 @@
   const nameInput = document.getElementById('system-brand-name');
   const taglineInput = document.getElementById('system-brand-tagline');
   const logoUrlInput = document.getElementById('system-brand-logo-url');
-  const logoFileInput = document.getElementById('system-brand-logo-file');
-  const logoRemoveButton = document.getElementById('system-brand-logo-remove');
   const saveButton = document.getElementById('system-brand-save');
   const resetButton = document.getElementById('system-brand-reset');
   const status = document.getElementById('system-brand-status');
@@ -15,7 +13,29 @@
   const previewTagline = document.getElementById('system-brand-preview-tagline');
   const designForm = document.getElementById('design-studio-form');
   const designChangeState = document.getElementById('design-change-state');
-  if (!nameInput || !taglineInput || !logoUrlInput || !logoFileInput || !saveButton) return;
+  if (!nameInput || !taglineInput || !logoUrlInput || !saveButton) return;
+
+  const logoField = logoUrlInput.closest('.system-brand-field');
+  logoUrlInput.type = 'hidden';
+  logoUrlInput.removeAttribute('placeholder');
+  const logoFileInput = document.createElement('input');
+  logoFileInput.id = 'system-brand-logo-file';
+  logoFileInput.type = 'file';
+  logoFileInput.accept = 'image/png,image/jpeg,image/webp';
+  logoFileInput.setAttribute('aria-label', 'Upload system logo');
+  const logoRemoveButton = document.createElement('button');
+  logoRemoveButton.id = 'system-brand-logo-remove';
+  logoRemoveButton.type = 'button';
+  logoRemoveButton.className = 'btn btn-sm btn-outline-danger d-none mt-2';
+  logoRemoveButton.textContent = 'Remove Logo';
+  if (logoField) {
+    const title = logoField.querySelector('span');
+    const help = logoField.querySelector('small');
+    if (title) title.textContent = 'System Logo';
+    if (help) help.textContent = 'PNG, JPG, or WebP. Maximum 2 MB.';
+    logoField.insertBefore(logoFileInput, help || null);
+    logoField.appendChild(logoRemoveButton);
+  }
 
   const CACHE_KEY = 'brgyweb:system-brand:v1';
   const DEFAULTS = { name:'BRGYWEB-LITE', tagline:'Administration Access', logoUrl:'' };
@@ -90,7 +110,7 @@
     previewName.textContent = brand.name;
     previewTagline.textContent = brand.tagline;
     renderLogo(brand.logoUrl, brand.name);
-    logoRemoveButton?.classList.toggle('d-none', !brand.logoUrl);
+    logoRemoveButton.classList.toggle('d-none', !brand.logoUrl);
   }
 
   function previewFromInputs() {
@@ -216,10 +236,10 @@
     selectedFile = file;
     previewObjectUrl = URL.createObjectURL(file);
     renderLogo(previewObjectUrl, nameInput.value);
-    logoRemoveButton?.classList.remove('d-none');
+    logoRemoveButton.classList.remove('d-none');
     setStatus('New logo selected. Save Branding to upload it.');
   });
-  logoRemoveButton?.addEventListener('click', () => {
+  logoRemoveButton.addEventListener('click', () => {
     clearObjectPreview();
     selectedFile = null;
     removeRequested = true;
