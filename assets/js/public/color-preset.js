@@ -2,7 +2,7 @@
 (() => {
   'use strict';
 
-  const DEFAULT_PRESET = 'civic-blue';
+  const DEFAULT_PRESET = 'heritage-green';
   const ALLOWED = new Set(['civic-blue','heritage-green','public-maroon','executive-indigo']);
   const CACHE_KEY = 'brgyweb:color-preset:v1';
 
