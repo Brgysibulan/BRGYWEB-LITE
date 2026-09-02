@@ -1,4 +1,4 @@
-/* Keep admin navigation visually stable and hide half-initialized UI until the shared shell/theme are ready. */
+/* Stable admin boot: keep the primed sidebar mounted while only page content waits for async auth/theme/data. */
 @view-transition{navigation:auto}
 .sidebar{view-transition-name:admin-sidebar}
 
@@ -8,40 +8,84 @@ html:not([data-admin-ui-ready="true"]) body.dashboard-page{
   background:#f5f7f6!important;
 }
 
-/* Do not expose raw Bootstrap/page markup while async shell + theme assets are still resolving. */
-html:not([data-admin-ui-ready="true"]) body.dashboard-page .dashboard-shell,
-html:not([data-admin-ui-ready="true"]) body.dashboard-page>main{
+/* Never hide the whole dashboard shell: admin-shell-prime builds the sidebar synchronously.
+   Keeping it visible prevents the left rail from disappearing/reappearing on reload. */
+html:not([data-admin-ui-ready="true"])[data-admin-shell-primed="true"] body.dashboard-page .dashboard-shell{
+  visibility:visible!important;
+  opacity:1!important;
+}
+
+/* Only the changing page workspace is held back until shell + theme are ready. */
+html:not([data-admin-ui-ready="true"]) body.dashboard-page .dashboard-main,
+html:not([data-admin-ui-ready="true"]) body.dashboard-page>main:not(.dashboard-main){
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+
+/* Before prime has created the final shell, hide raw legacy page markup. */
+html:not([data-admin-ui-ready="true"]):not([data-admin-shell-primed="true"]) body.dashboard-page>main{
   visibility:hidden!important;
   opacity:0!important;
 }
 
-/* One calm boot surface instead of blank fields, shifting cards, or a partially rebuilt sidebar. */
-html:not([data-admin-ui-ready="true"]) body.dashboard-page::before{
-  content:'Loading workspace…';
-  position:fixed;
-  inset:0;
-  z-index:2147483646;
-  display:grid;
-  place-items:center;
-  padding:24px;
-  font:700 14px/1.4 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
-  letter-spacing:.01em;
-  color:#33413a;
-  background:#f5f7f6;
+/* Calm loading surface belongs to the workspace only on desktop, never over the sidebar. */
+@media(min-width:901px){
+  html:not([data-admin-ui-ready="true"])[data-admin-shell-primed="true"] body.dashboard-page::before{
+    content:'Loading workspace…';
+    position:fixed;
+    top:0;
+    right:0;
+    bottom:0;
+    left:238px;
+    z-index:1040;
+    display:grid;
+    place-items:center;
+    padding:24px;
+    font:700 14px/1.4 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    letter-spacing:.01em;
+    color:#33413a;
+    background:#f5f7f6;
+  }
+}
+
+/* On mobile the sidebar is an off-canvas panel, so use a full workspace curtain while booting. */
+@media(max-width:900px){
+  html:not([data-admin-ui-ready="true"]) body.dashboard-page::before{
+    content:'Loading workspace…';
+    position:fixed;
+    inset:0;
+    z-index:1040;
+    display:grid;
+    place-items:center;
+    padding:24px;
+    font:700 14px/1.4 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    letter-spacing:.01em;
+    color:#33413a;
+    background:#f5f7f6;
+  }
 }
 
 html[data-admin-ui-ready="true"] body.dashboard-page .dashboard-shell,
+html[data-admin-ui-ready="true"] body.dashboard-page .dashboard-main,
 html[data-admin-ui-ready="true"] body.dashboard-page>main{
   visibility:visible;
   opacity:1;
-  transition:opacity .14s ease-out;
 }
 
+/* Main content may fade very slightly; sidebar itself never animates on boot/navigation. */
+html[data-admin-ui-ready="true"] body.dashboard-page .dashboard-main{
+  transition:opacity .10s ease-out;
+}
 html[data-admin-ui-ready="true"] body.dashboard-page{
   overflow-x:hidden;
 }
 
-/* The left navigation should not fade or slide between document navigations. */
+.unified-admin-shell>.unified-sidebar,
+.dashboard-shell>.sidebar{
+  transition:none!important;
+}
+
 ::view-transition-old(admin-sidebar),
 ::view-transition-new(admin-sidebar){
   animation:none!important;
@@ -49,8 +93,7 @@ html[data-admin-ui-ready="true"] body.dashboard-page{
 }
 
 @media(prefers-reduced-motion:reduce){
-  html[data-admin-ui-ready="true"] body.dashboard-page .dashboard-shell,
-  html[data-admin-ui-ready="true"] body.dashboard-page>main{
+  html[data-admin-ui-ready="true"] body.dashboard-page .dashboard-main{
     transition:none!important;
   }
 }
