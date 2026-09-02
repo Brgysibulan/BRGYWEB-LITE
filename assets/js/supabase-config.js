@@ -37,20 +37,33 @@
 
   function syncReady(){const root=document.documentElement;if(root.dataset.adminShellReady==='true'&&root.dataset.adminThemeReady==='true')root.dataset.adminUiReady='true';}
   function markAssetFailure(kind){const root=document.documentElement;if(kind==='theme')root.dataset.adminThemeReady='true';if(kind==='shell')root.dataset.adminShellReady='true';syncReady();}
+  function absoluteAssetUrl(value){
+    try{return new URL(value,document.baseURI).href;}catch{return value;}
+  }
   function addStaffScript(src,dataKey){
-    if(document.querySelector(`script[${dataKey}]`))return null;
+    const absoluteSrc=absoluteAssetUrl(src);
+    const existing=Array.from(document.scripts).find((script)=>script.hasAttribute(dataKey)||script.src===absoluteSrc);
+    if(existing){
+      existing.setAttribute(dataKey,'true');
+      return null;
+    }
     const script=document.createElement('script');
-    script.src=src;
+    script.src=absoluteSrc;
     script.async=false;
     script.setAttribute(dataKey,'true');
     document.head.appendChild(script);
     return script;
   }
   function addStaffStyle(href,dataKey){
-    if(document.querySelector(`link[${dataKey}]`))return null;
+    const absoluteHref=absoluteAssetUrl(href);
+    const existing=Array.from(document.querySelectorAll('link[rel="stylesheet"]')).find((link)=>link.hasAttribute(dataKey)||link.href===absoluteHref);
+    if(existing){
+      existing.setAttribute(dataKey,'true');
+      return null;
+    }
     const link=document.createElement('link');
     link.rel='stylesheet';
-    link.href=href;
+    link.href=absoluteHref;
     link.setAttribute(dataKey,'true');
     document.head.appendChild(link);
     return link;
