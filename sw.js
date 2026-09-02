@@ -1,4 +1,4 @@
-const CACHE_NAME = 'brgyweb-runtime-v5-reset';
+const CACHE_NAME = 'brgyweb-runtime-v6-cssreset';
 const CACHE_PREFIX = 'brgyweb-runtime-';
 
 self.addEventListener('install', () => {
