@@ -23,3 +23,14 @@ html body [data-system-brand-logo].has-system-brand-logo{
   box-shadow:none!important;
   overflow:hidden;
 }
+
+/* Keep the sidebar identity clean: no card/box behind the logo, name and role.
+   A subtle divider keeps hierarchy without introducing another colored surface. */
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .unified-sidebar .sidebar-head,
+html body.dashboard-page .unified-sidebar .sidebar-head{
+  background:transparent!important;
+  box-shadow:none!important;
+  border:0!important;
+  border-bottom:1px solid color-mix(in srgb,currentColor 13%,transparent)!important;
+  border-radius:0!important;
+}
