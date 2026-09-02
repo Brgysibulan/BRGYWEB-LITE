@@ -7,7 +7,7 @@
   const status = document.getElementById('color-preset-status');
   if (!client || !form) return;
 
-  const DEFAULT_PRESET = 'civic-blue';
+  const DEFAULT_PRESET = 'heritage-green';
   const ALLOWED = new Set(['civic-blue','heritage-green','public-maroon','executive-indigo']);
 
   function setStatus(message, error = false) {
