@@ -11,6 +11,8 @@
   const previewLogo = document.getElementById('system-brand-preview-logo');
   const previewName = document.getElementById('system-brand-preview-name');
   const previewTagline = document.getElementById('system-brand-preview-tagline');
+  const designForm = document.getElementById('design-studio-form');
+  const designChangeState = document.getElementById('design-change-state');
   if (!nameInput || !taglineInput || !logoInput || !saveButton) return;
 
   const CACHE_KEY = 'brgyweb:system-brand:v1';
@@ -25,6 +27,10 @@
     let logoUrl = String(input.logoUrl || '').trim();
     if (logoUrl && !/^https:\/\//i.test(logoUrl)) logoUrl = '';
     return { name, tagline, logoUrl };
+  }
+
+  function sameBrand(a, b) {
+    return a?.name === b?.name && a?.tagline === b?.tagline && a?.logoUrl === b?.logoUrl;
   }
 
   function readCache() {
@@ -75,6 +81,20 @@
     }
   }
 
+  async function mergeBrandIntoLatest(brandInput, quiet = false) {
+    if (!client) return false;
+    const brand = normalize(brandInput);
+    const { data: current, error: readError } = await client.from('site_settings').select('design_theme').eq('id', 1).single();
+    if (readError) throw readError;
+    const existingBrand = normalize(current?.design_theme?.systemBrand || DEFAULTS);
+    if (sameBrand(existingBrand, brand)) return false;
+    const nextTheme = { ...(current?.design_theme || {}), systemBrand: brand };
+    const { error } = await client.from('site_settings').update({ design_theme: nextTheme, updated_at:new Date().toISOString() }).eq('id', 1);
+    if (error) throw error;
+    if (!quiet) setStatus('System branding saved.');
+    return true;
+  }
+
   async function load() {
     const cached = readCache();
     saved = cached;
@@ -100,11 +120,7 @@
     saveButton.disabled = true;
     setStatus('Saving branding…');
     try {
-      const { data: current, error: readError } = await client.from('site_settings').select('design_theme').eq('id', 1).single();
-      if (readError) throw readError;
-      const nextTheme = { ...(current?.design_theme || {}), systemBrand: brand };
-      const { error } = await client.from('site_settings').update({ design_theme: nextTheme, updated_at:new Date().toISOString() }).eq('id', 1);
-      if (error) throw error;
+      await mergeBrandIntoLatest(brand, true);
       saved = brand;
       try { localStorage.setItem(CACHE_KEY, JSON.stringify(brand)); } catch {}
       window.BRGY_SYSTEM_BRAND?.apply?.(brand);
@@ -118,9 +134,25 @@
     }
   }
 
+  async function preserveAfterDesignPublish() {
+    const started = Date.now();
+    while (Date.now() - started < 12000) {
+      await new Promise((resolve) => setTimeout(resolve, 350));
+      if (designChangeState?.textContent?.trim() !== 'Published design is active') continue;
+      try {
+        const changed = await mergeBrandIntoLatest(saved, true);
+        if (changed) window.BRGY_SYSTEM_BRAND?.apply?.(saved);
+      } catch (error) {
+        console.warn('Unable to preserve branding after design publish:', error);
+      }
+      return;
+    }
+  }
+
   [nameInput, taglineInput, logoInput].forEach((input) => input.addEventListener('input', previewFromInputs));
   saveButton.addEventListener('click', save);
   resetButton?.addEventListener('click', () => { render(saved); setStatus('Restored saved branding.'); });
+  designForm?.addEventListener('submit', () => { preserveAfterDesignPublish(); });
 
   load();
 })();
