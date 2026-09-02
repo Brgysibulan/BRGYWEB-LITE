@@ -4,7 +4,9 @@
   const client = window.BRGY_SUPABASE;
   const nameInput = document.getElementById('system-brand-name');
   const taglineInput = document.getElementById('system-brand-tagline');
-  const logoInput = document.getElementById('system-brand-logo-url');
+  const logoUrlInput = document.getElementById('system-brand-logo-url');
+  const logoFileInput = document.getElementById('system-brand-logo-file');
+  const logoRemoveButton = document.getElementById('system-brand-logo-remove');
   const saveButton = document.getElementById('system-brand-save');
   const resetButton = document.getElementById('system-brand-reset');
   const status = document.getElementById('system-brand-status');
@@ -13,11 +15,18 @@
   const previewTagline = document.getElementById('system-brand-preview-tagline');
   const designForm = document.getElementById('design-studio-form');
   const designChangeState = document.getElementById('design-change-state');
-  if (!nameInput || !taglineInput || !logoInput || !saveButton) return;
+  if (!nameInput || !taglineInput || !logoUrlInput || !logoFileInput || !saveButton) return;
 
   const CACHE_KEY = 'brgyweb:system-brand:v1';
   const DEFAULTS = { name:'BRGYWEB-LITE', tagline:'Administration Access', logoUrl:'' };
+  const BUCKET = 'branding-media';
+  const OBJECT_PATH = 'system/current';
+  const MAX_SIZE = 2 * 1024 * 1024;
+  const ALLOWED_TYPES = new Set(['image/png','image/jpeg','image/webp']);
   let saved = { ...DEFAULTS };
+  let selectedFile = null;
+  let previewObjectUrl = null;
+  let removeRequested = false;
 
   function normalize(input = {}) {
     const runtime = window.BRGY_SYSTEM_BRAND;
@@ -45,13 +54,25 @@
     status.classList.toggle('text-success', !error && Boolean(message));
   }
 
-  function currentForm() {
-    const rawLogo = logoInput.value.trim();
-    if (rawLogo && !/^https:\/\//i.test(rawLogo)) throw new Error('Logo URL must use HTTPS.');
+  function signalStorageChange(source) {
+    try { localStorage.setItem('brgyweb:storage-change:v1', JSON.stringify({ source, at:Date.now() })); } catch {}
+  }
+
+  function clearObjectPreview() {
+    if (previewObjectUrl) URL.revokeObjectURL(previewObjectUrl);
+    previewObjectUrl = null;
+  }
+
+  function renderLogo(src, name) {
+    if (src) previewLogo.innerHTML = `<img src="${src.replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;').replaceAll('>','&gt;')}" alt="">`;
+    else previewLogo.textContent = (String(name || 'B').charAt(0) || 'B').toUpperCase();
+  }
+
+  function currentForm(logoOverride) {
     const brand = normalize({
       name: nameInput.value.trim(),
       tagline: taglineInput.value.trim(),
-      logoUrl: rawLogo
+      logoUrl: logoOverride === undefined ? logoUrlInput.value.trim() : logoOverride
     });
     if (!brand.name) throw new Error('System name is required.');
     return brand;
@@ -59,22 +80,25 @@
 
   function render(brandInput) {
     const brand = normalize(brandInput);
+    clearObjectPreview();
+    selectedFile = null;
+    removeRequested = false;
+    logoFileInput.value = '';
     nameInput.value = brand.name;
     taglineInput.value = brand.tagline;
-    logoInput.value = brand.logoUrl;
+    logoUrlInput.value = brand.logoUrl;
     previewName.textContent = brand.name;
     previewTagline.textContent = brand.tagline;
-    if (brand.logoUrl) previewLogo.innerHTML = `<img src="${brand.logoUrl.replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;').replaceAll('>','&gt;')}" alt="">`;
-    else previewLogo.textContent = (brand.name.charAt(0) || 'B').toUpperCase();
+    renderLogo(brand.logoUrl, brand.name);
+    logoRemoveButton?.classList.toggle('d-none', !brand.logoUrl);
   }
 
   function previewFromInputs() {
     try {
-      const brand = currentForm();
+      const brand = currentForm(removeRequested ? '' : undefined);
       previewName.textContent = brand.name;
       previewTagline.textContent = brand.tagline;
-      if (brand.logoUrl) previewLogo.innerHTML = `<img src="${brand.logoUrl.replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;').replaceAll('>','&gt;')}" alt="">`;
-      else previewLogo.textContent = (brand.name.charAt(0) || 'B').toUpperCase();
+      if (!selectedFile) renderLogo(brand.logoUrl, brand.name);
       setStatus('');
     } catch (error) {
       setStatus(error.message, true);
@@ -93,6 +117,21 @@
     if (error) throw error;
     if (!quiet) setStatus('System branding saved.');
     return true;
+  }
+
+  async function uploadLogo(file) {
+    const { error } = await client.storage.from(BUCKET).upload(OBJECT_PATH, file, { upsert:true, cacheControl:'3600', contentType:file.type });
+    if (error) throw error;
+    signalStorageChange('system-logo-upload');
+    const { data } = client.storage.from(BUCKET).getPublicUrl(OBJECT_PATH);
+    if (!data?.publicUrl) throw new Error('Unable to generate system logo URL.');
+    return `${data.publicUrl}?v=${Date.now()}`;
+  }
+
+  async function removeLogoFile() {
+    const { error } = await client.storage.from(BUCKET).remove([OBJECT_PATH]);
+    if (error && !String(error.message || '').toLowerCase().includes('not found')) throw error;
+    if (!error) signalStorageChange('system-logo-remove');
   }
 
   async function load() {
@@ -114,12 +153,19 @@
 
   async function save() {
     if (!client) return setStatus('Supabase connection is unavailable.', true);
-    let brand;
-    try { brand = currentForm(); }
-    catch (error) { return setStatus(error.message, true); }
     saveButton.disabled = true;
     setStatus('Saving branding…');
     try {
+      let logoUrl = logoUrlInput.value.trim();
+      if (selectedFile) {
+        setStatus('Uploading system logo…');
+        logoUrl = await uploadLogo(selectedFile);
+      } else if (removeRequested) {
+        setStatus('Removing system logo…');
+        await removeLogoFile();
+        logoUrl = '';
+      }
+      const brand = currentForm(logoUrl);
       await mergeBrandIntoLatest(brand, true);
       saved = brand;
       try { localStorage.setItem(CACHE_KEY, JSON.stringify(brand)); } catch {}
@@ -149,10 +195,43 @@
     }
   }
 
-  [nameInput, taglineInput, logoInput].forEach((input) => input.addEventListener('input', previewFromInputs));
+  nameInput.addEventListener('input', previewFromInputs);
+  taglineInput.addEventListener('input', previewFromInputs);
+  logoFileInput.addEventListener('change', () => {
+    clearObjectPreview();
+    selectedFile = null;
+    removeRequested = false;
+    const file = logoFileInput.files?.[0] || null;
+    if (!file) { renderLogo(logoUrlInput.value.trim(), nameInput.value); return; }
+    if (!ALLOWED_TYPES.has(file.type)) {
+      logoFileInput.value = '';
+      setStatus('Logo must be PNG, JPG, or WebP.', true);
+      return;
+    }
+    if (file.size > MAX_SIZE) {
+      logoFileInput.value = '';
+      setStatus('Logo must be 2 MB or smaller.', true);
+      return;
+    }
+    selectedFile = file;
+    previewObjectUrl = URL.createObjectURL(file);
+    renderLogo(previewObjectUrl, nameInput.value);
+    logoRemoveButton?.classList.remove('d-none');
+    setStatus('New logo selected. Save Branding to upload it.');
+  });
+  logoRemoveButton?.addEventListener('click', () => {
+    clearObjectPreview();
+    selectedFile = null;
+    removeRequested = true;
+    logoFileInput.value = '';
+    renderLogo('', nameInput.value);
+    logoRemoveButton.classList.add('d-none');
+    setStatus('Logo will be removed when you Save Branding.');
+  });
   saveButton.addEventListener('click', save);
   resetButton?.addEventListener('click', () => { render(saved); setStatus('Restored saved branding.'); });
   designForm?.addEventListener('submit', () => { preserveAfterDesignPublish(); });
+  window.addEventListener('beforeunload', clearObjectPreview);
 
   load();
 })();
