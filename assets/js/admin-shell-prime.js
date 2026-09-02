@@ -15,7 +15,7 @@
   } catch {}
 
   const labels = {
-    'dashboard.html':'Dashboard','announcements.html':'Announcements','officials.html':'Officials','services.html':'Services','directory.html':'Directory','disclosure.html':'Disclosure','gallery.html':'Gallery','profile.html':'Barangay Profile','verification.html':'Verification / QR','settings.html':'Site Settings','design-studio.html':'Design Studio','editors.html':'Content Admin Access'
+    'dashboard.html':'Dashboard','announcements.html':'Announcements','officials.html':'Officials','services.html':'Services','directory.html':'Directory','disclosure.html':'Disclosure','gallery.html':'Gallery','profile.html':'Barangay Profile','verification.html':'Verification / QR','settings.html':'Site Settings','editors.html':'Content Admin Access'
   };
 
   const contentItems = [
@@ -23,8 +23,7 @@
     ['directory.html','Directory'],['disclosure.html','Disclosure'],['gallery.html','Gallery'],['profile.html','Barangay Profile']
   ];
   const adminItems = [
-    ['verification.html','Verification / QR'],['settings.html','Site Settings'],
-    ['design-studio.html','Design Studio'],['editors.html','Content Admin Access']
+    ['verification.html','Verification / QR'],['settings.html','Site Settings'],['editors.html','Content Admin Access']
   ];
 
   function hrefFor(target) {
@@ -57,7 +56,7 @@
     if (!nav.querySelector('[data-unified-signout]')) return false;
     if (!nav.querySelector('a[href$="announcements.html"]')) return false;
     if (!nav.querySelector('a[href$="officials.html"]')) return false;
-    if (role === 'admin' && !nav.querySelector('a[href$="design-studio.html"]')) return false;
+    if (role === 'admin' && !nav.querySelector('a[href$="settings.html"]')) return false;
     return true;
   }
 
