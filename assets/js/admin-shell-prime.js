@@ -46,6 +46,17 @@
     return `<div class="sidebar-head"><div class="sidebar-logo">B</div><div class="sidebar-identity"><div class="sidebar-brand">BRGYWEB-LITE</div><div class="sidebar-role-badge"><span class="sidebar-role-dot"></span><span class="sidebar-role">${roleLabel}</span></div></div><button class="admin-sidebar-collapse" type="button" data-admin-sidebar-collapse aria-label="Hide admin navigation" aria-expanded="true" title="Hide navigation">‹</button></div><nav class="sidebar-nav mt-3"><div class="sidebar-label">Overview</div>${navLink('dashboard.html','Dashboard')}<div class="sidebar-label">Content</div>${contentItems.map(([target,label])=>navLink(target,label)).join('')}${administration}<div class="sidebar-divider"></div><button class="unified-signout" type="button" data-unified-signout>Sign out</button></nav><a class="sidebar-exit" href="../index.html">View public site</a>`;
   }
 
+  function sidebarIsComplete(sidebar) {
+    if (!sidebar) return false;
+    const nav = sidebar.querySelector('.sidebar-nav');
+    if (!nav || !sidebar.querySelector('.sidebar-head')) return false;
+    if (!nav.querySelector('[data-unified-signout]')) return false;
+    if (!nav.querySelector('a[href$="announcements.html"]')) return false;
+    if (!nav.querySelector('a[href$="officials.html"]')) return false;
+    if (role === 'admin' && !nav.querySelector('a[href$="design-studio.html"]')) return false;
+    return true;
+  }
+
   function prime() {
     if (!document.body) return false;
     document.body.classList.add('dashboard-page');
@@ -75,7 +86,11 @@
     sidebar.className = 'sidebar unified-sidebar';
     main.classList.add('dashboard-main','admin-module-main');
     main.classList.remove('py-4','py-lg-5');
-    if (!sidebar.querySelector('.sidebar-nav')) sidebar.innerHTML = markup();
+
+    /* Legacy pages contain a tiny two-link sidebar. Replace that immediately,
+       before auth/theme/data, so the visible shell does not morph later. */
+    if (!sidebarIsComplete(sidebar)) sidebar.innerHTML = markup();
+
     document.documentElement.dataset.adminShellPrimed = 'true';
     document.documentElement.dataset.staffRole = role;
     return true;
