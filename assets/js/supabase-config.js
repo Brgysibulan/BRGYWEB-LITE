@@ -7,6 +7,7 @@
   const GOV_THEME_VERSION = '20260901-gov11';
   const HEADER_TEXT_VERSION = '20260901-header1';
   const ADMIN_SHELL_VERSION = '20260901nav3';
+  const SYSTEM_BRAND_VERSION = '20260902-brand1';
   const path = window.location.pathname;
   const isStaffPage = /\/(admin|editor)\//.test(path);
   const isAccessPage = /\/(admin|editor)\/(?:login|apply|activate)\.html$/.test(path);
@@ -136,6 +137,10 @@
     if(isDesignStudio)addStaffScript(new URL(`design-studio-header-text.js?v=${HEADER_TEXT_VERSION}`,thisScript).href,'data-brgy-design-studio-header-text');
   }
 
+  function loadSystemBrandAsset(){
+    addStaffScript(new URL(`system-brand-runtime.js?v=${SYSTEM_BRAND_VERSION}`,thisScript).href,'data-brgy-system-brand-runtime');
+  }
+
   if(!window.supabase||typeof window.supabase.createClient!=='function'){
     console.error('Supabase client library is not loaded.');
     return;
@@ -145,6 +150,7 @@
 
   /* Keep the current published Design Studio cache for an instant stable first paint; remove only obsolete schemas. */
   clearLegacyStaffThemeBootCache();
+  loadSystemBrandAsset();
   loadStaffAssets();
   loadGovernmentThemeAssets();
   loadHeaderTextAssets();
