@@ -78,79 +78,45 @@
 
   function ensureStyles() {
     if (stylesPromise) return stylesPromise;
-    stylesPromise = new Promise((resolve) => {
-      let link = document.querySelector('link[data-brgy-admin-shell]');
-      if (link) {
-        if (link.dataset.loaded === 'true' || link.sheet) { resolve(); return; }
-        link.addEventListener('load', () => { link.dataset.loaded = 'true'; resolve(); }, { once:true });
-        link.addEventListener('error', resolve, { once:true });
-        return;
-      }
-      link = document.createElement('link');
-      link.rel = 'stylesheet';
-      link.dataset.brgyAdminShell = 'true';
-      link.href = `../assets/css/admin-shell.css?v=${ASSET_VERSION}`;
-      link.addEventListener('load', () => { link.dataset.loaded = 'true'; resolve(); }, { once:true });
-      link.addEventListener('error', resolve, { once:true });
-      document.head.appendChild(link);
-      setTimeout(resolve, 2500);
-    });
+    stylesPromise = Promise.resolve();
     return stylesPromise;
   }
 
-  function hrefFor(target, role = currentRole) {
+  function hrefFor(target) {
     if (target === 'dashboard.html') {
-      if (role === 'editor') return inEditor ? 'dashboard.html' : '../editor/dashboard.html';
+      if (currentRole === 'editor') return inEditor ? 'dashboard.html' : '../editor/dashboard.html';
       return inAdmin ? 'dashboard.html' : '../admin/dashboard.html';
     }
     return inAdmin ? target : `../admin/${target}`;
   }
 
-  function isActive(target, role) {
-    if (target !== 'dashboard.html') return file === target;
-    if (role === 'editor') return inEditor && file === 'dashboard.html';
-    return inAdmin && file === 'dashboard.html';
-  }
-
-  function navLink(target, label, role) {
-    const active = isActive(target, role) ? ' active' : '';
-    return `<a class="${active.trim()}" href="${hrefFor(target,role)}"${active ? ' aria-current="page"' : ''}>${label}</a>`;
+  function navLink(target,label) {
+    const active = target === 'dashboard.html'
+      ? ((currentRole === 'editor' ? inEditor : inAdmin) && file === 'dashboard.html')
+      : file === target;
+    return `<a class="${active ? 'active' : ''}" href="${hrefFor(target)}"${active ? ' aria-current="page"' : ''}>${label}</a>`;
   }
 
   function sidebarMarkup(role) {
     const roleLabel = role === 'admin' ? 'System Admin' : 'Content Admin';
-    const administration = role === 'admin' ? `<div class="sidebar-label">Administration</div>${adminItems.map(([target,label]) => navLink(target,label,role)).join('')}` : '';
-    return `<div class="sidebar-head"><div class="sidebar-logo">B</div><div class="sidebar-identity"><div class="sidebar-brand">BRGYWEB-LITE</div><div class="sidebar-role-badge"><span class="sidebar-role-dot"></span><span class="sidebar-role">${roleLabel}</span></div></div><button class="admin-sidebar-collapse" type="button" data-admin-sidebar-collapse aria-label="Hide admin navigation" aria-expanded="true" title="Hide navigation">‹</button></div><nav class="sidebar-nav mt-3"><div class="sidebar-label">Overview</div>${navLink('dashboard.html','Dashboard',role)}<div class="sidebar-label">Content</div>${contentItems.map(([target,label]) => navLink(target,label,role)).join('')}${administration}<div class="sidebar-divider"></div><button class="unified-signout" type="button" data-unified-signout>Sign out</button></nav><a class="sidebar-exit" href="../index.html">View public site</a>`;
-  }
-
-  function preserveLegacyHooks(sidebar, main) {
-    if (!main) return;
-    let compat = main.querySelector(':scope > .admin-shell-compat');
-    if (!compat) {
-      compat = document.createElement('div');
-      compat.className = 'admin-shell-compat';
-      compat.hidden = true;
-      main.appendChild(compat);
-    }
-    const selector = '#admin-signout,#editor-signout,#profile-signout,#directory-signout';
-    [sidebar, main].filter(Boolean).forEach((root) => {
-      root.querySelectorAll(selector).forEach((node) => {
-        if (!compat.contains(node)) compat.appendChild(node);
-      });
-    });
+    const administration = role === 'admin'
+      ? `<div class="sidebar-label">Administration</div>${adminItems.map(([target,label])=>navLink(target,label)).join('')}`
+      : '';
+    return `<div class="sidebar-head"><div class="sidebar-logo">B</div><div class="sidebar-identity"><div class="sidebar-brand">BRGYWEB-LITE</div><div class="sidebar-role-badge"><span class="sidebar-role-dot"></span><span class="sidebar-role">${roleLabel}</span></div></div><button class="admin-sidebar-collapse" type="button" data-admin-sidebar-collapse aria-label="Hide admin navigation" aria-expanded="true" title="Hide navigation">‹</button></div><nav class="sidebar-nav mt-3"><div class="sidebar-label">Overview</div>${navLink('dashboard.html','Dashboard')}<div class="sidebar-label">Content</div>${contentItems.map(([target,label])=>navLink(target,label)).join('')}${administration}<div class="sidebar-divider"></div><button class="unified-signout" type="button" data-unified-signout>Sign out</button></nav><a class="sidebar-exit" href="../index.html">View public site</a>`;
   }
 
   function ensureLayout() {
-    document.body.classList.add('dashboard-page');
     let shell = document.querySelector('.dashboard-shell');
     let main;
     let sidebar;
-
     if (shell) {
       shell.classList.add('unified-admin-shell');
       main = shell.querySelector(':scope > main') || shell.querySelector('.dashboard-main');
       sidebar = shell.querySelector(':scope > .sidebar');
-      if (!sidebar) { sidebar = document.createElement('aside'); shell.prepend(sidebar); }
+      if (!sidebar) {
+        sidebar = document.createElement('aside');
+        shell.prepend(sidebar);
+      }
     } else {
       main = document.querySelector('body > main');
       if (!main) return null;
@@ -158,21 +124,20 @@
       shell.className = 'dashboard-shell unified-admin-shell';
       document.body.insertBefore(shell, main);
       sidebar = document.createElement('aside');
-      shell.appendChild(sidebar);
-      shell.appendChild(main);
+      shell.append(sidebar, main);
     }
-
-    if (!main) return null;
-    preserveLegacyHooks(sidebar, main);
+    if (!main || !sidebar) return null;
     sidebar.className = 'sidebar unified-sidebar';
     main.classList.add('dashboard-main','admin-module-main');
     main.classList.remove('py-4','py-lg-5');
 
     let overlay = document.querySelector('.admin-mobile-overlay');
     if (!overlay) {
-      overlay = document.createElement('div');
+      overlay = document.createElement('button');
+      overlay.type = 'button';
       overlay.className = 'admin-mobile-overlay';
       overlay.dataset.adminMenuClose = 'true';
+      overlay.setAttribute('aria-label','Close admin menu');
       overlay.setAttribute('aria-hidden','true');
       document.body.appendChild(overlay);
     }
@@ -339,6 +304,13 @@
     }
 
     if (!cached) render(inEditor ? 'editor' : 'admin');
+  }
+
+  /* If this file is loaded after the dashboard shell markup, build the final shell
+     immediately instead of waiting for DOMContentLoaded/auth. This prevents the
+     legacy horizontal sidebar from painting first on mobile/desktop-site reloads. */
+  if (document.body && document.querySelector('.dashboard-shell')) {
+    render(cachedRoleAtBoot || (inEditor ? 'editor' : 'admin'));
   }
 
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init, { once:true });
