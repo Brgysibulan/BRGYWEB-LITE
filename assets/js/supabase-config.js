@@ -7,6 +7,7 @@
   const GOV_THEME_VERSION = '20260901-gov11';
   const HEADER_TEXT_VERSION = '20260901-header1';
   const ADMIN_SHELL_VERSION = '20260901nav3';
+  const ADMIN_STEADY_VERSION = '20260902-steady2';
   const SYSTEM_BRAND_VERSION = '20260902-brand6';
   const path = window.location.pathname;
   const isStaffPage = /\/(admin|editor)\//.test(path);
@@ -66,7 +67,7 @@
     if(!isStaffPage)return;
     addStaffStyle(`../assets/css/premium-admin.css?v=${STAFF_ASSET_VERSION}`,'data-brgy-premium-admin');
     if(!isAccessPage){
-      addStaffStyle(`../assets/css/admin-steady-shell.css?v=${STAFF_ASSET_VERSION}`,'data-brgy-admin-steady-shell');
+      addStaffStyle(`../assets/css/admin-steady-shell.css?v=${ADMIN_STEADY_VERSION}`,'data-brgy-admin-steady-shell');
       addStaffStyle(`../assets/css/admin-shell.css?v=${ADMIN_SHELL_VERSION}`,'data-brgy-admin-shell');
       addStaffScript(`../assets/js/admin-shell-prime.js?v=${STAFF_ASSET_VERSION}`,'data-brgy-admin-shell-prime');
     }
