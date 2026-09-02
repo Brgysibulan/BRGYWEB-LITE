@@ -7,7 +7,7 @@
   const GOV_THEME_VERSION = '20260901-gov11';
   const HEADER_TEXT_VERSION = '20260901-header1';
   const ADMIN_SHELL_VERSION = '20260901nav3';
-  const SYSTEM_BRAND_VERSION = '20260902-brand1';
+  const SYSTEM_BRAND_VERSION = '20260902-brand2';
   const path = window.location.pathname;
   const isStaffPage = /\/(admin|editor)\//.test(path);
   const isAccessPage = /\/(admin|editor)\/(?:login|apply|activate)\.html$/.test(path);
@@ -58,6 +58,8 @@
   function ensureAuthorityLast(){
     const link=document.querySelector('link[data-brgy-government-theme-authority]');
     if(link&&link.parentNode===document.head)document.head.appendChild(link);
+    const brandLink=document.querySelector('link[data-brgy-system-brand-style]');
+    if(brandLink&&brandLink.parentNode===document.head)document.head.appendChild(brandLink);
   }
 
   function loadStaffAssets(){
@@ -138,6 +140,7 @@
   }
 
   function loadSystemBrandAsset(){
+    addStaffStyle(new URL(`../css/system-brand-logo.css?v=${SYSTEM_BRAND_VERSION}`,thisScript).href,'data-brgy-system-brand-style');
     addStaffScript(new URL(`system-brand-runtime.js?v=${SYSTEM_BRAND_VERSION}`,thisScript).href,'data-brgy-system-brand-runtime');
   }
 
