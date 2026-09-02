@@ -3,6 +3,8 @@
 
   const client = window.BRGY_SUPABASE;
   const CACHE_KEY = 'brgyweb:system-brand:v1';
+  const MAIN_COLOR_CACHE_KEY = 'brgyweb:system-brand-main:v1';
+  const DEFAULT_MAIN = '#0b2f21';
   const DEFAULTS = Object.freeze({ name: 'BRGYWEB-LITE', tagline: 'Administration Access', logoUrl: '' });
 
   function normalize(input = {}) {
@@ -13,6 +15,18 @@
     return { name, tagline, logoUrl };
   }
 
+  function normalizeHex(value, fallback = DEFAULT_MAIN) {
+    const text = String(value || '').trim();
+    return /^#[0-9a-f]{6}$/i.test(text) ? text.toLowerCase() : fallback;
+  }
+
+  function contrastText(hex) {
+    const value = normalizeHex(hex).slice(1);
+    const channels = [0,2,4].map((index) => parseInt(value.slice(index,index+2),16) / 255).map((channel) => channel <= 0.03928 ? channel / 12.92 : ((channel + 0.055) / 1.055) ** 2.4);
+    const luminance = 0.2126 * channels[0] + 0.7152 * channels[1] + 0.0722 * channels[2];
+    return luminance > 0.42 ? '#17201a' : '#ffffff';
+  }
+
   function readCache() {
     try { return normalize(JSON.parse(localStorage.getItem(CACHE_KEY) || 'null') || {}); }
     catch { return { ...DEFAULTS }; }
@@ -20,6 +34,21 @@
 
   function writeCache(brand) {
     try { localStorage.setItem(CACHE_KEY, JSON.stringify(normalize(brand))); } catch {}
+  }
+
+  function readMainColorCache() {
+    try { return normalizeHex(localStorage.getItem(MAIN_COLOR_CACHE_KEY) || DEFAULT_MAIN); }
+    catch { return DEFAULT_MAIN; }
+  }
+
+  function applyMainColor(value) {
+    const main = normalizeHex(value);
+    const onMain = contrastText(main);
+    const root = document.documentElement;
+    root.style.setProperty('--system-brand-main', main);
+    root.style.setProperty('--system-brand-on-main', onMain);
+    try { localStorage.setItem(MAIN_COLOR_CACHE_KEY, main); } catch {}
+    return main;
   }
 
   function bindLogoTheme(node, hasImage) {
@@ -32,12 +61,10 @@
       node.style.removeProperty('box-shadow');
       return;
     }
-    /* One color source only: the coded mark follows Design Studio Main Color.
-       Separation comes from a thin contrast outline, not a second brand color. */
-    node.style.setProperty('background', 'var(--brand-primary, var(--theme-primary, var(--gov-primary, #0b2f21)))');
-    node.style.setProperty('color', 'var(--brand-on-primary, var(--gov-on-primary, #ffffff))');
-    node.style.setProperty('border', '1px solid color-mix(in srgb, var(--brand-on-primary, var(--gov-on-primary, #ffffff)) 34%, transparent)');
-    node.style.setProperty('box-shadow', 'inset 0 0 0 1px color-mix(in srgb, var(--brand-on-primary, var(--gov-on-primary, #ffffff)) 10%, transparent)');
+    node.style.setProperty('background', 'var(--system-brand-main)');
+    node.style.setProperty('color', 'var(--system-brand-on-main)');
+    node.style.setProperty('border', '1px solid color-mix(in srgb, var(--system-brand-on-main) 42%, transparent)');
+    node.style.setProperty('box-shadow', 'inset 0 0 0 1px color-mix(in srgb, var(--system-brand-on-main) 10%, transparent)');
   }
 
   function mark(node, brand) {
@@ -68,6 +95,7 @@
     return brand;
   }
 
+  applyMainColor(readMainColorCache());
   let current = apply(readCache());
 
   const observer = new MutationObserver((records) => {
@@ -87,7 +115,9 @@
     try {
       const { data, error } = await client.from('site_settings').select('design_theme').eq('id', 1).single();
       if (error) throw error;
-      const next = normalize(data?.design_theme?.systemBrand || DEFAULTS);
+      const savedTheme = data?.design_theme || {};
+      applyMainColor(savedTheme?.public?.colors?.primary || DEFAULT_MAIN);
+      const next = normalize(savedTheme?.systemBrand || DEFAULTS);
       writeCache(next);
       current = apply(next);
     } catch (error) {
@@ -101,7 +131,8 @@
     cached: readCache,
     apply(brand) { current = apply(brand); writeCache(current); return current; },
     refresh,
-    normalize
+    normalize,
+    applyMainColor
   };
 
   refresh();
