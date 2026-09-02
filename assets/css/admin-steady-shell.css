@@ -96,6 +96,49 @@ html[data-admin-ui-ready="true"] body.dashboard-page{
   mix-blend-mode:normal;
 }
 
+/* Design Studio has one boot authority here instead of inline HTML CSS.
+   Keep its raw editor hidden until the saved design + final shell are ready. */
+html.design-studio-booting body.dashboard-page{
+  min-height:100vh!important;
+  overflow:hidden!important;
+  background:#f5f7f6!important;
+}
+html.design-studio-booting body.dashboard-page .gov-studio-main{
+  visibility:hidden!important;
+  opacity:0!important;
+  pointer-events:none!important;
+}
+html.design-studio-booting body.dashboard-page::after{
+  content:none!important;
+  display:none!important;
+}
+html.design-studio-booting body.dashboard-page::before{
+  content:'Loading Design Studio…'!important;
+  visibility:visible!important;
+  position:fixed!important;
+  z-index:1040!important;
+  display:grid!important;
+  place-items:center!important;
+  padding:24px!important;
+  font:700 14px/1.4 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif!important;
+  letter-spacing:.01em!important;
+  color:#33413a!important;
+  background:#f5f7f6!important;
+}
+@media(min-width:901px){
+  html.design-studio-booting body.dashboard-page::before{
+    top:0!important;
+    right:0!important;
+    bottom:0!important;
+    left:238px!important;
+  }
+}
+@media(max-width:900px){
+  html.design-studio-booting body.dashboard-page::before{
+    inset:0!important;
+  }
+}
+
 @media(prefers-reduced-motion:reduce){
   html[data-admin-ui-ready="true"] body.dashboard-page .dashboard-main{
     transition:none!important;
