@@ -28,14 +28,16 @@
       node.style.removeProperty('background');
       node.style.removeProperty('background-color');
       node.style.removeProperty('color');
-      node.style.removeProperty('border-color');
+      node.style.removeProperty('border');
+      node.style.removeProperty('box-shadow');
       return;
     }
-    /* The coded fallback logo has no independent color setting. It follows the
-       published Design Studio Main Color and its automatic contrast token only. */
+    /* One color source only: the coded mark follows Design Studio Main Color.
+       Separation comes from a thin contrast outline, not a second brand color. */
     node.style.setProperty('background', 'var(--brand-primary, var(--theme-primary, var(--gov-primary, #0b2f21)))');
     node.style.setProperty('color', 'var(--brand-on-primary, var(--gov-on-primary, #ffffff))');
-    node.style.setProperty('border-color', 'color-mix(in srgb, currentColor 18%, transparent)');
+    node.style.setProperty('border', '1px solid color-mix(in srgb, var(--brand-on-primary, var(--gov-on-primary, #ffffff)) 34%, transparent)');
+    node.style.setProperty('box-shadow', 'inset 0 0 0 1px color-mix(in srgb, var(--brand-on-primary, var(--gov-on-primary, #ffffff)) 10%, transparent)');
   }
 
   function mark(node, brand) {
