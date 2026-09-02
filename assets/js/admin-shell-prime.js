@@ -14,6 +14,10 @@
     if (cached === 'admin' || cached === 'editor') role = cached;
   } catch {}
 
+  const labels = {
+    'dashboard.html':'Dashboard','announcements.html':'Announcements','officials.html':'Officials','services.html':'Services','directory.html':'Directory','disclosure.html':'Disclosure','gallery.html':'Gallery','profile.html':'Barangay Profile','verification.html':'Verification / QR','settings.html':'Site Settings','design-studio.html':'Design Studio','editors.html':'Content Admin Access'
+  };
+
   const contentItems = [
     ['announcements.html','Announcements'],['officials.html','Officials'],['services.html','Services'],
     ['directory.html','Directory'],['disclosure.html','Disclosure'],['gallery.html','Gallery'],['profile.html','Barangay Profile']
@@ -57,6 +61,38 @@
     return true;
   }
 
+  function ensureFinalShellExtras(main) {
+    if (!document.querySelector('.admin-mobile-overlay')) {
+      const overlay = document.createElement('button');
+      overlay.type = 'button';
+      overlay.className = 'admin-mobile-overlay';
+      overlay.dataset.adminMenuClose = 'true';
+      overlay.setAttribute('aria-label','Close admin menu');
+      overlay.setAttribute('aria-hidden','true');
+      document.body.appendChild(overlay);
+    }
+
+    if (!document.querySelector('[data-admin-sidebar-reopen]')) {
+      const reopen = document.createElement('button');
+      reopen.type = 'button';
+      reopen.className = 'admin-sidebar-reopen';
+      reopen.dataset.adminSidebarReopen = 'true';
+      reopen.setAttribute('aria-label','Show admin navigation');
+      reopen.setAttribute('aria-expanded','false');
+      reopen.title = 'Show navigation';
+      reopen.innerHTML = '<span aria-hidden="true">☰</span><span>Menu</span>';
+      document.body.appendChild(reopen);
+    }
+
+    if (!main.querySelector(':scope > .admin-mobile-bar')) {
+      const roleLabel = role === 'admin' ? 'System Admin' : 'Content Admin';
+      const mobile = document.createElement('div');
+      mobile.className = 'admin-mobile-bar';
+      mobile.innerHTML = `<button class="admin-mobile-menu-btn" type="button" aria-label="Open admin menu" aria-expanded="false" data-admin-menu-toggle>☰</button><div class="admin-mobile-title"><strong>${labels[file] || document.title || 'Admin Panel'}</strong><small data-mobile-role>${roleLabel}</small></div><a class="admin-mobile-public" href="../index.html">Public site</a>`;
+      main.prepend(mobile);
+    }
+  }
+
   function prime() {
     if (!document.body) return false;
     document.body.classList.add('dashboard-page');
@@ -87,9 +123,8 @@
     main.classList.add('dashboard-main','admin-module-main');
     main.classList.remove('py-4','py-lg-5');
 
-    /* Legacy pages contain a tiny two-link sidebar. Replace that immediately,
-       before auth/theme/data, so the visible shell does not morph later. */
     if (!sidebarIsComplete(sidebar)) sidebar.innerHTML = markup();
+    ensureFinalShellExtras(main);
 
     document.documentElement.dataset.adminShellPrimed = 'true';
     document.documentElement.dataset.staffRole = role;
