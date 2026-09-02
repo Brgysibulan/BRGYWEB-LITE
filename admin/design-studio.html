@@ -11,6 +11,8 @@
   </style>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.8/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="../assets/css/admin.css?v=20260901-gov9">
+  <link rel="stylesheet" href="../assets/css/admin-shell.css?v=20260901nav3">
+  <link rel="stylesheet" href="../assets/css/admin-steady-shell.css?v=20260902-steady2">
   <link rel="stylesheet" href="../assets/css/government-design-studio.css?v=20260901-gov9">
   <link rel="stylesheet" href="../assets/css/design-studio-layout-picker.css?v=20260901-layout1">
   <link rel="stylesheet" href="../assets/css/design-studio-custom-colors.css?v=20260901-colors1">
@@ -165,6 +167,7 @@
   </main>
 </div>
 
+<script src="../assets/js/admin-shell-prime.js?v=20260901-gov11"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="../assets/js/supabase-config.js?v=20260902-brand1"></script>
 <script src="../assets/js/design-branding.js?v=20260902-brand2"></script>
@@ -172,12 +175,20 @@
 <script>
   (()=>{
     const root=document.documentElement;
-    const reveal=()=>root.classList.remove('design-studio-booting');
+    const reveal=()=>{
+      requestAnimationFrame(()=>requestAnimationFrame(()=>root.classList.remove('design-studio-booting')));
+    };
     const started=Date.now();
     const check=()=>{
       const layouts=document.getElementById('web-layout-grid');
       const colors=document.getElementById('custom-color-grid');
-      if((layouts?.children.length&&colors?.children.length)||Date.now()-started>8000){reveal();return;}
+      const status=document.getElementById('design-studio-status');
+      const cardsReady=Boolean(layouts?.children.length&&colors?.children.length);
+      const designReady=Boolean(status&&status.textContent&&!/loading published design/i.test(status.textContent));
+      const shellReady=root.dataset.adminUiReady==='true';
+      const mobileShellReady=window.matchMedia('(max-width:900px)').matches?Boolean(document.querySelector('.admin-mobile-bar')):true;
+      if(cardsReady&&designReady&&shellReady&&mobileShellReady){reveal();return;}
+      if(Date.now()-started>10000){reveal();return;}
       setTimeout(check,50);
     };
     check();
