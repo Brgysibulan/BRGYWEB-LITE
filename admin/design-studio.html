@@ -14,6 +14,7 @@
   <link rel="stylesheet" href="../assets/css/government-design-studio.css?v=20260901-gov9">
   <link rel="stylesheet" href="../assets/css/design-studio-layout-picker.css?v=20260901-layout1">
   <link rel="stylesheet" href="../assets/css/design-studio-custom-colors.css?v=20260901-colors1">
+  <link rel="stylesheet" href="../assets/css/design-studio-branding.css?v=20260902-brand1">
   <link rel="stylesheet" href="../assets/css/design-studio-mobile-fix.css?v=20260901-mobile1">
 </head>
 <body class="dashboard-page admin-control-center">
@@ -24,7 +25,7 @@
       <div>
         <span class="gov-studio-kicker">Government Design Studio</span>
         <h1>Choose the layout. Choose your four colors.</h1>
-        <p>Website structure and branding are controlled separately. Pick a responsive layout, then set the exact four colors you want for the whole barangay system.</p>
+        <p>Website structure, colors and system branding are controlled here. Keep the barangay site reusable without editing code.</p>
       </div>
       <div class="gov-studio-actions" aria-label="Open live surfaces">
         <a class="btn btn-outline-light" href="../index.html" target="_blank" rel="noopener">Public Site ↗</a>
@@ -44,6 +45,38 @@
             <span class="gov-count">12 layouts</span>
           </div>
           <div class="web-layout-grid" id="web-layout-grid" aria-label="Website layout choices"></div>
+        </section>
+
+        <section class="gov-section system-brand-section" aria-label="System branding">
+          <div class="gov-section-head">
+            <div>
+              <span class="gov-studio-kicker gov-accent-copy">System Branding</span>
+              <h2>Change the BRGYWEB-LITE identity</h2>
+              <p>Customize the reusable system name, tagline and logo shown on Login and Admin surfaces. This is separate from the barangay public logo.</p>
+            </div>
+            <span class="gov-count">Reusable</span>
+          </div>
+          <div class="system-brand-grid">
+            <div class="system-brand-fields">
+              <label class="system-brand-field"><span>System Name</span><input id="system-brand-name" type="text" maxlength="60" value="BRGYWEB-LITE" autocomplete="off"><small>Example: BRGYWEB-LITE, Barangay Portal, or your own product name.</small></label>
+              <label class="system-brand-field"><span>Tagline</span><input id="system-brand-tagline" type="text" maxlength="100" value="Administration Access" autocomplete="off"><small>Short supporting text for login and system identity.</small></label>
+              <label class="system-brand-field"><span>Logo URL</span><input id="system-brand-logo-url" type="url" inputmode="url" placeholder="https://..." autocomplete="off"><small>Optional HTTPS image URL. Leave blank to use the first letter of the system name.</small></label>
+            </div>
+            <div class="system-brand-preview" aria-label="System branding preview">
+              <div class="system-brand-preview-inner">
+                <div class="system-brand-preview-logo" id="system-brand-preview-logo">B</div>
+                <strong id="system-brand-preview-name">BRGYWEB-LITE</strong>
+                <small id="system-brand-preview-tagline">Administration Access</small>
+              </div>
+            </div>
+          </div>
+          <div class="system-brand-actions">
+            <span id="system-brand-status" aria-live="polite">Branding is stored separately from layout and colors.</span>
+            <div class="d-flex gap-2">
+              <button class="btn btn-outline-primary" id="system-brand-reset" type="button">Restore Saved</button>
+              <button class="btn btn-primary" id="system-brand-save" type="button">Save Branding</button>
+            </div>
+          </div>
         </section>
 
         <section class="gov-section custom-color-section">
@@ -133,7 +166,8 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../assets/js/supabase-config.js?v=20260901-gov9"></script>
+<script src="../assets/js/supabase-config.js?v=20260902-brand1"></script>
+<script src="../assets/js/design-branding.js?v=20260902-brand2"></script>
 <script src="../assets/js/design-studio.js?v=20260901-colors1"></script>
 <script>
   (()=>{
