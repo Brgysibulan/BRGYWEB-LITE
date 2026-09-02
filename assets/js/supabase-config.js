@@ -7,7 +7,7 @@
   const GOV_THEME_VERSION = '20260901-gov11';
   const HEADER_TEXT_VERSION = '20260901-header1';
   const ADMIN_SHELL_VERSION = '20260901nav3';
-  const SYSTEM_BRAND_VERSION = '20260902-brand2';
+  const SYSTEM_BRAND_VERSION = '20260902-brand3';
   const path = window.location.pathname;
   const isStaffPage = /\/(admin|editor)\//.test(path);
   const isAccessPage = /\/(admin|editor)\/(?:login|apply|activate)\.html$/.test(path);
