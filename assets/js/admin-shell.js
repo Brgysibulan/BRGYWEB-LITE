@@ -66,14 +66,14 @@
   let currentRole = cachedRoleAtBoot || (inEditor ? 'editor' : 'admin');
 
   const labels = {
-    'dashboard.html':'Dashboard','announcements.html':'Announcements','officials.html':'Officials','services.html':'Services','directory.html':'Directory','disclosure.html':'Disclosure','gallery.html':'Gallery','profile.html':'Barangay Profile','verification.html':'Verification / QR','settings.html':'Site Settings','design-studio.html':'Design Studio','editors.html':'Content Admin Access'
+    'dashboard.html':'Dashboard','announcements.html':'Announcements','officials.html':'Officials','services.html':'Services','directory.html':'Directory','disclosure.html':'Disclosure','gallery.html':'Gallery','profile.html':'Barangay Profile','verification.html':'Verification / QR','settings.html':'Site Settings','editors.html':'Content Admin Access'
   };
 
   const contentItems = [
     ['announcements.html','Announcements'],['officials.html','Officials'],['services.html','Services'],['directory.html','Directory'],['disclosure.html','Disclosure'],['gallery.html','Gallery'],['profile.html','Barangay Profile']
   ];
   const adminItems = [
-    ['verification.html','Verification / QR'],['settings.html','Site Settings'],['design-studio.html','Design Studio'],['editors.html','Content Admin Access']
+    ['verification.html','Verification / QR'],['settings.html','Site Settings'],['editors.html','Content Admin Access']
   ];
 
   function ensureStyles() {
@@ -306,9 +306,6 @@
     if (!cached) render(inEditor ? 'editor' : 'admin');
   }
 
-  /* If this file is loaded after the dashboard shell markup, build the final shell
-     immediately instead of waiting for DOMContentLoaded/auth. This prevents the
-     legacy horizontal sidebar from painting first on mobile/desktop-site reloads. */
   if (document.body && document.querySelector('.dashboard-shell')) {
     render(cachedRoleAtBoot || (inEditor ? 'editor' : 'admin'));
   }
