@@ -22,6 +22,22 @@
     try { localStorage.setItem(CACHE_KEY, JSON.stringify(normalize(brand))); } catch {}
   }
 
+  function bindLogoTheme(node, hasImage) {
+    if (!node) return;
+    if (hasImage) {
+      node.style.removeProperty('background');
+      node.style.removeProperty('background-color');
+      node.style.removeProperty('color');
+      node.style.removeProperty('border-color');
+      return;
+    }
+    /* The coded fallback logo has no independent color setting. It follows the
+       published Design Studio Main Color and its automatic contrast token only. */
+    node.style.setProperty('background', 'var(--brand-primary, var(--theme-primary, var(--gov-primary, #0b2f21)))');
+    node.style.setProperty('color', 'var(--brand-on-primary, var(--gov-on-primary, #ffffff))');
+    node.style.setProperty('border-color', 'color-mix(in srgb, currentColor 18%, transparent)');
+  }
+
   function mark(node, brand) {
     if (!node) return;
     if (node.matches?.('[data-system-brand-name],.sidebar-brand,.access-brand strong')) node.textContent = brand.name;
@@ -30,9 +46,11 @@
       if (brand.logoUrl) {
         node.innerHTML = `<img src="${brand.logoUrl.replaceAll('&','&amp;').replaceAll('"','&quot;').replaceAll('<','&lt;').replaceAll('>','&gt;')}" alt="" style="width:100%;height:100%;object-fit:contain;display:block">`;
         node.classList.add('has-system-brand-logo');
+        bindLogoTheme(node, true);
       } else {
         node.textContent = (brand.name.charAt(0) || 'B').toUpperCase();
         node.classList.remove('has-system-brand-logo');
+        bindLogoTheme(node, false);
       }
     }
   }
