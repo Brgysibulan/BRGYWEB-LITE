@@ -2,10 +2,10 @@
 .sidebar-logo:not(.has-system-brand-logo),
 .access-brand-mark:not(.has-system-brand-logo),
 [data-system-brand-logo]:not(.has-system-brand-logo){
-  background:var(--brand-primary,var(--theme-primary,var(--gov-primary,#0b2f21)))!important;
-  color:var(--brand-on-primary,var(--gov-on-primary,#fff))!important;
-  border:1px solid color-mix(in srgb,var(--brand-on-primary,var(--gov-on-primary,#fff)) 42%,transparent)!important;
-  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--brand-on-primary,var(--gov-on-primary,#fff)) 10%,transparent)!important;
+  background:var(--admin-primary,var(--theme-primary,var(--gov-primary,#0b2f21)))!important;
+  color:var(--admin-on-primary,var(--brand-on-primary,var(--gov-on-primary,#fff)))!important;
+  border:1px solid color-mix(in srgb,var(--admin-on-primary,var(--brand-on-primary,var(--gov-on-primary,#fff))) 42%,transparent)!important;
+  box-shadow:inset 0 0 0 1px color-mix(in srgb,var(--admin-on-primary,var(--brand-on-primary,var(--gov-on-primary,#fff))) 10%,transparent)!important;
 }
 .sidebar-logo.has-system-brand-logo,
 .access-brand-mark.has-system-brand-logo,
