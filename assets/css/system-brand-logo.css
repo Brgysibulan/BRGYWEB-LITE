@@ -24,12 +24,18 @@ html body [data-system-brand-logo].has-system-brand-logo{
   overflow:hidden;
 }
 
-/* Keep the sidebar identity clean: no card/box behind the logo, name and role.
-   A subtle divider keeps hierarchy without introducing another colored surface. */
+/* Sidebar identity is part of the sidebar itself, never a nested card/surface.
+   Override both the unified selector and the legacy first-child authority rule. */
 html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .unified-sidebar .sidebar-head,
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .sidebar.unified-sidebar > .sidebar-head:first-child,
+html[data-gov-theme][data-gov-theme-ready="true"] body.dashboard-page .sidebar.unified-sidebar > div:first-child,
+html body.dashboard-page .sidebar.unified-sidebar > .sidebar-head:first-child,
 html body.dashboard-page .unified-sidebar .sidebar-head{
   background:transparent!important;
+  background-color:transparent!important;
+  background-image:none!important;
   box-shadow:none!important;
+  outline:0!important;
   border:0!important;
   border-bottom:1px solid color-mix(in srgb,currentColor 13%,transparent)!important;
   border-radius:0!important;
