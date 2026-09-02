@@ -8,59 +8,10 @@
   <link rel="stylesheet" href="../assets/css/admin.css?v=20260901-gov7">
   <style>
     /* Keep access-management actions visible regardless of active admin theme. */
-    #content-admin-application-list [data-application-approve] {
-      display: inline-flex !important;
-      visibility: visible !important;
-      opacity: 1 !important;
-      align-items: center;
-      justify-content: center;
-      background: var(--admin-secondary, #198754) !important;
-      border-color: var(--admin-secondary, #198754) !important;
-      color: #fff !important;
-    }
-    #content-admin-application-list [data-application-reject] {
-      display: inline-flex !important;
-      visibility: visible !important;
-      opacity: 1 !important;
-      align-items: center;
-      justify-content: center;
-    }
-    #editor-list [data-editor-toggle],
-    #editor-list [data-editor-delete] {
-      display: inline-flex !important;
-      visibility: visible !important;
-      opacity: 1 !important;
-      align-items: center;
-      justify-content: center;
-    }
-
-    @media (max-width: 640px) {
-      html, body { max-width: 100%; overflow-x: hidden; }
-      .dashboard-main, .dashboard-section, .section-card, .content-admin-access-table { width: 100%; max-width: 100%; min-width: 0; }
-      .content-admin-access-table.table-responsive { overflow: visible; border: 0; background: transparent; box-shadow: none; }
-      .content-admin-access-table table, .content-admin-access-table tbody { display: block; width: 100% !important; max-width: 100% !important; min-width: 0 !important; }
-      .content-admin-access-table table { table-layout: fixed; }
-      .content-admin-access-table thead { display: none; }
-      .content-admin-access-table tbody tr { display: grid; grid-template-columns: minmax(0, 1fr); gap: .55rem; width: 100% !important; max-width: 100% !important; min-width: 0 !important; margin-bottom: .8rem; padding: .9rem; border: 1px solid var(--admin-premium-line, #dde5df); border-radius: 14px; background: #fff; box-shadow: 0 8px 22px rgba(17,44,26,.05); box-sizing: border-box; overflow: hidden; }
-      .content-admin-access-table tbody tr:last-child { margin-bottom: 0; }
-      .content-admin-access-table tbody td { display: block; width: 100%; max-width: 100%; min-width: 0 !important; padding: 0 !important; border: 0 !important; text-align: left !important; overflow-wrap: anywhere; }
-      .content-admin-access-table tbody td:nth-child(1) { font-size: 1rem; }
-      .content-admin-access-table tbody td:nth-child(2), .content-admin-access-table tbody td:nth-child(3) { color: #66736b; }
-      .content-admin-access-table tbody td:last-child { padding-top: .35rem !important; }
-      .content-admin-access-table tbody td:last-child > div { display: grid !important; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) !important; gap: .5rem !important; width: 100% !important; max-width: 100% !important; min-width: 0 !important; }
-      .content-admin-access-table tbody td:last-child .btn { display: inline-flex !important; visibility: visible !important; opacity: 1 !important; align-items: center; justify-content: center; width: 100% !important; max-width: 100% !important; min-width: 0 !important; min-height: 46px; margin: 0 !important; position: static !important; transform: none !important; }
-      #content-admin-application-list [data-application-approve] { grid-column: 1 !important; }
-      #content-admin-application-list [data-application-reject] { grid-column: 2 !important; }
-      #content-admin-application-list tr > td:nth-child(2)::before { content: "Reason / Role"; }
-      #content-admin-application-list tr > td:nth-child(3)::before { content: "Submitted"; }
-      #editor-list tr > td:nth-child(2)::before { content: "Email"; }
-      #editor-list tr > td:nth-child(3)::before { content: "Status"; }
-      #content-admin-application-list tr > td:nth-child(2)::before,
-      #content-admin-application-list tr > td:nth-child(3)::before,
-      #editor-list tr > td:nth-child(2)::before,
-      #editor-list tr > td:nth-child(3)::before { display: block; margin-bottom: .15rem; font-size: .64rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: #718078; }
-      .content-admin-access-table tbody tr > td[colspan] { padding: .25rem !important; }
-      .content-admin-access-table tbody tr > td[colspan]::before { display: none !important; }
+    #content-admin-application-list [data-application-approve] { display:inline-flex!important;visibility:visible!important;opacity:1!important;align-items:center;justify-content:center;background:var(--admin-secondary,#198754)!important;border-color:var(--admin-secondary,#198754)!important;color:#fff!important; }
+    #content-admin-application-list [data-application-reject], #editor-list [data-editor-toggle], #editor-list [data-editor-delete] { display:inline-flex!important;visibility:visible!important;opacity:1!important;align-items:center;justify-content:center; }
+    @media (max-width:640px) {
+      html,body{max-width:100%;overflow-x:hidden}.dashboard-main,.dashboard-section,.section-card,.content-admin-access-table{width:100%;max-width:100%;min-width:0}.content-admin-access-table.table-responsive{overflow:visible;border:0;background:transparent;box-shadow:none}.content-admin-access-table table,.content-admin-access-table tbody{display:block;width:100%!important;max-width:100%!important;min-width:0!important}.content-admin-access-table table{table-layout:fixed}.content-admin-access-table thead{display:none}.content-admin-access-table tbody tr{display:grid;grid-template-columns:minmax(0,1fr);gap:.55rem;width:100%!important;max-width:100%!important;min-width:0!important;margin-bottom:.8rem;padding:.9rem;border:1px solid var(--admin-premium-line,#dde5df);border-radius:14px;background:#fff;box-shadow:0 8px 22px rgba(17,44,26,.05);box-sizing:border-box;overflow:hidden}.content-admin-access-table tbody tr:last-child{margin-bottom:0}.content-admin-access-table tbody td{display:block;width:100%;max-width:100%;min-width:0!important;padding:0!important;border:0!important;text-align:left!important;overflow-wrap:anywhere}.content-admin-access-table tbody td:nth-child(1){font-size:1rem}.content-admin-access-table tbody td:nth-child(2),.content-admin-access-table tbody td:nth-child(3){color:#66736b}.content-admin-access-table tbody td:last-child{padding-top:.35rem!important}.content-admin-access-table tbody td:last-child>div{display:grid!important;grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;gap:.5rem!important;width:100%!important;max-width:100%!important;min-width:0!important}.content-admin-access-table tbody td:last-child .btn{display:inline-flex!important;visibility:visible!important;opacity:1!important;align-items:center;justify-content:center;width:100%!important;max-width:100%!important;min-width:0!important;min-height:46px;margin:0!important;position:static!important;transform:none!important}#content-admin-application-list [data-application-approve]{grid-column:1!important}#content-admin-application-list [data-application-reject]{grid-column:2!important}#content-admin-application-list tr>td:nth-child(2)::before{content:"Reason / Role"}#content-admin-application-list tr>td:nth-child(3)::before{content:"Submitted"}#editor-list tr>td:nth-child(2)::before{content:"Email"}#editor-list tr>td:nth-child(3)::before{content:"Status"}#content-admin-application-list tr>td:nth-child(2)::before,#content-admin-application-list tr>td:nth-child(3)::before,#editor-list tr>td:nth-child(2)::before,#editor-list tr>td:nth-child(3)::before{display:block;margin-bottom:.15rem;font-size:.64rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:#718078}.content-admin-access-table tbody tr>td[colspan]{padding:.25rem!important}.content-admin-access-table tbody tr>td[colspan]::before{display:none!important}
     }
   </style>
 </head>
@@ -74,18 +25,15 @@
     </nav>
     <a class="sidebar-exit" href="../index.html">View public site</a>
   </aside>
-
   <main class="dashboard-main">
     <header class="dashboard-topbar"><div><span class="eyebrow">Access Management</span><h1 class="h3 mb-1">Content Admin Access</h1><p class="text-secondary mb-0">Review applications and manage approved Content Admin accounts.</p></div></header>
-
     <section class="dashboard-section"><div class="section-card"><div class="section-card-head"><div><span class="eyebrow">Applications</span><h2 class="h5 mb-1">Pending Approval</h2><p class="text-secondary mb-0">Applicants request access from the Content Admin login page. Approving creates or activates the account.</p></div><span class="badge text-bg-light border" id="content-admin-pending-count">Loading</span></div><div id="content-admin-application-status" class="small text-secondary mt-3" role="status" aria-live="polite"></div><div class="table-responsive mt-3 content-admin-access-table"><table class="table align-middle mb-0"><thead><tr><th>Applicant</th><th>Reason / Role</th><th>Submitted</th><th class="text-end">Decision</th></tr></thead><tbody id="content-admin-application-list"><tr><td colspan="4" class="text-secondary">Loading applications…</td></tr></tbody></table></div></div></section>
-
     <section class="dashboard-section mb-0"><div class="section-card"><div class="section-card-head"><div><span class="eyebrow">Approved Accounts</span><h2 class="h5 mb-1">Content Admin Accounts</h2><p class="text-secondary mb-0">Enable, disable, or permanently delete Content Admin login accounts. Delete requires email confirmation.</p></div></div><div id="editor-manage-status" class="small text-secondary mt-3" role="status" aria-live="polite"></div><div class="table-responsive mt-3 content-admin-access-table"><table class="table align-middle mb-0"><thead><tr><th>Name</th><th>Email</th><th>Status</th><th class="text-end">Action</th></tr></thead><tbody id="editor-list"><tr><td colspan="4" class="text-secondary">Loading Content Admin accounts…</td></tr></tbody></table></div></div></section>
   </main>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="../assets/js/supabase-config.js?v=20260901-gov7"></script>
-<script src="../assets/js/admin.js?v=20260901-studio10"></script>
-<script src="../assets/js/content-admin-approvals.js?v=20260901-approve3"></script>
+<script src="../assets/js/core/supabase-config.js?v=20260902-structure10"></script>
+<script src="../assets/js/admin/dashboard.js?v=20260902-structure10"></script>
+<script src="../assets/js/admin/editor-access.js?v=20260902-structure10"></script>
 </body>
 </html>
